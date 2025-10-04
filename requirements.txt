@@ -1,0 +1,20 @@
+# ---- Python バージョン ----
+# このファイルは Python 3.12 用です
+
+# ---- Webアプリ関連 ----
+Flask==3.0.3
+Werkzeug==3.0.3
+Jinja2==3.1.4
+
+# ---- PostgreSQL接続関連 ----
+psycopg2-binary==2.9.9
+
+# ---- Flask拡張（セッション・フォームなど）----
+Flask-Session==0.8.0
+
+# ---- データ操作・補助 ----
+pandas==2.2.2
+
+# ---- セキュリティ警告を減らすための依存関係 ----
+itsdangerous==2.2.0
+click==8.1.7
