@@ -8,7 +8,7 @@
 
   <h2>新規登録</h2>
 
-  <form action="{{ url_for('home.register') }}" method="post">
+  <form action="{{ url_for('index.registration') }}" method="post">
     <div>
       <input type="text" name="username" placeholder="ユーザー名" required>
     </div>
@@ -25,7 +25,7 @@
   </form>
 
   <div>
-    <a href="{{ url_for('home.login') }}">ログインページへ</a><br>
+    <a href="{{ url_for('index.login') }}">ログインページへ</a><br>
     <a href="{{ url_for('index.index') }}">トップへ戻る</a>
   </div>
 
