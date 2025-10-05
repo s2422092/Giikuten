@@ -20,7 +20,11 @@ def get_conn():
 
 @home_bp.route("/home")
 def home():
-    return render_template("home/home.html")
+    if "user_id" not in session:
+        # 未ログインならログインページへ
+        return redirect(url_for("index.login"))
+    username = session.get("username", "ゲスト")
+    return render_template("home/home.html", username=username)
 
 @home_bp.route("/logout")
 def logout():

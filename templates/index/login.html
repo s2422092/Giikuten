@@ -5,17 +5,15 @@
 </head>
 <body>
 
-    <form action="{{ url_for('index.login') }}" method="post" >
-      <div>
-        <input type="text" name="username" placeholder="ユーザー名" required>
-      </div>
-      <div>
-        <input type="password" name="password" placeholder="パスワード" required>
-      </div>
-      <button type="submit">
-        ログイン
-      </button>
-    </form>
+  <form action="{{ url_for('index.login') }}" method="post">
+    <div>
+      <input type="text" name="username" placeholder="ユーザー名" required>
+    </div>
+    <div>
+      <input type="password" name="password" placeholder="パスワード" required>
+    </div>
+    <button type="submit">ログイン</button>
+  </form>
 
     <div>
         <a href="{{ url_for('index.index') }}">
