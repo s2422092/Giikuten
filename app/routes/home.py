@@ -20,4 +20,10 @@ def get_conn():
 
 @home_bp.route("/home")
 def home():
-    return render_template("home.html")
+    return render_template("home/home.html")
+
+@home_bp.route("/logout")
+def logout():
+    session.clear()
+    flash("ログアウトしました。", "success")
+    return redirect(url_for("index.index"))

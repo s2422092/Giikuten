@@ -5,7 +5,7 @@
 </head>
 <body>
 
-    <form action="{{ url_for('home.login') }}" method="post" >
+    <form action="{{ url_for('index.login') }}" method="post" >
       <div>
         <input type="text" name="username" placeholder="ユーザー名" required>
       </div>
@@ -21,7 +21,7 @@
         <a href="{{ url_for('index.index') }}">
         戻る
         </a>
-        <a href="{{ url_for('home.register') }}">
+        <a href="{{ url_for('index.registration') }}">
         新規登録
         </a>
     </div>
