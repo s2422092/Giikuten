@@ -1,0 +1,49 @@
+1️⃣ PostgreSQL のインストール
+
+もしまだインストールしていなければ、以下の方法があります：
+
+Homebrew を使う場合
+
+brew install postgresql
+
+
+その後、サービス起動：
+
+brew services start postgresql
+
+
+確認：
+
+psql --version
+
+
+
+2️⃣ PostgreSQL に接続
+
+インストールができたら、まずはターミナルから psql で接続します：
+
+psql postgres
+
+
+すると postgres=# というプロンプトが出てきます。
+ここからSQLを実行できます。
+
+
+3️⃣ データベース作成
+
+例えば「giikuten」というデータベースを作るなら：
+
+CREATE DATABASE giikuten;
+
+
+作ったデータベースに接続するには：
+
+\c giikuten
+
+
+4️⃣ ユーザー作成（必要に応じて）
+
+セキュリティのために独自のユーザーを作ることもおすすめです。
+
+CREATE USER giikuten_user WITH PASSWORD 'yourpassword';
+GRANT ALL PRIVILEGES ON DATABASE giikuten TO giikuten_user;
