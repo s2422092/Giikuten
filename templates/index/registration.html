@@ -6,28 +6,44 @@
 </head>
 <body>
 
+  <!--エラー文の出力-->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
   <h2>新規登録</h2>
 
   <form action="{{ url_for('index.registration') }}" method="post">
     <div>
-      <input type="text" name="username" placeholder="ユーザー名" required>
+      <input type="text" name="username" placeholder="ユーザー名" required maxlength="32">
     </div>
     <div>
-      <input type="email" name="email" placeholder="メールアドレス" required>
+      <input type="email" name="email" placeholder="メールアドレス" required maxlength="64">
     </div>
     <div>
-      <input type="password" name="password" placeholder="パスワード" required>
+      <input type="password" name="password" placeholder="パスワード" required maxlength="32">
     </div>
     <div>
-      <input type="password" name="confirm_password" placeholder="パスワード（確認）" required>
+      <input type="password" name="confirm_password" placeholder="パスワード（確認）" required maxlength="32">
     </div>
-    <button type="submit">登録</button>
+    <button type="submit" id="submit-btn">登録</button>
   </form>
 
   <div>
     <a href="{{ url_for('index.login') }}">ログインページへ</a><br>
     <a href="{{ url_for('index.index') }}">トップへ戻る</a>
   </div>
+
+
+<!--二重送信しないようにするためのscriptタグ-->
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
 
 </body>
 </html>

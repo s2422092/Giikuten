@@ -24,7 +24,7 @@
     <div>
       <input type="password" name="password" placeholder="パスワード" required maxlength="32">
     </div>
-    <button type="submit">ログイン</button>
+    <button type="submit" id="submit-btn">登録</button>
   </form>
 
     <div>
@@ -35,6 +35,9 @@
         新規登録
         </a>
     </div>
+
+<!--二重送信しないようにするためのscriptタグ-->
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
 </body>
 </html>
