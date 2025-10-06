@@ -8,9 +8,10 @@
     <div>
         <h1>ようこそ、{{ username }} さん！</h1>
         <p>ここはログイン後のホーム画面です。</p>
-        <a href="{{ url_for('home.logout') }}" >
-           ログアウト
-        </a>
+        <a href="{{ url_for('home.home') }}" >ホーム</a>
+        <a href="{{ url_for('mbti.mbti') }}" >mbti</a>
+        <a href="{{ url_for('personal.personal') }}" >個人情報画面</a>
+        <a href="{{ url_for('home.logout') }}" >ログアウト</a>
     </div>
 
 </body>

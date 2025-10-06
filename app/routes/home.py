@@ -24,6 +24,7 @@ def home():
         # 未ログインならログインページへ
         return redirect(url_for("index.login"))
     username = session.get("username", "ゲスト")
+  
     return render_template("home/home.html", username=username)
 
 @home_bp.route("/logout")
