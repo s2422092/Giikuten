@@ -29,5 +29,5 @@ def home():
 @home_bp.route("/logout")
 def logout():
     session.clear()
-    flash("ログアウトしました。", "success")
+    print("ログアウトしました。") 
     return redirect(url_for("index.index"))
