@@ -47,3 +47,10 @@ CREATE DATABASE giikuten;
 
 CREATE USER giikuten_user WITH PASSWORD 'yourpassword';
 GRANT ALL PRIVILEGES ON DATABASE giikuten TO giikuten_user;
+
+
+\conninfo
+このコードをターミナルで打つことによって現在接続しているデータベースの情報を確認できます。
+
+ALTER USER yugo_suzuki WITH PASSWORD 'mypassword123';
+これで自分でパスワードを決めることができる
