@@ -6,11 +6,11 @@ mbti_bp = Blueprint("mbti", __name__)
 ## DB接続
 DB_CONFIG = {
     "host": "localhost",
-    "dbname": "kazino",
+    "dbname": "giikuten",
     "user": "yugo_suzuki",
-    "password": "your_password",  # 環境に合わせて修正
+    "password": "mypassword123",  # 先ほど設定したパスワード
+    "port": "5432"
 }
-
 def get_conn():
     return psycopg2.connect(**DB_CONFIG)
 

@@ -5,6 +5,15 @@
 </head>
 <body>
 
+<!-- エラー文の出力 -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  
     <div>
         <h1>ようこそ、{{ username }} さん！</h1>
         <p>ここはログイン後のmbti画面です。</p>
