@@ -19,9 +19,13 @@ def create_app():
     # Blueprint の登録
     from .routes.index import index_bp
     from .routes.home import home_bp
+    from .routes.mbti import mbti_bp
+    from .routes.personal import personal_bp
 
 
     app.register_blueprint(index_bp)
     app.register_blueprint(home_bp)
+    app.register_blueprint(mbti_bp)
+    app.register_blueprint(personal_bp)
 
     return app
