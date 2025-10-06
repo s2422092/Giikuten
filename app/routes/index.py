@@ -28,7 +28,8 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
 
-        if not all([username, password]):
+        # ✅ 入力チェック
+        if not username or not password:
             flash("ユーザー名とパスワードを入力してください。", "error")
             return render_template("index/login.html")
 
@@ -36,18 +37,14 @@ def login():
             conn = get_conn()
             cur = conn.cursor()
             cur.execute(
-                """
-                SELECT u_id, u_name, password
-                FROM users
-                WHERE u_name = %s
-                """,
+                "SELECT u_id, u_name, password FROM users WHERE u_name = %s",
                 (username,)
             )
             user = cur.fetchone()
             cur.close()
             conn.close()
 
-            if user and user[2] == password:  # パスワードが一致
+            if user and user[2] == password:
                 session["user_id"] = user[0]
                 session["username"] = user[1]
                 flash("ログインに成功しました！", "success")
