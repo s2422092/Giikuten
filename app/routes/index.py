@@ -71,7 +71,7 @@ def login():
                 return redirect(url_for("home.home"))
             else:
                 flash("まずMBTI診断を行ってください。", "info")
-                return redirect(url_for("mbti.mbti_page"))
+                return redirect(url_for("mbti.mbti"))
 
         except Exception as e:
             flash(f"ログイン中にエラーが発生しました: {e}", "error")

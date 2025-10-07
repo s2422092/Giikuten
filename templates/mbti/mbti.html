@@ -14,11 +14,28 @@
     {% endif %}
   {% endwith %}
   
-    <div>
-        <h1>ようこそ、{{ username }} さん！</h1>
-        <p>ここはログイン後のmbti画面です。</p>
+<div>
+    <h1>ようこそ、{{ username }} さん！</h1>
+    <p>ここはログイン後のmbti画面です。</p>
 
+</div>
+
+<div>
+  <h2>旅行タイプ診断（MBTI風）</h2>
+
+  <form method="POST">
+{% for q in questions %}
+    <div>
+        <p>{{ loop.index }}. {{ q.text }}</p>
+        <label><input type="radio" name="q{{ loop.index }}" value="A" required> {{ q.option_a }}</label><br>
+        <label><input type="radio" name="q{{ loop.index }}" value="B"> {{ q.option_b }}</label>
     </div>
+    <hr>
+{% endfor %}
+      <button type="submit">診断する</button>
+  </form>
+</div>
+
 
 </body>
 </html>
