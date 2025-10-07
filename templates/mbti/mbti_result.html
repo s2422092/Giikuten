@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>旅行MBTI診断結果</title>
+  <style>
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+      background: linear-gradient(135deg, #c8f7f4, #f9f9f9);
+      color: #333;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 50px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 40px 30px;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      color: #008080;
+      margin-bottom: 15px;
+    }
+
+    h2 {
+      font-size: 1.4em;
+      color: #444;
+    }
+
+    .type-box {
+      background: #e0f7fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 25px;
+      font-size: 1.2em;
+    }
+
+    .desc {
+      text-align: left;
+      margin-top: 20px;
+      line-height: 1.8;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 10px 20px;
+      background: #007b7b;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    a:hover {
+      background: #009999;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>旅行MBTI診断結果</h1>
+    <h2>こんにちは、{{ username }} さん！</h2>
+
+    <div class="type-box">
+      <h2>あなたの旅行タイプは...</h2>
+      <h1>{{ mbti_result }}</h1>
+    </div>
+
+    <div class="desc">
+      {% if mbti_result == "アクティブプランナー" %}
+        <p>あなたは計画を立てて動くのが得意な冒険家タイプ！<br>
+        旅先ではスケジュールをきっちり立てて、効率よく回ることができます。おすすめは「北欧周遊旅行」や「ヨーロッパ都市観光」。</p>
+      {% elif mbti_result == "自由気ままトラベラー" %}
+        <p>あなたはその日の気分で動く自由人タイプ。<br>
+        計画に縛られず、思い立ったらすぐ行動！南国リゾートやバックパッカー旅がおすすめ。</p>
+      {% elif mbti_result == "社交的リゾート派" %}
+        <p>あなたは人との出会いを楽しむタイプ！<br>
+        グループ旅行やシェアハウス滞在、ビーチパーティーがピッタリです。</p>
+      {% elif mbti_result == "癒し系リラクサー" %}
+        <p>あなたは静かで落ち着いた旅を好みます。<br>
+        温泉地や自然の中でのリトリート旅行がおすすめです。</p>
+      {% elif mbti_result == "研究家トラベラー" %}
+        <p>あなたは観察力が鋭く、文化や歴史に興味津々。<br>
+        世界遺産巡りやミュージアムツアーで心が満たされます。</p>
+      {% elif mbti_result == "孤高の冒険者" %}
+        <p>あなたは一人旅を愛する孤高の冒険者。<br>
+        秘境探索や登山など、自分だけの旅を計画するのが得意です。</p>
+      {% elif mbti_result == "堅実派オーガナイザー" %}
+        <p>あなたはきちんと計画を立て、トラブルを未然に防ぐ堅実派。<br>
+        家族旅行や団体ツアーの幹事に最適！</p>
+      {% elif mbti_result == "直感型ノマド" %}
+        <p>あなたは直感を信じて行動するタイプ！<br>
+        目的地を決めずに旅を始める「ノープラン旅行」も楽しめます。</p>
+      {% elif mbti_result == "パーティーエクスプローラー" %}
+        <p>あなたはにぎやかで楽しいことが大好き！<br>
+        フェスやイベント旅行など、エネルギッシュな旅がおすすめ。</p>
+      {% elif mbti_result == "スローライフトラベラー" %}
+        <p>あなたはゆったりと時間を楽しむ旅が好き。<br>
+        小さな町での長期滞在や田舎暮らし体験がぴったりです。</p>
+      {% else %}
+        <p>あなたはバランスの取れた万能タイプです。<br>
+        どんな旅にも柔軟に対応できるのが強み！</p>
+      {% endif %}
+    </div>
+
+    <a href="{{ url_for('home.home') }}">← ホームに戻る</a>
+  </div>
+
+</body>
+</html>
