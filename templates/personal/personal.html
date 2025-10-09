@@ -19,6 +19,16 @@
         <p>ユーザーID: {{ user.id }}</p>
         <p>メールアドレス: {{ user.email }}</p>
         <p>ここはログイン後の個人情報画面です。</p>
+        <div class="mbti-box">
+          <h3>🌍 あなたの旅行タイプ（MBTI診断結果）</h3>
+          <p><strong>{{ user.mbti_type }}</strong></p>
+          {% if user.mbti_date %}
+          <p>診断日: {{ user.mbti_date }}</p>
+          {% endif %}
+          {% if user.mbti_type == "未診断" %}
+            <p><a href="{{ url_for('mbti.mbti') }}">診断を受ける</a></p>
+          {% endif %}
+        </div>
         <a href="{{ url_for('home.home') }}" >
            戻る
         </a>

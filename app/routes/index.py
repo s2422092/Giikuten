@@ -36,28 +36,49 @@ def login():
         try:
             conn = get_conn()
             cur = conn.cursor()
-            cur.execute(
-                "SELECT u_id, u_name, password FROM users WHERE u_name = %s",
-                (username,)
-            )
+
+            # 🔹 まずユーザー情報を取得
+            cur.execute("SELECT u_id, u_name, password FROM users WHERE u_name = %s", (username,))
             user = cur.fetchone()
+
+            if not user:
+                flash("そのユーザーは存在しません。", "error")
+                cur.close()
+                conn.close()
+                return render_template("index/login.html")
+
+            # 🔹 パスワードチェック
+            if user[2] != password:
+                flash("パスワードが間違っています。", "error")
+                cur.close()
+                conn.close()
+                return render_template("index/login.html")
+
+            # ✅ ログイン成功時にセッションへ保存
+            session["user_id"] = user[0]
+            session["username"] = user[1]
+
+            # 🔹 MBTI診断済みかどうか確認
+            cur.execute("SELECT 1 FROM user_mbti WHERE user_id = %s", (user[0],))
+            mbti_result = cur.fetchone()
+
             cur.close()
             conn.close()
 
-            if user and user[2] == password:
-                session["user_id"] = user[0]
-                session["username"] = user[1]
+            # ✅ 診断済みなら home へ / 未診断なら mbti ページへ
+            if mbti_result:
                 flash("ログインに成功しました！", "success")
                 return redirect(url_for("home.home"))
             else:
-                flash("ユーザー名またはパスワードが間違っています。", "error")
-                return render_template("index/login.html")
+                flash("まずMBTI診断を行ってください。", "info")
+                return redirect(url_for("mbti.mbti"))
 
         except Exception as e:
             flash(f"ログイン中にエラーが発生しました: {e}", "error")
             return render_template("index/login.html")
 
     return render_template("index/login.html")
+
 
 # --- 新規登録ページ ---
 @index_bp.route("/registration", methods=["GET", "POST"])
