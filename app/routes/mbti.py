@@ -1,6 +1,8 @@
-from flask import Blueprint, render_template,request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import psycopg2
-from app.travel_mbti_logic import calculate_travel_mbti  # ← 判定関数（別ファイル化推奨）
+from app.travel_mbti_logic import (
+    calculate_travel_mbti,
+)  # ← 判定関数（別ファイル化推奨）
 
 mbti_bp = Blueprint("mbti", __name__)
 
@@ -10,10 +12,13 @@ DB_CONFIG = {
     "dbname": "giikuten",
     "user": "yugo_suzuki",
     "password": "mypassword123",  # 先ほど設定したパスワード
-    "port": "5432"
+    "port": "5432",
 }
+
+
 def get_conn():
     return psycopg2.connect(**DB_CONFIG)
+
 
 # travel_mbti_questions.py
 
@@ -78,8 +83,6 @@ TRAVEL_TYPES = {
 }
 
 
-
-
 @mbti_bp.route("/mbti", methods=["GET", "POST"])
 def mbti():
     # --- ログインチェック ---
@@ -91,10 +94,15 @@ def mbti():
 
     if request.method == "POST":
         # --- 回答を取得 ---
-        answers = [int(request.form.get(f"q{i}", 3)) for i in range(1, len(QUESTIONS) + 1)]
+        answers = [
+            int(request.form.get(f"q{i}", 3)) for i in range(1, len(QUESTIONS) + 1)
+        ]
 
         # --- 診断ロジックを呼び出し ---
         mbti_result = calculate_travel_mbti(answers)
+
+        # ★ セッションに保存
+        session["mbti_type"] = mbti_result
 
         # --- DBに保存 ---
         user_id = session["user_id"]
@@ -102,7 +110,7 @@ def mbti():
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO user_mbti (user_id, mbti_type) VALUES (%s, %s)",
-            (user_id, mbti_result)
+            (user_id, mbti_result),
         )
         conn.commit()
         cur.close()
@@ -110,13 +118,12 @@ def mbti():
 
         flash("診断結果を保存しました！", "success")
         return render_template(
-            "mbti/mbti_result.html",
-            mbti_result=mbti_result,
-            username=username
+            "mbti/mbti_result.html", mbti_result=mbti_result, username=username
         )
 
     # --- 初回アクセス時：質問を表示 ---
     return render_template("mbti/mbti.html", questions=QUESTIONS, username=username)
+
 
 @mbti_bp.route("/mbti_result")
 def mbti_result():
@@ -133,7 +140,7 @@ def mbti_result():
 
     cur.execute(
         "SELECT mbti_type FROM user_mbti WHERE user_id = %s ORDER BY id DESC LIMIT 1",
-        (user_id,)
+        (user_id,),
     )
     result = cur.fetchone()
 
@@ -142,10 +149,17 @@ def mbti_result():
 
     if result:
         mbti_result = result[0]
-        description = TRAVEL_TYPES.get(mbti_result, "あなたにぴったりの旅行タイプです！")
+        description = TRAVEL_TYPES.get(
+            mbti_result, "あなたにぴったりの旅行タイプです！"
+        )
+        # ★ 結果ページ表示時にもセッションへ同期（直アクセス対策）
+        session["mbti_type"] = mbti_result
+
     else:
         mbti_result = "未診断"
         description = "まだ診断を受けていません。"
 
     # --- 結果ページを表示 ---
-    return render_template("mbti/mbti_result.html",mbti_result=mbti_result,description=description)
+    return render_template(
+        "mbti/mbti_result.html", mbti_result=mbti_result, description=description
+    )
