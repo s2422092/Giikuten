@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8"><title>旅行提案</title></head>
+<body>
+  <h1>{{ plan.title }}</h1>
+  <p>こんにちは、{{ username }} さん</p>
+  <p>{{ plan.summary }}</p>
+
+  <h2>予算内訳</h2>
+  <ul>
+    <li>交通: {{ plan.budget_breakdown.transport | int }} 円</li>
+    <li>宿泊: {{ plan.budget_breakdown.lodging | int }} 円</li>
+    <li>食事: {{ plan.budget_breakdown.food | int }} 円</li>
+    <li>アクティビティ: {{ plan.budget_breakdown.activities | int }} 円</li>
+    <li>その他: {{ plan.budget_breakdown.other | int }} 円</li>
+  </ul>
+
+  <h2>日程</h2>
+  <ol>
+    {% for d in plan.daily_plan %}
+      <li>
+        <strong>Day {{ d.day }}</strong>：
+        AM: {{ d.am }} / PM: {{ d.pm }} / Night: {{ d.night }}
+      </li>
+    {% endfor %}
+  </ol>
+
+  <h2>根拠</h2>
+  <ul>
+    {% for r in plan.rationale %}
+      <li>{{ r }}</li>
+    {% endfor %}
+  </ul>
+
+  <p><a href="{{ url_for('plan.form') }}">条件を変えて再提案</a></p>
+  <p><a href="{{ url_for('home.home') }}">ホームへ戻る</a></p>
+</body>
+</html>
