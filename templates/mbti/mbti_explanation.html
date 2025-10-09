@@ -24,7 +24,7 @@
 <div>
   <h2>旅行タイプの説明</h2>
 
-<a href="{{url_for('mbti.mbti')}}">旅行タイプの再診断</a>
+<a href="{{ url_for('mbti.mbti') }}">▶ 旅行タイプを再診断する</a>
 
 
 <div>
@@ -51,7 +51,7 @@
     <p>タイプ: {{ mbti_result }}（{{ travel_name }}）</p>
     <p class="mt-4 text-gray-700">{{ mbti_description }}</p>
     <hr>
-    <p><a href="{{ url_for('mbti.mbti') }}">▶ 旅行タイプを再診断する</a></p>
+    
   {% else %}
     <p>まだ診断が行われていません。<a href="{{ url_for('mbti.mbti') }}">こちら</a>から診断を受けましょう。</p>
   {% endif %}

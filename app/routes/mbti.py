@@ -111,14 +111,16 @@ def mbti():
         # --- 診断ロジックを呼び出し ---
         mbti_result = calculate_travel_mbti(answers)
 
-        # --- DBに保存 ---
+        # --- DBに保存（既存なら更新）---
         user_id = session["user_id"]
         conn = get_conn()
         cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO user_mbti (user_id, mbti_type) VALUES (%s, %s)",
-            (user_id, mbti_result)
-        )
+        cur.execute("""
+            INSERT INTO user_mbti (user_id, mbti_type)
+            VALUES (%s, %s)
+            ON CONFLICT (user_id)
+            DO UPDATE SET mbti_type = EXCLUDED.mbti_type;
+        """, (user_id, mbti_result))
         conn.commit()
         cur.close()
         conn.close()
@@ -132,6 +134,7 @@ def mbti():
 
     # --- 初回アクセス時：質問を表示 ---
     return render_template("mbti/mbti.html", questions=QUESTIONS, username=username)
+
 
 @mbti_bp.route("/mbti_result")
 def mbti_result():
