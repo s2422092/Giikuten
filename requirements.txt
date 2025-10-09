@@ -18,3 +18,8 @@ pandas==2.2.2
 # ---- セキュリティ警告を減らすための依存関係 ----
 itsdangerous==2.2.0
 click==8.1.7
+
+# ---- openAI関連 ----
+openai>=1.40.0
+pydantic>=2.7.0
+python-dotenv>=1.0.1
