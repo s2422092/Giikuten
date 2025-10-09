@@ -2,18 +2,30 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <head>ホーム</head>
+  <title>mbtiの説明</title>
 </head>
 <body>
 
-  <!-- エラー文の出力 -->
+<!-- エラー文の出力 -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, message in messages %}
         <div class="flash {{ category }}">{{ message }}</div>
       {% endfor %}
     {% endif %}
-  {% endwith %}    
+  {% endwith %}
+  
+<div>
+    <h1>ようこそ、{{ username }} さん！</h1>
+    <p>ここはログイン後のmbti画面です。</p>
+
+</div>
+
+<div>
+  <h2>旅行タイプの説明</h2>
+
+<a href="{{ url_for('mbti.mbti') }}">▶ 旅行タイプを再診断する</a>
+
 
 <div>
     <h1>ようこそ、{{ username }} さん！</h1>
@@ -31,6 +43,24 @@
         <a>旅行ページ</a>
     </div>
 </nav>
+
+<!--ここの下にそれぞれのタイプの説明を入れる-->
+<div>
+  {% if mbti_result != "未診断" %}
+    <h1>{{ username }} さんのMBTI結果</h1>
+    <p>タイプ: {{ mbti_result }}（{{ travel_name }}）</p>
+    <p class="mt-4 text-gray-700">{{ mbti_description }}</p>
+    <hr>
+    
+  {% else %}
+    <p>まだ診断が行われていません。<a href="{{ url_for('mbti.mbti') }}">こちら</a>から診断を受けましょう。</p>
+  {% endif %}
+</div>
+
+
+
+</div>
+
 
 </body>
 </html>

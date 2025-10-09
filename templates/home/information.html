@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>アプリ説明</title>
+</head>
+<body>
+
+  <!-- エラー文の出力 -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}    
+
+
+<nav>
+    <div>
+        <a href="{{ url_for('home.home') }}" >戻る</a>
+    </div>
+</nav>
+
+<div>
+    <h1>アプリ説明</h1>
+    <p>ここから下に説明を記述する</p>
+</div>
+
+</body>
+</html>

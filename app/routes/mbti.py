@@ -82,6 +82,21 @@ TRAVEL_TYPES = {
     "INFJ": "哲学的ロマンチスト",
 }
 
+TRAVEL_STYLE_EXPLANATIONS = {
+    "計画的アドベンチャラー": "綿密に計画を立てて行動する頼れる冒険者。効率重視で時間を無駄にせず満喫します。",
+    "感性派トラベラー": "感性を大切にする旅人。美術・自然・街並みに心を動かされる、静かな体験型の旅を好みます。",
+    "ひらめき旅人": "直感と好奇心で動く自由な旅人。偶然の出会いや新しい体験を楽しむことを最優先します。",
+    "孤高の探検家": "一人で深く冒険するタイプ。リスクを恐れず自分のペースで未知の体験を追い求めます。",
+    "盛り上げ上手な旅仲間": "社交的で場を盛り上げるムードメーカー。仲間との時間を最大限に楽しむのが得意です。",
+    "安心重視の保守派": "安全・快適さを最優先。落ち着いた旅程と安定した宿を選び、安心感ある旅を好みます。",
+    "リーダーシップ旅行者": "目的志向で統率力が高い。グループをまとめて効率的に行動し、成果のある旅を作ります。",
+    "戦略家タイプの旅人": "事前リサーチ重視の計画派。目的と効率を重んじ、知的好奇心を満たす旅を設計します。",
+    "社交的ホストタイプ": "誰とでも仲良くなれるホスピタリティ派。周囲を気遣い、みんなが楽しめる旅を企画します。",
+    "完璧主義な旅プランナー": "詳細な準備と管理が得意な堅実派。時間や予算を厳守して安心できる旅を実現します。",
+    "自由奔放なトリッキー旅行者": "即興性が高く予測不能な楽しみを好む冒険家。予定外の出来事も楽しみに変えます。",
+    "哲学的ロマンチスト": "静かで深い感動を求める内省派。歴史や文化、自然に触れて心に残る旅を好みます。",
+}
+
 
 @mbti_bp.route("/mbti", methods=["GET", "POST"])
 def mbti():
@@ -101,17 +116,16 @@ def mbti():
         # --- 診断ロジックを呼び出し ---
         mbti_result = calculate_travel_mbti(answers)
 
-        # ★ セッションに保存
-        session["mbti_type"] = mbti_result
-
-        # --- DBに保存 ---
+        # --- DBに保存（既存なら更新）---
         user_id = session["user_id"]
         conn = get_conn()
         cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO user_mbti (user_id, mbti_type) VALUES (%s, %s)",
-            (user_id, mbti_result),
-        )
+        cur.execute("""
+            INSERT INTO user_mbti (user_id, mbti_type)
+            VALUES (%s, %s)
+            ON CONFLICT (user_id)
+            DO UPDATE SET mbti_type = EXCLUDED.mbti_type;
+        """, (user_id, mbti_result))
         conn.commit()
         cur.close()
         conn.close()
@@ -160,6 +174,48 @@ def mbti_result():
         description = "まだ診断を受けていません。"
 
     # --- 結果ページを表示 ---
+<<<<<<< HEAD
     return render_template(
         "mbti/mbti_result.html", mbti_result=mbti_result, description=description
+=======
+    return render_template("mbti/mbti_result.html",mbti_result=mbti_result,description=description)
+
+@mbti_bp.route("/mbti_explanation")
+def mbti_explanation():
+    # --- ログインチェック ---
+    if "user_id" not in session:
+        flash("ログインしてください。", "warning")
+        return redirect(url_for("index.login"))
+
+    user_id = session["user_id"]
+    username = session.get("username", "ゲスト")
+
+    # --- DBから最新のMBTI結果を取得 ---
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT mbti_type FROM user_mbti WHERE user_id = %s ORDER BY id DESC LIMIT 1",
+        (user_id,)
+    )
+    result = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if result:
+        mbti_result = result[0]  # 例: "ENFP"
+        travel_name = TRAVEL_TYPES.get(mbti_result, "あなたにぴったりの旅行タイプです！")
+        mbti_description = TRAVEL_STYLE_EXPLANATIONS.get(travel_name, "このタイプの説明はまだ登録されていません。")
+    else:
+        mbti_result = "未診断"
+        travel_name = "未診断"
+        mbti_description = "まだ診断が行われていません。"
+
+
+    return render_template(
+        "mbti/mbti_explanation.html",
+        username=username,
+        mbti_result=mbti_result,
+        travel_name=travel_name,
+        mbti_description=mbti_description
+>>>>>>> f59f9f2cbe17a2c404b2259f1876f690c08c6f52
     )
