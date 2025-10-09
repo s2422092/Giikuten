@@ -23,9 +23,33 @@
 
 <a href="{{url_for('home.information')}}">💬</a>
 
-<div>
+<session>
+  <div>
 
-</div>
+    <div>
+      <div>
+        <h1>自分の旅行MBTIを表示させる</h1>
+      </div>
+
+      <div>
+        <p>そのmbtiの人がどのような観光地に行っているのかを表示させるようにする</p>
+        <h1>旅行のタイトル</h1>
+        <p>旅行の行き先</p>
+        <p>旅行の詳細</p>
+      </div>
+    </div>
+
+    <div>
+      <h1>おすすすめの観光地</h1>
+      <div>
+        <p>有名な観光地などを表示させる。その表示させる観光地の方はLLMにランダムで出力してもらう</p>
+        <h1>観光地タイトル</h1>
+
+      </div>
+    </div>
+
+  </div>
+</session>
 
 <nav>
     <div>
@@ -33,6 +57,7 @@
         <a href="{{url_for('mbti.mbti_explanation')}}">mbtiページ</a>
         <a href="{{ url_for('setting.setting') }}" >個人情報画面</a>
         <a href="{{ url_for('plan.plan') }}">旅行ページ</a>
+        <a href="{{url_for('travel_search.travel_search')}}">旅行検索</a>
     </div>
 </nav>
 
