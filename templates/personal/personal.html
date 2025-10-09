@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <title>個人情報画面</title>
 </head>
 <body>
 
@@ -25,17 +26,23 @@
           {% if user.mbti_date %}
           <p>診断日: {{ user.mbti_date }}</p>
           {% endif %}
-          {% if user.mbti_type == "未診断" %}
-            <p><a href="{{ url_for('mbti.mbti') }}">診断を受ける</a></p>
-          {% endif %}
         </div>
-        <a href="{{ url_for('home.home') }}" >
-           戻る
-        </a>
-        <a href="{{ url_for('home.logout') }}" >
-           ログアウト
-        </a>
     </div>
+    
+<div>
+    <h1>ようこそ、{{ username }} さん！</h1>
+    <p>ここはログイン後のホーム画面です。</p>
+    <a href="{{ url_for('home.logout') }}" >ログアウト</a>
+</div>
+
+<nav>
+    <div>
+        <a href="{{ url_for('home.home') }}" >ホーム</a>
+        <a href="{{url_for('mbti.mbti_explanation')}}">mbtiページ</a>
+        <a href="{{ url_for('personal.personal') }}" >個人情報画面</a>
+        <a>旅行ページ</a>
+    </div>
+</nav>
 
 </body>
 </html>

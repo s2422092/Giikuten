@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>mbtiの説明</title>
+</head>
+<body>
+
+<!-- エラー文の出力 -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  
+<div>
+    <h1>ようこそ、{{ username }} さん！</h1>
+    <p>ここはログイン後のmbti画面です。</p>
+
+</div>
+
+<div>
+  <h2>旅行タイプの説明</h2>
+
+<a href="{{url_for('mbti.mbti')}}">旅行タイプの再診断</a>
+
+
+<div>
+    <h1>ようこそ、{{ username }} さん！</h1>
+    <p>ここはログイン後のホーム画面です。</p>
+    <a href="{{ url_for('home.logout') }}" >ログアウト</a>
+</div>
+
+<nav>
+    <div>
+        <a href="{{ url_for('home.home') }}" >ホーム</a>
+        <a href="{{url_for('mbti.mbti_explanation')}}">mbtiページ</a>
+        <a href="{{ url_for('personal.personal') }}" >個人情報画面</a>
+        <a>旅行ページ</a>
+    </div>
+</nav>
+
+<!--ここの下にそれぞれのタイプの説明を入れる-->
+<div>
+
+</div>
+
+</div>
+
+
+</body>
+</html>

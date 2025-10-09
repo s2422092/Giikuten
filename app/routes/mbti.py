@@ -149,3 +149,7 @@ def mbti_result():
 
     # --- 結果ページを表示 ---
     return render_template("mbti/mbti_result.html",mbti_result=mbti_result,description=description)
+
+@mbti_bp.route("/mbti_explanation")
+def mbti_explanation():
+    return render_template("mbti/mbti_explanation.html")

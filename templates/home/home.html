@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <head>ホーム</head>
 </head>
 <body>
 
@@ -14,13 +15,20 @@
     {% endif %}
   {% endwith %}    
 
+<div>
+    <h1>ようこそ、{{ username }} さん！</h1>
+    <p>ここはログイン後のホーム画面です。</p>
+    <a href="{{ url_for('home.logout') }}" >ログアウト</a>
+</div>
+
+<nav>
     <div>
-        <h1>ようこそ、{{ username }} さん！</h1>
-        <p>ここはログイン後のホーム画面です。</p>
         <a href="{{ url_for('home.home') }}" >ホーム</a>
+        <a href="{{url_for('mbti.mbti_explanation')}}">mbtiページ</a>
         <a href="{{ url_for('personal.personal') }}" >個人情報画面</a>
-        <a href="{{ url_for('home.logout') }}" >ログアウト</a>
+        <a>旅行ページ</a>
     </div>
+</nav>
 
 </body>
 </html>
