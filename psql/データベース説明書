@@ -54,3 +54,7 @@ GRANT ALL PRIVILEGES ON DATABASE giikuten TO giikuten_user;
 
 ALTER USER yugo_suzuki WITH PASSWORD 'mypassword123';
 これで自分でパスワードを決めることができる
+
+
+PGPASSWORD=H7UwutzuyDtiYNKh1KLuTyK7UWLsSC18 psql -h dpg-d3jlrch5pdvs73eho1i0-a.singapore-postgres.render.com -U giikuten_hukanzen_user giikuten_hukanzen
+このコードをターミナルで打つことによって共有のデータベースに接続できる
