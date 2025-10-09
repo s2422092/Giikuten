@@ -6,12 +6,9 @@ from dotenv import load_dotenv
 
 load_dotenv()  # .env を使う場合（任意）
 
+
 def create_app():
-    app = Flask(
-        __name__,
-        template_folder="../templates",
-        static_folder="../static"
-    )
+    app = Flask(__name__, template_folder="../templates", static_folder="../static")
 
     # 🔑 セッション用の秘密鍵を設定
     # .env に SECRET_KEY があればそちらを使う。なければデフォルト文字列を使う
@@ -23,11 +20,12 @@ def create_app():
     from .routes.home import home_bp
     from .routes.mbti import mbti_bp
     from .routes.personal import personal_bp
-
+    from .routes.plan import plan_bp
 
     app.register_blueprint(index_bp)
     app.register_blueprint(home_bp)
     app.register_blueprint(mbti_bp)
     app.register_blueprint(personal_bp)
+    app.register_blueprint(plan_bp)
 
     return app
