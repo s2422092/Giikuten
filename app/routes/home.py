@@ -37,6 +37,14 @@ def home():
     username = session.get("username", "ゲスト")
     return render_template("home/home.html", username=username, mbti=mbti_result[0])
 
+@home_bp.route("/information")
+def information():
+    if "user_id" not in session:
+        return redirect(url_for("index.login"))
+
+    username = session.get("username", "ゲスト")
+    return render_template("home/information.html", username=username)
+
 @home_bp.route("/logout")
 def logout():
     session.clear()
