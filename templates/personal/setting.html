@@ -24,6 +24,7 @@
           <h3>🌍 あなたの旅行タイプ（MBTI診断結果）</h3>
           <p><strong>{{ user.mbti_type }}</strong></p>
           {% if user.mbti_date %}
+          <a href="{{url_for('mbti.mbti')}}">旅行タイプの再診断</a>
           <p>診断日: {{ user.mbti_date }}</p>
           {% endif %}
         </div>

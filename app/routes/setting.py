@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template,request, redirect, url_for, flash, session
 import psycopg2
 
-personal_bp = Blueprint("personal", __name__)
+setting_bp = Blueprint("setting", __name__)
 ## DB接続
 DB_CONFIG = {
     "host": "localhost",
@@ -14,8 +14,8 @@ DB_CONFIG = {
 def get_conn():
     return psycopg2.connect(**DB_CONFIG)
 
-@personal_bp.route("/personal")
-def personal():
+@setting_bp.route("/setting")
+def setting():
     # --- ログインチェック ---
     if "user_id" not in session:
         return redirect(url_for("index.login"))
@@ -66,4 +66,4 @@ def personal():
         flash(f"ユーザー情報の取得中にエラーが発生しました: {e}", "error")
         return redirect(url_for("home.home"))
 
-    return render_template("personal/personal.html", user=user_info)
+    return render_template("setting/setting.html", user=user_info)
