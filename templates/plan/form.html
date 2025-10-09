@@ -9,7 +9,7 @@
   {% endwith %}
 
   <h1>旅行条件（{{ username }} / MBTI: {{ mbti }}）</h1>
-  <form method="post" action="{{ url_for('plan.create_plan') }}">
+  <form method="post" action="{{ url_for('plan.plan') }}">
     <div><label>旅行名：<input name="trip_name" required maxlength="64"></label></div>
     <div>
       <label>開始日：<input type="date" name="start_date" required></label>
