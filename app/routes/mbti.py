@@ -1,20 +1,23 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import psycopg2
+import os
+from dotenv import load_dotenv
 from app.travel_mbti_logic import (
     calculate_travel_mbti,
 )  # ← 判定関数（別ファイル化推奨）
 
+load_dotenv()  # ← .envファイルの内容を読み込む
+
 mbti_bp = Blueprint("mbti", __name__)
 
-## DB接続
+# DB接続設定を環境変数から取得
 DB_CONFIG = {
-    "host": "localhost",
-    "dbname": "giikuten",
-    "user": "yugo_suzuki",
-    "password": "mypassword123",  # 先ほど設定したパスワード
-    "port": "5432",
+    "host": os.getenv("DB_HOST"),
+    "dbname": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "port": os.getenv("DB_PORT")
 }
-
 
 def get_conn():
     return psycopg2.connect(**DB_CONFIG)
@@ -100,6 +103,7 @@ TRAVEL_STYLE_EXPLANATIONS = {
 
 @mbti_bp.route("/mbti", methods=["GET", "POST"])
 def mbti():
+    conn = None
     # --- ログインチェック ---
     if "user_id" not in session:
         flash("ログインしてください。", "warning")
@@ -141,6 +145,7 @@ def mbti():
 
 @mbti_bp.route("/mbti_result")
 def mbti_result():
+    conn = None
     # --- ログインチェック ---
     if "user_id" not in session:
         flash("ログインしてください。", "warning")
@@ -174,14 +179,11 @@ def mbti_result():
         description = "まだ診断を受けていません。"
 
     # --- 結果ページを表示 ---
-<<<<<<< HEAD
-    return render_template(
-        "mbti/mbti_result.html", mbti_result=mbti_result, description=description
-=======
     return render_template("mbti/mbti_result.html",mbti_result=mbti_result,description=description)
 
 @mbti_bp.route("/mbti_explanation")
 def mbti_explanation():
+    conn = None
     # --- ログインチェック ---
     if "user_id" not in session:
         flash("ログインしてください。", "warning")
@@ -217,5 +219,4 @@ def mbti_explanation():
         mbti_result=mbti_result,
         travel_name=travel_name,
         mbti_description=mbti_description
->>>>>>> f59f9f2cbe17a2c404b2259f1876f690c08c6f52
     )

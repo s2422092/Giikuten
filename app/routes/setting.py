@@ -1,14 +1,19 @@
 from flask import Blueprint, render_template,request, redirect, url_for, flash, session
 import psycopg2
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # ← .envファイルの内容を読み込む
 
 setting_bp = Blueprint("setting", __name__)
-## DB接続
+
+# DB接続設定を環境変数から取得
 DB_CONFIG = {
-    "host": "localhost",
-    "dbname": "giikuten",
-    "user": "yugo_suzuki",
-    "password": "mypassword123",  # 先ほど設定したパスワード
-    "port": "5432"
+    "host": os.getenv("DB_HOST"),
+    "dbname": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "port": os.getenv("DB_PORT")
 }
 
 def get_conn():
@@ -16,6 +21,7 @@ def get_conn():
 
 @setting_bp.route("/setting")
 def setting():
+    conn = None
     # --- ログインチェック ---
     if "user_id" not in session:
         return redirect(url_for("index.login"))

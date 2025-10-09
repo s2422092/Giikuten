@@ -1,29 +1,34 @@
 # app/routes/index.py
-from flask import Blueprint, render_template,request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import psycopg2
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # ← .envファイルの内容を読み込む
 
 index_bp = Blueprint("index", __name__)
 
-# DB接続設定
+# DB接続設定を環境変数から取得
 DB_CONFIG = {
-    "host": "localhost",
-    "dbname": "giikuten",
-    "user": "yugo_suzuki",
-    "password": "mypassword123",  # 先ほど設定したパスワード
-    "port": "5432"
+    "host": os.getenv("DB_HOST"),
+    "dbname": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "port": os.getenv("DB_PORT")
 }
-
 def get_conn():
     return psycopg2.connect(**DB_CONFIG)
 
 @index_bp.route("/")
 def index():
+    
     return render_template("index/index.html")
 
 
 # --- ログインページ ---
 @index_bp.route("/login", methods=["GET", "POST"])
 def login():
+    conn = None
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
@@ -83,6 +88,8 @@ def login():
 # --- 新規登録ページ ---
 @index_bp.route("/registration", methods=["GET", "POST"])
 def registration():
+    conn = None
+
     if request.method == "POST":
         username = request.form.get("username")
         email = request.form.get("email")
