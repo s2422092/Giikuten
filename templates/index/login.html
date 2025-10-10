@@ -3,39 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <title>ログイン画面</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #F6F5F3;
+      color: #2C3E50;
+      font-family: "Noto Sans JP", sans-serif;
+    }
+    
+  </style>
 </head>
-<body>
+<body class="flex flex-col justify-center items-center min-h-screen">
 
     
   <!-- エラー文の出力 -->
-  {% with messages = get_flashed_messages(with_categories=true) %}
+  <!-- {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, message in messages %}
         <div class="flash {{ category }}">{{ message }}</div>
       {% endfor %}
     {% endif %}
-  {% endwith %}
+  {% endwith %} -->
 
   
 
-  <form action="{{ url_for('index.login') }}" method="post">
-    <div>
-      <input type="text" name="username" placeholder="ユーザー名" required maxlength="32">
+  <form action="{{ url_for('index.login') }}" method="post" class="bg-[#FFFFFF] shadow-md rounded-2xl px-8 pt-6 pb-8 w-full max-w-md border border-[#EFD8C0]">
+    <h2 class="text-2xl font-semibold mb-6 text-[#31405F]">ログイン</h2>
+    <div class="mb-5">
+      <label for="username" class="block mb-2 text-sm font-medium text-[#31405F]">ユーザー名</label>
+      <input type="text" name="username" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="ユーザー名" required maxlength="32">
     </div>
-    <div>
-      <input type="password" name="password" placeholder="パスワード" required maxlength="32">
+    <div class="mb-5">
+      <label for="password" class="block mb-2 text-sm font-medium text-[#31405F]">パスワード</label>
+      <input type="password" name="password" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="パスワード" required maxlength="32">
     </div>
-    <button type="submit" id="submit-btn">登録</button>
+    <button type="submit" id="submit-btn" class="w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200" style="background-color: #4F8C8C;" onmouseover="this.style.backgroundColor='#3E7676'" onmouseout="this.style.backgroundColor='#4F8C8C'">
+      登録
+    </button>
+    <div class="mt-6 text-center text-sm text-[#31405F] space-y-2">
+      <p>
+        アカウントをお持ちでない方は
+        <a href="{{ url_for('index.registration') }}" class="text-[#4F8C8C] font-medium hover:underline">
+          こちら
+        </a>
+      </p>
+    </div>
   </form>
-
-    <div>
-        <a href="{{ url_for('index.index') }}">
-        戻る
-        </a>
-        <a href="{{ url_for('index.registration') }}">
-        新規登録
-        </a>
-    </div>
 
 <!--二重送信しないようにするためのscriptタグ-->
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
