@@ -28,6 +28,7 @@ DB_CONFIG = {
     "user": os.getenv("DB_USER"),
     "password": os.getenv("DB_PASSWORD"),
     "port": os.getenv("DB_PORT"),
+    "sslmode": os.getenv("DB_SSLMODE", "require"),
 }
 
 
@@ -49,14 +50,13 @@ def get_latest_mbti(user_id: int) -> str | None:
 
 
 # ---------- ここから 3階層セレクト用API ----------
-@plan_bp.get("/api/regions")
-def api_regions():
+@plan_bp.get("/api/region")
+def api_region():
     try:
         conn = get_conn()
         cur = conn.cursor()
-        cur.execute(
-            "SELECT DISTINCT region FROM locations WHERE region IS NOT NULL ORDER BY region"
-        )
+        # region テーブルから地域名を取得
+        cur.execute("SELECT r_name FROM region ORDER BY r_id")
         rows = [r[0] for r in cur.fetchall()]
         cur.close()
         conn.close()
@@ -66,21 +66,23 @@ def api_regions():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
-@plan_bp.get("/api/prefectures")
-def api_prefectures():
+@plan_bp.get("/api/prefecture")
+def api_prefecture():
     region = request.args.get("region", "").strip()
     if not region:
         return jsonify({"ok": False, "error": "region is required"}), 400
     try:
         conn = get_conn()
         cur = conn.cursor()
+        # region → prefecture の結合で都道府県名を取得
         cur.execute(
             """
-            SELECT DISTINCT prefecture
-            FROM locations
-            WHERE region = %s AND prefecture IS NOT NULL
-            ORDER BY prefecture
-        """,
+            SELECT p.p_name
+            FROM prefecture AS p
+            JOIN region AS r ON p.r_id = r.r_id
+            WHERE r.r_name = %s
+            ORDER BY p.p_id
+            """,
             (region,),
         )
         rows = [r[0] for r in cur.fetchall()]
@@ -91,21 +93,23 @@ def api_prefectures():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
-@plan_bp.get("/api/cities")
-def api_cities():
+@plan_bp.get("/api/area")
+def api_area():
     pref = request.args.get("prefecture", "").strip()
     if not pref:
         return jsonify({"ok": False, "error": "prefecture is required"}), 400
     try:
         conn = get_conn()
         cur = conn.cursor()
+        # prefecture → area の結合で市区町村/エリア名を取得
         cur.execute(
             """
-            SELECT city
-            FROM locations
-            WHERE prefecture = %s AND city IS NOT NULL
-            ORDER BY city
-        """,
+            SELECT a.a_name
+            FROM area AS a
+            JOIN prefecture AS p ON a.p_id = p.p_id
+            WHERE p.p_name = %s
+            ORDER BY a.a_id
+            """,
             (pref,),
         )
         rows = [r[0] for r in cur.fetchall()]
@@ -135,7 +139,7 @@ def plan():
     if request.method == "GET":
         return render_template("plan/form.html", username=username, mbti=mbti_type)
 
-    # --- POST: 旅行条件 + 場所選択を受け取り LLM 提案 ---
+    # --- POST: 旅行条件  場所選択を受け取り LLM 提案 ---
     try:
         # 基本条件
         trip_name = request.form.get("trip_name", "").strip()
