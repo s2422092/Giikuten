@@ -3,19 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <title>個人情報画面</title>
+  <style>
+    body {
+      background-color: #F6F5F3;
+      color: #2C3E50;
+      font-family: "Noto Sans JP", sans-serif;
+    }
+    
+  </style>
 </head>
 <body>
 
   <!-- エラー文の出力 -->
-  {% with messages = get_flashed_messages(with_categories=true) %}
+  <!-- {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, message in messages %}
         <div class="flash {{ category }}">{{ message }}</div>
       {% endfor %}
     {% endif %}
-  {% endwith %}
+  {% endwith %} -->
 
-    <div>
+    <div class="container">
         <h1>ようこそ、{{ user.name }} さん！</h1>
         <p>ユーザーID: {{ user.id }}</p>
         <p>メールアドレス: {{ user.email }}</p>
@@ -36,11 +44,11 @@
     <a href="{{ url_for('home.logout') }}" >ログアウト</a>
 </div>
 
-<a href="{{url_for('home.information')}}">💬</a>
+<a href="{{url_for('home.information')}}">information</a>
 
 <nav>
     <div>
-        <a href="{{ url_for('home.home') }}" >ホーム</a>
+        <a href="{{ url_for('home.home') }}" >home</a>
         <a href="{{url_for('mbti.mbti_explanation')}}">mbtiページ</a>
         <a href="{{ url_for('setting.setting') }}" >個人情報画面</a>
         <a>旅行ページ</a>
