@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head><meta charset="UTF-8"><title>旅行条件入力</title></head>
+<head>
+  <meta charset="UTF-8">
+  <title>旅行条件入力</title>
+  <style>
+    .muted { color:#666; font-size: 0.9em; }
+    fieldset { margin-bottom: 1rem; }
+    select:disabled { background: #f3f3f3; color:#999; }
+  </style>
+</head>
 <body>
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -9,19 +17,52 @@
   {% endwith %}
 
   <h1>旅行条件（{{ username }} / MBTI: {{ mbti }}）</h1>
-  <form method="post" action="{{ url_for('plan.plan') }}">
-    <div><label>旅行名：<input name="trip_name" required maxlength="64"></label></div>
-    <div>
-      <label>開始日：<input type="date" name="start_date" required></label>
-      <label>終了日：<input type="date" name="end_date" required></label>
-    </div>
-    <div><label>人数：<input type="number" name="headcount" min="1" value="1" required></label></div>
-    <div><label>地域：<input name="area" placeholder="関東 / 栃木 など" required></label></div>
-    <div><label>予算(円)：<input type="number" name="budget" min="1000" step="1000" required></label></div>
-    <div><label>補足（任意）：<input name="notes" placeholder="車NG / 辛い物NG など"></label></div>
+
+  <form method="post" action="{{ url_for('plan.plan') }}" id="plan-form">
+    <fieldset>
+      <legend>基本情報</legend>
+      <div><label>旅行名：<input name="trip_name" required maxlength="64"></label></div>
+      <div>
+        <label>開始日：<input type="date" name="start_date" required></label>
+        <label>終了日：<input type="date" name="end_date" required></label>
+      </div>
+      <div><label>人数：<input type="number" name="headcount" min="1" value="1" required></label></div>
+      <div><label>予算(円)：<input type="number" name="budget" min="1000" step="1000" required></label></div>
+      <div><label>補足（任意）：<input name="notes" placeholder="車NG / 辛い物NG など"></label></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>行き先（3階層選択）</legend>
+
+      <div>
+        <label>地域（必須）：</label>
+        <select name="region" id="region-select" required>
+          <option value="">読込中...</option>
+        </select>
+      </div>
+
+      <div>
+        <label>都道府県（任意）：</label>
+        <select name="prefecture" id="prefecture-select">
+          <option value="">自動提案に任せる</option>
+        </select>
+        <span class="muted">未選択のままでOK（LLMが提案）</span>
+      </div>
+
+      <div>
+        <label>市区町村（任意）：</label>
+        <select name="city" id="city-select">
+          <option value="">自動提案に任せる</option>
+        </select>
+        <span class="muted">未選択のままでOK（LLMが提案）</span>
+      </div>
+    </fieldset>
+
     <button type="submit">LLMに提案させる</button>
   </form>
 
   <p><a href="{{ url_for('home.home') }}">ホームへ戻る</a></p>
+
+  <script src="{{ url_for('static', filename='js/geo.js') }}"></script>
 </body>
 </html>
