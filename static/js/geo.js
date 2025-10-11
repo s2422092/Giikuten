@@ -1,4 +1,3 @@
-// static/js/geo.js
 (() => {
   const regionSel = document.getElementById("region-select");
   const prefSel   = document.getElementById("prefecture-select");
@@ -7,7 +6,6 @@
   // フォールバックの静的地域（DB/APIが空でも壊れない）
   const FALLBACK_REGIONS = ["北海道","東北","関東","中部","近畿","中国","四国","九州・沖縄"];
 
-  // レース対策用の「世代」
   let prefReqId = 0;
   let cityReqId = 0;
 
@@ -20,7 +18,7 @@
         return await res.json();
       } catch (e) {
         if (i === retries) throw e;
-        await sleep(200 * (i+1)); // 少し待ってリトライ
+        await sleep(200 * (i+1));
       }
     }
   }
@@ -55,18 +53,15 @@
   async function loadRegions() {
     resetSelect(regionSel, "読込中...", true);
     try {
-      const data = await fetchJSON("/plan/api/regions");
+      const data = await fetchJSON("/plan/api/region");
       if (data.ok && data.items.length) {
         fillOptions(regionSel, data.items, "選択してください");
       } else {
-        // DBに何も無い場合もフォールバック
         fillOptions(regionSel, FALLBACK_REGIONS, "選択してください");
       }
     } catch {
-      // APIエラー時もフォールバック
       fillOptions(regionSel, FALLBACK_REGIONS, "選択してください");
     }
-    // 下位は初期化
     resetSelect(prefSel, "自動提案に任せる", false);
     resetSelect(citySel, "自動提案に任せる", false);
   }
@@ -74,7 +69,6 @@
   // 地域変更時：都道府県ロード
   async function onRegionChange() {
     const region = regionSel.value;
-    // 下位をクリア
     resetSelect(prefSel, "自動提案に任せる", false);
     resetSelect(citySel, "自動提案に任せる", false);
     if (!region) return;
@@ -84,13 +78,11 @@
     prefSel.options[0].textContent = "読込中...";
 
     try {
-      const data = await fetchJSON(`/plan/api/prefectures?region=${encodeURIComponent(region)}`);
-      // レース対策：最新の要求だけ反映
+      const data = await fetchJSON(`/plan/api/prefecture?region=${encodeURIComponent(region)}`);
       if (myReq !== prefReqId) return;
       if (data.ok && data.items.length) {
         fillOptions(prefSel, data.items, "自動提案に任せる");
       } else {
-        // 都道府県が取得できなければ、任意選択のまま有効化
         resetSelect(prefSel, "自動提案に任せる", false);
       }
     } catch {
@@ -102,15 +94,15 @@
   async function onPrefChange() {
     const pref = prefSel.value;
     resetSelect(citySel, "自動提案に任せる", false);
-    if (!pref) return; // 未選択＝LLM任せ
+    if (!pref) return;
 
     const myReq = ++cityReqId;
     citySel.disabled = true;
     citySel.options[0].textContent = "読込中...";
 
     try {
-      const data = await fetchJSON(`/plan/api/cities?prefecture=${encodeURIComponent(pref)}`);
-      if (myReq !== cityReqId) return; // レース対策
+      const data = await fetchJSON(`/plan/api/area?prefecture=${encodeURIComponent(pref)}`);
+      if (myReq !== cityReqId) return;
       if (data.ok && data.items.length) {
         fillOptions(citySel, data.items, "自動提案に任せる");
       } else {
