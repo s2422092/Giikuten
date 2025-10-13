@@ -3,65 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <title>旅行条件入力</title>
-  <style>
-    .muted { color:#666; font-size: 0.9em; }
-    fieldset { margin-bottom: 1rem; }
-    select:disabled { background: #f3f3f3; color:#999; }
-  </style>
+  <!-- ✅ Tailwind + DaisyUI CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {},
+      },
+      plugins: [daisyui],
+    };
+  </script>
 </head>
-<body>
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for c, m in messages %}<div class="flash {{c}}">{{ m }}</div>{% endfor %}
-    {% endif %}
-  {% endwith %}
+<body class="bg-baseBg text-textMain font-['Noto Sans JP'] p-8">
 
-  <h1>旅行条件（{{ username }} / MBTI: {{ mbti }}）</h1>
+  <h1 class="text-2xl font-semibold text-[#31405F] mb-6">
+    旅行条件（{{ username }} / MBTI: {{ mbti }}）
+  </h1>
 
-  <form method="post" action="{{ url_for('plan.plan') }}" id="plan-form">
-    <fieldset>
-      <legend>基本情報</legend>
-      <div><label>旅行名：<input name="trip_name" required maxlength="64"></label></div>
-      <div>
-        <label>開始日：<input type="date" name="start_date" required></label>
-        <label>終了日：<input type="date" name="end_date" required></label>
+  <form method="post" action="{{ url_for('plan.plan') }}" id="plan-form" class="space-y-8">
+
+    <fieldset class="bg-white border-2 border-[#EFD8C0] rounded-xl p-6 shadow-md">
+      <legend class="text-[#4F8C8C] font-bold">基本情報</legend>
+
+      <div class="mt-4">
+        <label class="block mb-1 font-medium">旅行名：</label>
+        <input name="trip_name" required maxlength="64" placeholder="例：京都旅行"
+          class="w-full rounded-lg border border-borderSoft bg-baseBg text-textMain text-sm p-2.5 
+                 focus:ring-accent focus:border-accent focus:outline-none" />
       </div>
-      <div><label>人数：<input type="number" name="headcount" min="1" value="1" required></label></div>
-      <div><label>予算(円)：<input type="number" name="budget" min="1000" step="1000" required></label></div>
-      <div><label>補足（任意）：<input name="notes" placeholder="車NG / 辛い物NG など"></label></div>
+
+      <div class="mt-4 flex flex-col gap-3">
+        <label class="font-medium">開始日：</label>
+        <input type="date" name="start_date" required class="w-full rounded-lg border border-borderSoft bg-baseBg text-textMain text-sm p-2.5 
+                 focus:ring-accent focus:border-accent focus:outline-none" />
+
+        
+
+      <div class="mt-4">
+        <label class="font-medium">終了日：</label>
+        <input type="date" name="end_date" required
+          class="w-full rounded-lg border border-borderSoft bg-baseBg text-textMain text-sm p-2.5 
+                 focus:ring-accent focus:border-accent focus:outline-none" />
+
+      <div class="mt-4">
+        <label class="font-medium">人数：</label>
+        <input type="number" name="headcount" min="1" value="1" required
+          class="w-full rounded-lg border border-borderSoft bg-baseBg text-textMain text-sm p-2.5 
+                 focus:ring-accent focus:border-accent focus:outline-none" />
+      </div>
+
+      <div class="mt-4">
+        <label class="font-medium">予算（円）：</label>
+        <input type="number" name="budget" min="1000" step="1000" required
+          class="w-full rounded-lg border border-borderSoft bg-baseBg text-textMain text-sm p-2.5 
+                 focus:ring-accent focus:border-accent focus:outline-none" />
+      </div>
+
+      <div class="mt-4">
+        <label class="font-medium">補足（任意）：</label>
+        <input name="notes" placeholder="車NG / 辛い物NG など"
+          class="w-full rounded-lg border border-borderSoft bg-baseBg text-textMain text-sm p-2.5 
+                 focus:ring-accent focus:border-accent focus:outline-none" />
+      </div>
     </fieldset>
 
-    <fieldset>
-      <legend>行き先（3階層選択）</legend>
+    <fieldset class="bg-white border-2 border-[#EFD8C0] rounded-xl p-6 shadow-md">
+      <legend class="text-[#4F8C8C] font-bold">行き先</legend>
 
-      <div>
-        <label>地域（必須）：</label>
-        <select name="region" id="region-select" required>
+      <div class="mt-3">
+        <label class="block mb-1 font-medium">地域（必須）：</label>
+        <select id="region-select" name="region" required
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                 focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5">
           <option value="">読込中...</option>
         </select>
       </div>
 
-      <div>
-        <label>都道府県（任意）：</label>
-        <select name="prefecture" id="prefecture-select">
+      <div class="mt-3">
+        <label class="block mb-1 font-medium">都道府県（任意）：</label>
+        <select id="prefecture-select" name="prefecture"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                 focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5">
           <option value="">自動提案に任せる</option>
         </select>
-        <span class="muted">未選択のままでOK（LLMが提案）</span>
+        <span class="text-sm text-gray-500">未選択のままでOK（LLMが提案）</span>
       </div>
 
-      <div>
-        <label>市区町村（任意）：</label>
-        <select name="city" id="city-select">
+      <div class="mt-3">
+        <label class="block mb-1 font-medium">市区町村（任意）：</label>
+        <select id="city-select" name="city"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                 focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5">
           <option value="">自動提案に任せる</option>
         </select>
-        <span class="muted">未選択のままでOK（LLMが提案）</span>
+        <span class="text-sm text-gray-500">未選択のままでOK（LLMが提案）</span>
       </div>
     </fieldset>
 
-    <button type="submit">LLMに提案させる</button>
+    <button type="submit"
+      class="bg-[#4F8C8C] text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-[#3E7676] transition">
+      LLMに提案させる
+    </button>
   </form>
 
-  <p><a href="{{ url_for('home.home') }}">ホームへ戻る</a></p>
+  <p class="mt-6">
+    <a href="{{ url_for('home.home') }}" class="text-[#4F8C8C] hover:underline">ホームへ戻る</a>
+  </p>
 
   <script src="{{ url_for('static', filename='js/geo.js') }}"></script>
 </body>
