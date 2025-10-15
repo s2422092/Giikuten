@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <head>ホーム</head>
+</head>
+<body>
+
+  <!-- エラー文の出力 -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}    
+
+<nav>
+    <div>
+        <a href="{{ url_for('home.home') }}" >ホーム</a>
+        <a href="{{url_for('mbti.mbti_explanation')}}">mbtiページ</a>
+        <a href="{{ url_for('setting.setting') }}" >個人情報画面</a>
+        <a href="{{ url_for('plan.plan') }}">旅行ページ</a>
+        <a href="{{url_for('travel_search.travel_search')}}">旅行検索</a>
+    </div>
+</nav>
+
+</body>
+</html>
