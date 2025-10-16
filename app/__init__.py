@@ -22,6 +22,7 @@ def create_app():
     from .routes.setting import setting_bp
     from .routes.plan import plan_bp    
     from .routes.travel_search import travel_search_bp
+    from .routes.my_travel import my_travel_bp
 
 
     app.register_blueprint(index_bp)
@@ -30,5 +31,6 @@ def create_app():
     app.register_blueprint(setting_bp)
     app.register_blueprint(plan_bp)
     app.register_blueprint(travel_search_bp)
+    app.register_blueprint(my_travel_bp)
 
     return app
