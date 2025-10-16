@@ -15,7 +15,7 @@
     }
 
     .container {
-      max-width: 700px;
+      max-width: 600px;
       margin: 50px auto;
       background: #FFFFFF;
       border-radius: 20px;
@@ -130,7 +130,10 @@
       {% endif %}
     </div>
 
-    <a href="{{ url_for('home.home') }}">← ホームに戻る</a>
+    <a href="{{ url_for('home.home') }}" 
+   class="bg-[#4F8C8C] text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-[#3E7676] transition inline-block">
+  ← ホームに戻る
+</a>
   </div>
 
 </body>
