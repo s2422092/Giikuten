@@ -11,7 +11,7 @@ from flask import (
 )
 import psycopg2
 from datetime import datetime
-from ..services.itinerary import generate_itinerary
+#from ..services.itinerary import generate_itinerary
 import os
 from dotenv import load_dotenv
 
@@ -199,7 +199,7 @@ def plan():
             "area": area_label,
         }
 
-        plan_obj = generate_itinerary(user, req)  # LLM呼び出し
+        #plan_obj = generate_itinerary(user, req)  # LLM呼び出し
 
         return render_template("plan/result.html", plan=plan_obj, username=username)
 
