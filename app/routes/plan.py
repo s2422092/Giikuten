@@ -201,7 +201,7 @@ def plan():
 
         #plan_obj = generate_itinerary(user, req)  # LLM呼び出し
 
-        return render_template("plan/result.html", plan=plan_obj, username=username)
+        #return render_template("plan/result.html", plan=plan_obj, username=username)
 
     except Exception as e:
         flash(f"提案生成に失敗しました: {e}", "error")
