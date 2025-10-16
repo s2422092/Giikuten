@@ -3,11 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <title>新規登録</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #F6F5F3; /* オフホワイト背景 */
+      color: #2C3E50; /* 文字色 */
+      font-family: "Noto Sans JP", sans-serif;
+    }
+    
+  </style>
 </head>
-<body>
+
+<body class="flex flex-col justify-center items-center min-h-screen relative overflow-hidden">
 
   <!--エラー文の出力-->
-  {% with messages = get_flashed_messages(with_categories=true) %}
+  <!-- {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, message in messages %}
         <div class="flash-message {{ category }}">
@@ -15,31 +25,42 @@
         </div>
       {% endfor %}
     {% endif %}
-  {% endwith %}
+  {% endwith %} -->
+  <h2 class="text-2xl font-semibold mb-5 text-[#31405F]">新規登録</h2>
 
-  <h2>新規登録</h2>
-
-  <form action="{{ url_for('index.registration') }}" method="post">
-    <div>
-      <input type="text" name="username" placeholder="ユーザー名" required maxlength="32">
+  <form action="{{ url_for('index.registration') }}" method="post" class="bg-[#FFFFFF] shadow-md rounded-2xl px-8 pt-6 pb-8 w-full max-w-md border border-[#EFD8C0] relative z-10">
+    <div class="mb-5">
+      <label for="username" class="block mb-2 text-sm font-medium text-[#31405F]">ユーザー名</label>
+      <input type="text" name="username" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="ユーザー名" required maxlength="32">
     </div>
-    <div>
-      <input type="email" name="email" placeholder="メールアドレス" required maxlength="64">
+    <div class="mb-5">
+      <label for="email" class="block mb-2 text-sm font-medium text-[#31405F]">メールアドレス</label>
+      <input type="email" name="email" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="john.doe@company.com" required maxlength="64">
     </div>
-    <div>
-      <input type="password" name="password" placeholder="パスワード" required maxlength="32">
+    <div class="mb-5">
+      <label for="password" class="block mb-2 text-sm font-medium text-[#31405F]">パスワード</label>
+      <input type="password" name="password" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="パスワード" required maxlength="32">
     </div>
-    <div>
-      <input type="password" name="confirm_password" placeholder="パスワード（確認）" required maxlength="32">
+    <div class="mb-5">
+      <label for="confirm_password" class="block mb-2 text-sm font-medium text-[#31405F]">パスワード（確認）</label>
+      <input type="password" name="confirm_password" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="パスワード（確認）" required maxlength="32">
     </div>
-    <button type="submit" id="submit-btn">登録</button>
+    <button type="submit" id="submit-btn"
+      class="w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200"
+      style="background-color: #4F8C8C;"
+      onmouseover="this.style.backgroundColor='#3E7676'"
+      onmouseout="this.style.backgroundColor='#4F8C8C'">
+      登録
+    </button>
+    <div class="mt-6 text-center text-sm text-[#31405F] space-y-2">
+      <p>
+        登録済みの方は
+        <a href="{{ url_for('index.login') }}" class="text-[#4F8C8C] font-medium hover:underline">
+          こちら
+        </a>
+      </p>
+    </div>
   </form>
-
-  <div>
-    <a href="{{ url_for('index.login') }}">ログインページへ</a><br>
-    <a href="{{ url_for('index.index') }}">トップへ戻る</a>
-  </div>
-
 
 <!--二重送信しないようにするためのscriptタグ-->
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
