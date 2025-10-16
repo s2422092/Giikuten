@@ -37,38 +37,67 @@
 
 </div>
 
-<nav class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner">
-    <div class="flex justify-around py-3 text-sm text-gray-700">
-      <a href="{{ url_for('mbti.mbti_explanation') }}" class="flex flex-col items-center hover:text-teal-600">
-        <span class="text-lg">🧠</span>
-        <span>Test</span>
-      </a>
+<div class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
 
-      <a href="{{ url_for('home.home') }}" class="flex flex-col items-center hover:text-teal-600">
-        <span class="text-lg">🏠</span>
-        <span>Home</span>
-      </a>
+  <!-- 診断の詳細について（Test） -->
+  <button onclick="window.location='{{ url_for(&quot;mbti.mbti_explanation&quot;) }}';" 
+          class="flex flex-col items-center text-gray-700 hover:text-teal-600">
+    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+      <path d="M4 6h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="8" cy="6" r="1.5" fill="currentColor"/>
+      <circle cx="8" cy="12" r="1.5" fill="currentColor"/>
+      <circle cx="8" cy="18" r="1.5" fill="currentColor"/>
+    </svg>
+    <span class="text-xs mt-1">Test</span>
+  </button>
 
-      <a href="{{ url_for('plan.plan') }}" class="flex flex-col items-center hover:text-teal-600">
-        <span class="text-lg">✈️</span>
-        <span>Time Line</span>
-      </a>
+  <!-- 旅のタイムライン（Time Line） -->
+  <button onclick="window.location='{{ url_for(&quot;plan.plan&quot;) }}';" 
+          class="flex flex-col items-center text-gray-700 hover:text-teal-600">
+    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="text-xs mt-1">Time Line</span>
+  </button>
 
-      <a href="{{ url_for('my_travel.my_travel') }}" class="flex flex-col items-center hover:text-teal-600">
-        <span class="text-lg">📸</span>
-        <span>My Travel</span>
-      </a>
+  <!-- ホーム画面（Home） -->
+  <button onclick="window.location='{{ url_for(&quot;home.home&quot;) }}';" 
+          class="flex flex-col items-center text-gray-700 hover:text-teal-600">
+    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+      <g fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="3 12 12 3 21 12" />
+        <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
+      </g>
+    </svg>
+    <span class="text-xs mt-1">Home</span>
+  </button>
 
-      <a href="{{ url_for('setting.setting') }}" class="flex flex-col items-center hover:text-teal-600">
-        <span class="text-lg">👤</span>
-        <span>My Page</span>
-      </a>
-    </div>
-  </nav>
+  <!-- 今までの旅行一覧（My Travel） -->
+  <button onclick="window.location='{{ url_for(&quot;my_travel.my_travel&quot;) }}';" 
+          class="flex flex-col items-center text-gray-700 hover:text-teal-600">
+    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+      <rect x="6" y="7" width="12" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+      <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <span class="text-xs mt-1">My Travel</span>
+  </button>
 
+  <!-- マイページ（My Page） -->
+  <button onclick="window.location='{{ url_for(&quot;setting.setting&quot;) }}';" 
+          class="flex flex-col items-center text-gray-700 hover:text-teal-600">
+    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M4 21v-1a7 7 0 0 1 14 0v1" fill="none" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <span class="text-xs mt-1">My Page</span>
+  </button>
 
+</div>
 
-<diV>
+<div>
   <h1>旅行タイトル</h1>
   <p>旅行先</p>
   <p>人数</p>
