@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <script src="https://cdn.tailwindcss.com"></script>
   <meta charset="UTF-8">
-<<<<<<< HEAD
-  <head>ホーム</head>
+  <title>ホーム</title>
   <style>
     body {
       background-color: #F6F5F3;
@@ -12,9 +12,7 @@
     }
     
   </style>
-=======
   <head>MYトラベル</head>
->>>>>>> 938f0bf7214b2991633e4da313b7d6ab1506e485
 </head>
 <body>
 
@@ -39,15 +37,34 @@
 
 </div>
 
-<nav>
-    <div>
-        <a href="{{ url_for('home.home') }}" >ホーム</a>
-        <a href="{{url_for('mbti.mbti_explanation')}}">mbtiページ</a>
-        <a href="{{ url_for('setting.setting') }}" >個人情報画面</a>
-        <a href="{{ url_for('plan.plan') }}">旅行ページ</a>
-        <a href="{{url_for('my_travel.my_travel')}}">MYトラベル</a>
+<nav class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner">
+    <div class="flex justify-around py-3 text-sm text-gray-700">
+      <a href="{{ url_for('mbti.mbti_explanation') }}" class="flex flex-col items-center hover:text-teal-600">
+        <span class="text-lg">🧠</span>
+        <span>Test</span>
+      </a>
+
+      <a href="{{ url_for('home.home') }}" class="flex flex-col items-center hover:text-teal-600">
+        <span class="text-lg">🏠</span>
+        <span>Home</span>
+      </a>
+
+      <a href="{{ url_for('plan.plan') }}" class="flex flex-col items-center hover:text-teal-600">
+        <span class="text-lg">✈️</span>
+        <span>Time Line</span>
+      </a>
+
+      <a href="{{ url_for('my_travel.my_travel') }}" class="flex flex-col items-center hover:text-teal-600">
+        <span class="text-lg">📸</span>
+        <span>My Travel</span>
+      </a>
+
+      <a href="{{ url_for('setting.setting') }}" class="flex flex-col items-center hover:text-teal-600">
+        <span class="text-lg">👤</span>
+        <span>My Page</span>
+      </a>
     </div>
-</nav>
+  </nav>
 
 </body>
 </html>
