@@ -2,69 +2,190 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>mbti診断画面</title>
+  <title>旅行タイプ診断（MBTI風）</title>
   <style>
     body {
-      background-color: #F6F5F3;
+      background: #F6F5F3;
       color: #2C3E50;
       font-family: "Noto Sans JP", sans-serif;
+      line-height: 1.7;
+      margin: 0;
+      padding: 0;
     }
-    
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    .panel {
+      background: #FFFFFF;
+      border: 1px solid #E7DDD2;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-top: 16px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 18px;
+      background: #4F8C8C;
+      color: #fff;
+      border-radius: 10px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn:hover { background: #3E7676; }
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin: 8px 0 14px;
+    }
+    .opt {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: #F6F5F3;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #E7DDD2;
+    }
+    .opt input {
+      margin-top: 2px;
+    }
+    .q-head {
+      font-weight: 600;
+      margin: 12px 0 6px;
+    }
+    .small {
+      color: #57636F;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
 
-<!-- エラー文の出力 -->
+<div class="wrap">
+
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-      {% endfor %}
+      <div class="panel">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
     {% endif %}
   {% endwith %}
-  
-<div>
+
+  <div class="panel">
     <h1>ようこそ、{{ username }} さん！</h1>
-    <p>ここはログイン後のmbti画面です。</p>
+    <p>以下の設問にお答えください。各設問は単一選択（2〜4択）です。</p>
+  </div>
 
-</div>
+  <div class="panel">
+    <h2>旅行タイプ診断（MBTI風・選択式）</h2>
 
-<div>
-  <h2>旅行タイプ診断（MBTI風）</h2>
-
-
-{% block content %}
-<div class="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-md">
-  <h2 class="text-2xl font-bold mb-6 text-center">🌍 旅行MBTI診断</h2>
-  <form method="POST">
-    {% for q in questions %}
-      <div class="mb-6">
-        <p class="font-medium mb-2">{{ loop.index }}. {{ q.text }}</p>
-        <div class="flex justify-between text-sm text-gray-600 mb-1">
-          <span>全くそう思わない</span>
-          <span>とてもそう思う</span>
-        </div>
-        <div class="flex justify-between">
-          {% for i in range(1,6) %}
-            <label>
-              <input type="radio" name="q{{ q.id }}" value="{{ i }}" required>
-              <span>{{ i }}</span>
-            </label>
-          {% endfor %}
+    <form method="POST">
+      <!-- 1. 旅行の目的 -->
+      <div>
+        <p class="q-head">1. 今回の主な旅行目的はどれですか？</p>
+        <div class="options">
+          <label class="opt"><input type="radio" name="q_purpose" value="S" required> 観光名所巡り</label>
+          <label class="opt"><input type="radio" name="q_purpose" value="G" required> グルメ・食べ歩き</label>
+          <label class="opt"><input type="radio" name="q_purpose" value="N" required> 自然・リラックス</label>
+          <label class="opt"><input type="radio" name="q_purpose" value="E" required> イベント参加/親族訪問/仕事兼用</label>
         </div>
       </div>
-    {% endfor %}
-    <div class="text-center mt-8">
-      <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">
-        診断結果を見る
-      </button>
-    </div>
-  </form>
-</div>
-{% endblock %}
+
+      <!-- 2. 優先度（重視ポイント） -->
+      <div>
+        <p class="q-head">2. 旅で最も重視したいのはどれですか？</p>
+        <div class="options">
+          <label class="opt"><input type="radio" name="q_priority" value="EX" required> 観光の充実（見どころを多く回る）</label>
+          <label class="opt"><input type="radio" name="q_priority" value="FO" required> 食体験（話題店・ご当地グルメ）</label>
+          <label class="opt"><input type="radio" name="q_priority" value="BU" required> 予算重視（コスパ最優先）</label>
+          <label class="opt"><input type="radio" name="q_priority" value="CO" required> 移動負担の少なさ/写真映え</label>
+        </div>
+      </div>
+
+      <!-- 3. 旅のテーマ -->
+      <div>
+        <p class="q-head">3. 興味のある旅のテーマを選んでください。</p>
+        <div class="options">
+          <label class="opt"><input type="radio" name="q_theme" value="CU" required> 歴史・アート・文化</label>
+          <label class="opt"><input type="radio" name="q_theme" value="OU" required> 野外活動（ハイキング/海/山）</label>
+          <label class="opt"><input type="radio" name="q_theme" value="SP" required> 温泉・スパ・癒し</label>
+          <label class="opt"><input type="radio" name="q_theme" value="CI" required> 都市散策・ショッピング</label>
+          <label class="opt"><input type="radio" name="q_theme" value="RU" required> 田舎ののんびり</label>
+        </div>
+      </div>
+
+      <!-- 4. 絶対にしたいこと -->
+      <div>
+        <p class="q-head">4. 絶対にしたいことに近いものを選んでください。</p>
+        <div class="options">
+          <label class="opt"><input type="radio" name="q_want" value="GO_SPOT" required> 有名スポット制覇</label>
+          <label class="opt"><input type="radio" name="q_want" value="LO_LOCAL" required> ローカル体験（市場・屋台・現地コミュニティ）</label>
+          <label class="opt"><input type="radio" name="q_want" value="RE_EASE" required> とにかくのんびり（ホテル/温泉中心）</label>
+          <label class="opt"><input type="radio" name="q_want" value="GO_ACTIVE" required> アクティビティ（アスレチック/マリン/ウィンター）</label>
+        </div>
+      </div>
+
+      <!-- 5. 絶対に避けたいこと -->
+      <div>
+        <p class="q-head">5. 絶対に避けたいことはどれですか？</p>
+        <div class="options">
+          <label class="opt"><input type="radio" name="q_avoid" value="AV_QUEUE" required> 行列・混雑</label>
+          <label class="opt"><input type="radio" name="q_avoid" value="AV_WALK" required> 長時間の徒歩/階段</label>
+          <label class="opt"><input type="radio" name="q_avoid" value="AV_FOOD" required> 辛い/生ものなどの食</label>
+          <label class="opt"><input type="radio" name="q_avoid" value="AV_NIGHT" required> 夜遅い行動/騒がしい場所</label>
+        </div>
+      </div>
+
+      <!-- 6. 起床・就寝時間／活動時間帯 -->
+      <div>
+        <p class="q-head">6. あなたの活動リズムはどれに近いですか？</p>
+        <div class="options">
+          <label class="opt"><input type="radio" name="q_rhythm" value="M" required> 朝型（早起きして早めに就寝）</label>
+          <label class="opt"><input type="radio" name="q_rhythm" value="L" required> 昼型（10時前後に始動、夜はほどほど）</label>
+          <label class="opt"><input type="radio" name="q_rhythm" value="N" required> 夜型（遅めに始動、夜遅くまでOK）</label>
+          <label class="opt"><input type="radio" name="q_rhythm" value="F" required> どれでも可（現地に合わせる）</label>
+        </div>
+      </div>
+
+      <!-- 7. 乗り物酔い -->
+      <div>
+        <p class="q-head">7. 乗り物酔いはありますか？</p>
+        <div class="options">
+          <label class="opt"><input type="radio" name="q_motion" value="Y_STRONG" required> 強い（短時間でも酔いやすい）</label>
+          <label class="opt"><input type="radio" name="q_motion" value="Y_MILD" required> ややある（条件次第）</label>
+          <label class="opt"><input type="radio" name="q_motion" value="N_NONE" required> ほとんどない</label>
+        </div>
+      </div>
+
+      <!-- 8. 許容移動時間 -->
+      <div>
+        <p class="q-head">8. 片道の移動時間、どの程度まで許容できますか？</p>
+        <div class="options">
+          <label class="opt"><input type="radio" name="q_distance" value="S" required> 〜2時間</label>
+          <label class="opt"><input type="radio" name="q_distance" value="M" required> 〜4時間</label>
+          <label class="opt"><input type="radio" name="q_distance" value="ML" required> 〜6時間</label>
+          <label class="opt"><input type="radio" name="q_distance" value="L" required> 6時間超でも可（乗り継ぎ含む）</label>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top: 20px;">
+        <button type="submit" class="btn">診断結果を見る</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel small">
+    <p>注: フォームの`name`/`value`はサーバ側の判定ロジック（タイプコード生成）で利用できます。</p>
+  </div>
 
 </div>
-
 
 </body>
 </html>
