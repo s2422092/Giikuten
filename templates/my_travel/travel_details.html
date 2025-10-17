@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>関西旅行 - 詳細</title>
+  <style>
+    body { background-color: #F6F5F3; color: #2C3E50; font-family: "Noto Sans JP", sans-serif; }
+  </style>
+</head>
+<body class="pb-28">
+
+<header class="w-full flex justify-between items-center p-4 bg-white shadow-md">
+  <a href="{{ url_for('my_travel.my_travel') }}" class="text-teal-600 font-semibold">戻る</a>
+  <a href="#">💬</a>
+</header>
+
+<main class="max-w-3xl mx-auto mt-6 bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-6">
+
+  <h1 class="text-3xl font-bold text-teal-700">関西旅行（4日間）</h1>
+  <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 大阪・京都・奈良</p>
+  <p class="text-gray-700"><span class="font-semibold">人数:</span> 4人</p>
+  <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 80,000円</p>
+
+  <hr class="border-gray-300">
+
+  <!-- 1日目概要 -->
+  <div>
+    <h2 class="text-2xl font-semibold text-teal-600">1日目: 大阪観光</h2>
+    <p class="text-gray-600 text-sm mt-1">
+      大阪に到着してから道頓堀を散策し、地元グルメを楽しむ一日です。午後は大阪城周辺を観光し、夜はホテルでゆっくり休息。<span class="font-semibold text-teal-700">目玉: 道頓堀食べ歩き体験</span>
+    </p>
+
+    <!-- タイムスケジュール -->
+    <ul class="list-disc list-inside space-y-1 text-gray-700 mt-2">
+      <li>07:30 - 東京出発、新幹線乗車（交通費: 8,000円/人）</li>
+      <li>09:40 - 新大阪駅到着、ホテルに荷物を預ける</li>
+      <li>10:15 - 道頓堀散策開始</li>
+      <li>10:45 - たこ焼き・串カツを食べ歩き（食費: 1,500円/人）</li>
+      <li>11:30 - 心斎橋ショッピング（お土産購入: 約1,000円）</li>
+      <li>12:15 - ランチ（お好み焼き屋さん、2,000円/人）</li>
+      <li>13:30 - 大阪城へ移動（移動費: 200円/人）</li>
+      <li>14:00 - 大阪城観光（入場料: 600円/人）</li>
+      <li>15:30 - 大阪歴史博物館見学（入場料: 700円/人）</li>
+      <li>17:00 - ホテルチェックイン、休憩</li>
+      <li>18:30 - 夕食（近隣居酒屋、2,500円/人）</li>
+      <li>19:30 - 夜の道頓堀ライトアップ見学</li>
+      <li>21:00 - ホテルで就寝</li>
+    </ul>
+    <p class="text-gray-600 mt-1">宿泊候補: ホテル阪急イン、リーガロイヤルホテル、スイスホテル南海大阪</p>
+  </div>
+
+  <!-- 2日目概要 -->
+  <div>
+    <h2 class="text-2xl font-semibold text-teal-600">2日目: 京都寺社巡り</h2>
+    <p class="text-gray-600 text-sm mt-1">
+      京都の有名寺社を巡る文化体験の一日。嵐山や金閣寺などの観光スポットを楽しみます。<span class="font-semibold text-teal-700">目玉: 嵐山竹林散策</span>
+    </p>
+    <ul class="list-disc list-inside space-y-1 text-gray-700 mt-2">
+      <li>07:00 - ホテルで朝食（食費: 500円/人）</li>
+      <li>08:10 - 新幹線で京都へ移動（交通費: 1,500円/人）</li>
+      <li>09:00 - 清水寺観光（入場料: 400円/人）</li>
+      <li>10:15 - 二年坂・三年坂散策</li>
+      <li>11:00 - 祇園散策・カフェ休憩（飲食: 700円/人）</li>
+      <li>12:00 - ランチ（京料理: 2,000円/人）</li>
+      <li>13:30 - 金閣寺観光（入場料: 400円/人）</li>
+      <li>14:30 - 銀閣寺観光（入場料: 400円/人）</li>
+      <li>15:30 - 嵐山竹林散策（無料）</li>
+      <li>17:00 - 京都駅近くホテルチェックイン</li>
+      <li>18:30 - 夕食（レストラン: 2,500円/人）</li>
+      <li>20:00 - ホテルで就寝</li>
+    </ul>
+    <p class="text-gray-600 mt-1">宿泊候補: 京都ホテルオークラ、ホテルグランヴィア京都、ザ・ゲートホテル京都</p>
+  </div>
+
+  <!-- 3日目概要 -->
+  <div>
+    <h2 class="text-2xl font-semibold text-teal-600">3日目: 奈良の自然と歴史</h2>
+    <p class="text-gray-600 text-sm mt-1">
+      奈良公園で鹿と触れ合い、東大寺や興福寺など歴史的建造物を見学。<span class="font-semibold text-teal-700">目玉: 鹿と触れ合い体験</span>
+    </p>
+    <ul class="list-disc list-inside space-y-1 text-gray-700 mt-2">
+      <li>07:30 - ホテルで朝食（食費: 500円/人）</li>
+      <li>08:15 - 奈良へ電車移動（交通費: 800円/人）</li>
+      <li>09:30 - 奈良公園到着・鹿と触れ合い（入場料: 無料、餌: 200円/人）</li>
+      <li>10:15 - 東大寺観光（入場料: 600円/人）</li>
+      <li>12:00 - ランチ（柿の葉寿司: 1,500円/人）</li>
+      <li>13:00 - 興福寺見学（入場料: 500円/人）</li>
+      <li>14:00 - 奈良町散策・休憩（飲食: 300円/人）</li>
+      <li>15:30 - 大阪へ移動（交通費: 800円/人）</li>
+      <li>17:30 - ホテルチェックイン</li>
+      <li>18:30 - 夕食（レストラン: 2,500円/人）</li>
+      <li>20:00 - ホテルで休息・就寝</li>
+    </ul>
+    <p class="text-gray-600 mt-1">宿泊候補: ホテルモントレ大阪、クロスホテル大阪、ホテル京阪ユニバーサル・シティ</p>
+  </div>
+
+  <hr class="border-gray-300">
+
+  <!-- 予算内訳 -->
+  <h2 class="text-xl font-semibold text-teal-700 mt-4">予算内訳（詳細）</h2>
+  <ul class="list-disc list-inside text-gray-700 text-sm space-y-1">
+    <li>交通費（新幹線・在来線・バス）: 20,000円</li>
+    <li>宿泊費（3泊×4人）: 30,000円</li>
+    <li>食費（朝・昼・夕×4人）: 15,000円</li>
+    <li>観光施設入場料: 5,000円</li>
+    <li>お土産代: 10,000円</li>
+  </ul>
+
+</main>
+</body>
+</html>
