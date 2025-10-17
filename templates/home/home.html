@@ -12,7 +12,6 @@
     }
     
   </style>
-  <head>MYトラベル</head>
 </head>
 <body>
 
@@ -23,7 +22,13 @@
         <div class="flash {{ category }}">{{ message }}</div>
       {% endfor %}
     {% endif %}
-  {% endwith %}    
+  {% endwith %} 
+
+<header class="w-full flex justify-end items-center p-4 bg-white shadow-md">
+  <img src="{{ user_icon }}"
+       alt="User Icon"
+       class="w-8 h-8 rounded-full object-cover border-2 border-teal-600" />
+</header>
 
 <div>
     <h1>ようこそ、{{ username }} さん！</h1>

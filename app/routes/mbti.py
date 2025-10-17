@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import psycopg2
 import os
 from dotenv import load_dotenv
+from app.user_icon import get_user_icon
 from app.travel_mbti_logic import (
     calculate_travel_mbti,
 )  # ← 判定関数（別ファイル化推奨）
@@ -202,6 +203,7 @@ def mbti_explanation():
     result = cur.fetchone()
     cur.close()
     conn.close()
+    user_icon = get_user_icon(user_id) # ←ここでアイコン取得
 
     if result:
         mbti_result = result[0]  # 例: "ENFP"
@@ -218,5 +220,6 @@ def mbti_explanation():
         username=username,
         mbti_result=mbti_result,
         travel_name=travel_name,
-        mbti_description=mbti_description
+        mbti_description=mbti_description,
+        user_icon=user_icon
     )
