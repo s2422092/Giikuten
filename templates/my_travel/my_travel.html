@@ -14,7 +14,7 @@
     
   </style>
 </head>
-<body>
+<body class="relative pb-28">
 
   <!-- エラー文の出力 -->
   {% with messages = get_flashed_messages(with_categories=true) %}
@@ -23,7 +23,13 @@
         <div class="flash {{ category }}">{{ message }}</div>
       {% endfor %}
     {% endif %}
-  {% endwith %}    
+  {% endwith %} 
+
+<header class="w-full flex justify-end items-center p-4 bg-white shadow-md">
+<img src="{{ user_icon | default('https://cdn-icons-png.flaticon.com/512/847/847969.png') }}" 
+     alt="User Icon" class="w-10 h-10 rounded-full object-cover" />
+
+</header>
 
 <div>
     <h1>ようこそ、{{ username }} さん！</h1>
@@ -97,6 +103,8 @@
   </a>
 
 </div>
+
+
 
 <div>
   <h1>旅行タイトル</h1>
