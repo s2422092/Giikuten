@@ -71,3 +71,18 @@ def my_travel():
         user_icon=user_icon
     )
 
+
+@my_travel_bp.route("/travel_details")
+def travel_details():
+    if "user_id" not in session:
+        return redirect(url_for("index.login"))
+
+    user_id = session["user_id"]
+    username = session.get("username", "ゲスト")
+    user_icon = get_user_icon(user_id)  # ←ここでアイコン取得
+
+    return render_template(
+        "my_travel/travel_details.html",
+        username=username,
+        user_icon=user_icon
+    )

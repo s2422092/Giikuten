@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>関西旅行 - 詳細</title>
+  <style>
+    body { background-color: #F6F5F3; color: #2C3E50; font-family: "Noto Sans JP", sans-serif; }
+  </style>
+</head>
+<body class="pb-28">
+
+<header class="w-full flex justify-end items-center p-4 bg-white shadow-md">
+  <a href="#">💬</a>
+  <a href="{{url_for('my_travel.my_travel')}}">戻る</a>
+</header>
+
+<main class="max-w-2xl mx-auto mt-6 bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-4">
+
+  <h1 class="text-3xl font-bold text-teal-700">関西旅行</h1>
+
+  <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 大阪・京都・奈良</p>
+  <p class="text-gray-700"><span class="font-semibold">人数:</span> 4人</p>
+  <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 80,000円</p>
+
+  <p class="text-gray-600 text-sm leading-relaxed">
+    この旅行では大阪のグルメを満喫し、京都の寺社巡りを楽しみます。
+    奈良では鹿と触れ合い、ゆったりとした日程で思い出作りを目的としています。
+    宿泊は快適なホテルを予約済みで、移動は公共交通機関を利用予定です。
+  </p>
+
+  <hr class="border-gray-300">
+
+  <h2 class="text-xl font-semibold text-teal-700">旅行スケジュール（例）</h2>
+  <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm">
+    <li>1日目: 大阪観光・道頓堀で食べ歩き</li>
+    <li>2日目: 京都の寺社巡り・嵐山観光</li>
+    <li>3日目: 奈良公園で鹿とふれあい・大阪に戻る</li>
+  </ul>
+
+  <h2 class="text-xl font-semibold text-teal-700 mt-4">宿泊情報</h2>
+  <p class="text-gray-700 text-sm">大阪市内のビジネスホテル（ダブルルーム2室、朝食付き）</p>
+
+  <h2 class="text-xl font-semibold text-teal-700 mt-4">交通手段</h2>
+  <p class="text-gray-700 text-sm">新幹線・在来線・市内バス・徒歩</p>
+
+</main>
+
+</body>
+</html>
