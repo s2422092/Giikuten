@@ -10,10 +10,9 @@
       color: #2C3E50;
       font-family: "Noto Sans JP", sans-serif;
     }
-    
   </style>
 </head>
-<body>
+<body class="pb-28">
 
   <!-- エラー文の出力 -->
   <!-- {% with messages = get_flashed_messages(with_categories=true) %}
@@ -23,36 +22,95 @@
       {% endfor %}
     {% endif %}
   {% endwith %} -->
+<!-- メインコンテンツ -->
+<div class="container max-w-lg mx-auto px-6 py-8">
 
-    <div class="container">
-        <h1>ようこそ、{{ user.name }} さん！</h1>
-        <p>ユーザーID: {{ user.id }}</p>
-        <p>メールアドレス: {{ user.email }}</p>
-        <p>ここはログイン後の個人情報画面です。</p>
-        <div class="mbti-box">
-          <h3>🌍 あなたの旅行タイプ（MBTI診断結果）</h3>
-          <p><strong>{{ user.mbti_type }}</strong></p>
-          {% if user.mbti_date %}
-          <a href="{{url_for('mbti.mbti')}}">旅行タイプの再診断</a>
-          <p>診断日: {{ user.mbti_date }}</p>
+  <!-- 👤 ユーザーアイコン＆アップロード -->
+  <div class="bg-white shadow-lg rounded-2xl p-8 border border-gray-200 mb-6 space-y-6 text-center">
+    <form action="{{ url_for('setting.upload_icon') }}" method="POST" enctype="multipart/form-data" class="flex flex-col items-center">
+      <div class="relative flex flex-col items-center">
+        <!-- 丸いアイコン枠 -->
+        <div id="iconContainer"
+             class="w-28 h-28 rounded-full bg-[#E6F3F3] flex items-center justify-center shadow-inner overflow-hidden">
+          {% if user.icon_base64 %}
+            <img id="userIconPreview" src="data:image/png;base64,{{ user.icon_base64 }}" alt="User Icon"
+                 class="w-full h-full object-cover" />
+          {% else %}
+            <img id="userIconPreview" src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User Icon"
+                 class="w-full h-full object-cover" />
           {% endif %}
         </div>
+
+        <!-- プラスボタン -->
+        <button type="button" id="addIconBtn"
+                class="absolute bottom-0 right-2 bg-teal-600 hover:bg-teal-700 text-white rounded-full p-1 shadow-md">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+
+        <input type="file" name="icon" id="iconUpload" accept="image/*" class="hidden" />
+      </div>
+
+      <button type="submit" class="mt-4 px-6 py-2 bg-teal-600 text-white rounded-lg shadow hover:bg-teal-700 transition-all duration-200">
+        保存する
+      </button>
+    </form>
+  </div>
+
+  <!-- 🔐 ユーザー情報 -->
+  <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 mb-6 space-y-3 text-center">
+    <h2 class="text-lg font-semibold border-b pb-2">🔐 ユーザー情報</h2>
+    <h3 class="text-xl font-bold text-[#4F8C8C] mt-2">{{ user.name }} さん</h3>
+    <p class="text-base"><span class="font-semibold text-gray-700">ユーザーID:</span> {{ user.id }}</p>
+    <p class="text-base"><span class="font-semibold text-gray-700">メールアドレス:</span> {{ user.email }}</p>
+    <p class="text-sm text-gray-600">ここはログイン後の個人情報画面です。</p>
+
+    <!-- ℹ️ informationリンク -->
+    <div class="pt-4">
+      <a href="{{ url_for('home.information') }}" 
+         class="inline-block bg-[#4F8C8C] text-white text-sm font-semibold px-5 py-2 rounded-lg shadow hover:bg-[#3E7676] transition-all duration-200">
+         ℹ️ information
+      </a>
     </div>
-    
-<div>
-    <h1>ようこそ、{{ username }} さん！</h1>
-    <p>ここはログイン後のホーム画面です。</p>
-    <a href="{{ url_for('home.logout') }}" >ログアウト</a>
+  </div>
+
+  <!-- 🌍 MBTI表示 -->
+  <div class="bg-teal-50 border border-teal-200 shadow-md rounded-2xl p-6 space-y-3 mb-6 text-center">
+    <h3 class="text-lg font-semibold text-teal-700">
+      🌍 あなたの旅行タイプ（MBTI診断結果）
+    </h3>
+    <p class="text-xl font-bold text-teal-800">{{ user.mbti_type }}</p>
+
+    {% if user.mbti_date %}
+      <a href="{{ url_for('mbti.mbti') }}" 
+         class="inline-block bg-[#4F8C8C] text-white px-4 py-2 rounded-lg shadow hover:bg-[#3E7676] transition">
+         旅行タイプの再診断
+      </a>
+      <p class="text-sm text-gray-600">診断日: {{ user.mbti_date }}</p>
+    {% endif %}
+  </div>
+
+  <!-- 🔴 ログアウトボタン -->
+  <div class="text-center">
+    <a href="{{ url_for('home.logout') }}" 
+       class="inline-block bg-red-500 text-white text-lg font-semibold px-6 py-2 rounded-lg shadow hover:bg-red-600 transition-all duration-200">
+       🚪 ログアウト
+    </a>
+  </div>
+
 </div>
 
-<a href="{{url_for('home.information')}}">information</a>
 
-<nav class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
+
+
+
+<div class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
 
   <!-- 診断の詳細について（Test） -->
   <a href="{{ url_for('mbti.mbti_explanation') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+     class="flex flex-col items-center {% if request.endpoint == 'mbti.mbti_explanation' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
+    <svg class="w-5 h-5 {% if request.endpoint == 'mbti.mbti_explanation' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <path d="M4 6h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       <path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       <path d="M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -65,18 +123,18 @@
 
   <!-- 旅のタイムライン（Time Line） -->
   <a href="{{ url_for('plan.plan') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+     class="flex flex-col items-center {% if request.endpoint == 'plan.plan' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
+    <svg class="w-5 h-5 {% if request.endpoint == 'plan.plan' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
       <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <span class="text-xs mt-1">Time Line</span>
   </a>
 
-  <!-- ホーム画面（Home） -->
+  <!-- ホームボタン（Home） -->
   <a href="{{ url_for('home.home') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+     class="flex flex-col items-center {% if request.endpoint == 'home.home' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
+    <svg class="w-5 h-5 {% if request.endpoint == 'home.home' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <g fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="3 12 12 3 21 12" />
         <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
@@ -85,10 +143,10 @@
     <span class="text-xs mt-1">Home</span>
   </a>
 
-  <!-- 今までの旅行一覧（My Travel） -->
+  <!-- マイトラベル（My Travel） -->
   <a href="{{ url_for('my_travel.my_travel') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+     class="flex flex-col items-center {% if request.endpoint == 'my_travel.my_travel' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
+    <svg class="w-5 h-5 {% if request.endpoint == 'my_travel.my_travel' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <rect x="6" y="7" width="12" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
       <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
     </svg>
@@ -97,15 +155,33 @@
 
   <!-- マイページ（My Page） -->
   <a href="{{ url_for('setting.setting') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+     class="flex flex-col items-center {% if request.endpoint == 'setting.setting' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
+    <svg class="w-5 h-5 {% if request.endpoint == 'setting.setting' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
       <path d="M4 21v-1a7 7 0 0 1 14 0v1" fill="none" stroke="currentColor" stroke-width="2"/>
     </svg>
     <span class="text-xs mt-1">My Page</span>
   </a>
 
-</nav>
+</div>
+<script>
+  // プラスボタンクリックでファイル選択を開く
+  document.getElementById('addIconBtn').addEventListener('click', () => {
+    document.getElementById('iconUpload').click();
+  });
+
+  // 選択された画像をプレビュー表示
+  document.getElementById('iconUpload').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      document.getElementById('userIconPreview').src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
 
 </body>
 </html>

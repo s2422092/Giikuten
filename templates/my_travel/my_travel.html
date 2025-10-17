@@ -14,7 +14,7 @@
     
   </style>
 </head>
-<body>
+<body class="relative pb-28">
 
   <!-- エラー文の出力 -->
   {% with messages = get_flashed_messages(with_categories=true) %}
@@ -23,7 +23,13 @@
         <div class="flash {{ category }}">{{ message }}</div>
       {% endfor %}
     {% endif %}
-  {% endwith %}    
+  {% endwith %} 
+     
+<header class="w-full flex justify-end items-center p-4 bg-white shadow-md">
+  <img src="{{ user_icon }}"
+       alt="User Icon"
+       class="w-8 h-8 rounded-full object-cover border-2 border-teal-600" />
+</header>
 
 <div>
     <h1>ようこそ、{{ username }} さん！</h1>
@@ -37,12 +43,13 @@
 
 </div>
 
+<!--ここから下ではアンダーアンダーヘッダー機能を搭載している-->
 <div class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
 
   <!-- 診断の詳細について（Test） -->
-  <button onclick="window.location='{{ url_for(&quot;mbti.mbti_explanation&quot;) }}';" 
-          class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <a href="{{ url_for('mbti.mbti_explanation') }}" 
+     class="flex flex-col items-center {% if request.endpoint == 'mbti.mbti_explanation' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
+    <svg class="w-5 h-5 {% if request.endpoint == 'mbti.mbti_explanation' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <path d="M4 6h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       <path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       <path d="M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -51,51 +58,53 @@
       <circle cx="8" cy="18" r="1.5" fill="currentColor"/>
     </svg>
     <span class="text-xs mt-1">Test</span>
-  </button>
+  </a>
 
   <!-- 旅のタイムライン（Time Line） -->
-  <button onclick="window.location='{{ url_for(&quot;plan.plan&quot;) }}';" 
-          class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <a href="{{ url_for('plan.plan') }}" 
+     class="flex flex-col items-center {% if request.endpoint == 'plan.plan' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
+    <svg class="w-5 h-5 {% if request.endpoint == 'plan.plan' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
       <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <span class="text-xs mt-1">Time Line</span>
-  </button>
+  </a>
 
-  <!-- ホーム画面（Home） -->
-  <button onclick="window.location='{{ url_for(&quot;home.home&quot;) }}';" 
-          class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <!-- ホームボタン（Home） -->
+  <a href="{{ url_for('home.home') }}" 
+     class="flex flex-col items-center {% if request.endpoint == 'home.home' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
+    <svg class="w-5 h-5 {% if request.endpoint == 'home.home' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <g fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="3 12 12 3 21 12" />
         <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
       </g>
     </svg>
     <span class="text-xs mt-1">Home</span>
-  </button>
+  </a>
 
-  <!-- 今までの旅行一覧（My Travel） -->
-  <button onclick="window.location='{{ url_for(&quot;my_travel.my_travel&quot;) }}';" 
-          class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <!-- マイトラベル（My Travel） -->
+  <a href="{{ url_for('my_travel.my_travel') }}" 
+     class="flex flex-col items-center {% if request.endpoint == 'my_travel.my_travel' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
+    <svg class="w-5 h-5 {% if request.endpoint == 'my_travel.my_travel' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <rect x="6" y="7" width="12" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
       <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
     </svg>
     <span class="text-xs mt-1">My Travel</span>
-  </button>
+  </a>
 
   <!-- マイページ（My Page） -->
-  <button onclick="window.location='{{ url_for(&quot;setting.setting&quot;) }}';" 
-          class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <a href="{{ url_for('setting.setting') }}" 
+     class="flex flex-col items-center {% if request.endpoint == 'setting.setting' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
+    <svg class="w-5 h-5 {% if request.endpoint == 'setting.setting' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
       <path d="M4 21v-1a7 7 0 0 1 14 0v1" fill="none" stroke="currentColor" stroke-width="2"/>
     </svg>
     <span class="text-xs mt-1">My Page</span>
-  </button>
+  </a>
 
 </div>
+
+
 
 <div>
   <h1>旅行タイトル</h1>

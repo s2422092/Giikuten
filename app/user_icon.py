@@ -1,4 +1,3 @@
-# app/routes/index.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import psycopg2
 import os
@@ -6,8 +5,6 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 load_dotenv()  # ← .envファイルの内容を読み込む
-
-my_travel_bp = Blueprint("my_travel", __name__)
 
 # DB接続設定を環境変数から取得
 DB_CONFIG = {
@@ -53,21 +50,3 @@ def get_user_icon(user_id):
     finally:
         if conn:
             conn.close()
-
-
-
-@my_travel_bp.route("/my_travel")
-def my_travel():
-    if "user_id" not in session:
-        return redirect(url_for("index.login"))
-
-    user_id = session["user_id"]
-    username = session.get("username", "ゲスト")
-    user_icon = get_user_icon(user_id)  # ←ここでアイコン取得
-
-    return render_template(
-        "my_travel/my_travel.html",
-        username=username,
-        user_icon=user_icon
-    )
-

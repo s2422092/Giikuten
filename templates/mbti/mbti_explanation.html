@@ -24,11 +24,11 @@
     {% endif %}
   {% endwith %} -->
   
-<div>
-    <h1>ようこそ、{{ username }} さん！</h1>
-    <p>ここはログイン後のmbti画面です。</p>
-
-</div>
+<header class="w-full flex justify-end items-center p-4 bg-white shadow-md">
+  <img src="{{ user_icon }}"
+       alt="User Icon"
+       class="w-8 h-8 rounded-full object-cover border-2 border-teal-600" />
+</header>
 
 <div>
   <h2>旅行タイプの説明</h2>
@@ -62,12 +62,12 @@
 
 
 </div>
-<nav class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
+<div class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
 
   <!-- 診断の詳細について（Test） -->
   <a href="{{ url_for('mbti.mbti_explanation') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+     class="flex flex-col items-center {% if request.endpoint == 'mbti.mbti_explanation' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
+    <svg class="w-5 h-5 {% if request.endpoint == 'mbti.mbti_explanation' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <path d="M4 6h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       <path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       <path d="M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -80,18 +80,18 @@
 
   <!-- 旅のタイムライン（Time Line） -->
   <a href="{{ url_for('plan.plan') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+     class="flex flex-col items-center {% if request.endpoint == 'plan.plan' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
+    <svg class="w-5 h-5 {% if request.endpoint == 'plan.plan' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
       <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <span class="text-xs mt-1">Time Line</span>
   </a>
 
-  <!-- ホーム画面（Home） -->
+  <!-- ホームボタン（Home） -->
   <a href="{{ url_for('home.home') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+     class="flex flex-col items-center {% if request.endpoint == 'home.home' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
+    <svg class="w-5 h-5 {% if request.endpoint == 'home.home' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <g fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="3 12 12 3 21 12" />
         <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
@@ -100,10 +100,10 @@
     <span class="text-xs mt-1">Home</span>
   </a>
 
-  <!-- 今までの旅行一覧（My Travel） -->
+  <!-- マイトラベル（My Travel） -->
   <a href="{{ url_for('my_travel.my_travel') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+     class="flex flex-col items-center {% if request.endpoint == 'my_travel.my_travel' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
+    <svg class="w-5 h-5 {% if request.endpoint == 'my_travel.my_travel' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <rect x="6" y="7" width="12" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
       <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
     </svg>
@@ -112,15 +112,16 @@
 
   <!-- マイページ（My Page） -->
   <a href="{{ url_for('setting.setting') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+     class="flex flex-col items-center {% if request.endpoint == 'setting.setting' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
+    <svg class="w-5 h-5 {% if request.endpoint == 'setting.setting' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
       <path d="M4 21v-1a7 7 0 0 1 14 0v1" fill="none" stroke="currentColor" stroke-width="2"/>
     </svg>
     <span class="text-xs mt-1">My Page</span>
   </a>
 
-</nav>
+</div>
+
 
 </body>
 </html>
