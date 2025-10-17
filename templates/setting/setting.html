@@ -29,11 +29,26 @@
   <div class="bg-white shadow-lg rounded-2xl p-8 border border-gray-200 mb-6 space-y-4 text-center">
     <!-- 👤 ユーザーアイコン -->
     <div class="flex justify-center mb-4">
-      <div class="w-20 h-20 rounded-full bg-[#E6F3F3] flex items-center justify-center shadow-inner">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-[#4F8C8C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M5.121 17.804A4 4 0 019 16h6a4 4 0 013.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
+      <div class="relative flex flex-col items-center">
+        <!-- 丸いアイコン枠 -->
+        <div id="iconContainer"
+          class="w-24 h-24 rounded-full bg-[#E6F3F3] flex items-center justify-center shadow-inner overflow-hidden">
+          <img id="userIconPreview"
+            src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
+            alt="User Icon" class="w-full h-full object-cover" />
+        </div>
+
+        <!-- プラスボタン -->
+        <button id="addIconBtn"
+          class="absolute bottom-0 right-6 bg-teal-600 hover:bg-teal-700 text-white rounded-full p-1 shadow-md">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+
+        <!-- ファイル選択 -->
+        <input type="file" id="iconUpload" accept="image/*" class="hidden" />
       </div>
     </div>
 
@@ -141,6 +156,24 @@
   </a>
 
 </div>
+<script>
+  // プラスボタンクリックでファイル選択を開く
+  document.getElementById('addIconBtn').addEventListener('click', () => {
+    document.getElementById('iconUpload').click();
+  });
+
+  // 選択された画像をプレビュー表示
+  document.getElementById('iconUpload').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      document.getElementById('userIconPreview').src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
 
 </body>
 </html>
