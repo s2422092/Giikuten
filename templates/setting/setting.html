@@ -24,7 +24,8 @@
   {% endwith %} -->
 
   <!-- メインコンテンツ -->
-  <div class="container max-w-lg mx-auto px-6 py-8">
+<div class="container max-w-lg mx-auto px-6 py-8">
+
   <div class="bg-white shadow-lg rounded-2xl p-8 border border-gray-200 mb-6 space-y-4 text-center">
     <!-- 👤 ユーザーアイコン -->
     <div class="flex justify-center mb-4">
@@ -37,7 +38,8 @@
     </div>
 
     <!-- 🔐 ユーザー情報 -->
-    <h2 class="text-lg font-semibold border-b pb-2">{{ user.name }} </h2>
+    <h2 class="text-lg font-semibold border-b pb-2">🔐 ユーザー情報</h2>
+    <h3 class="text-xl font-bold text-[#4F8C8C] mt-2">{{ user.name }} さん</h3>
     <p class="text-base"><span class="font-semibold text-gray-700">ユーザーID:</span> {{ user.id }}</p>
     <p class="text-base"><span class="font-semibold text-gray-700">メールアドレス:</span> {{ user.email }}</p>
     <p class="text-sm text-gray-600">ここはログイン後の個人情報画面です。</p>
@@ -51,29 +53,31 @@
     </div>
   </div>
 
-    <div class="bg-teal-50 border border-teal-200 shadow-md rounded-2xl p-6 space-y-3">
-      <h3 class="text-lg font-semibold text-teal-700">
-        🌍 あなたの旅行タイプ（MBTI診断結果）
-      </h3>
-      <p class="text-xl font-bold text-teal-800">{{ user.mbti_type }}</p>
+  <div class="bg-teal-50 border border-teal-200 shadow-md rounded-2xl p-6 space-y-3">
+    <h3 class="text-lg font-semibold text-teal-700">
+      🌍 あなたの旅行タイプ（MBTI診断結果）
+    </h3>
+    <p class="text-xl font-bold text-teal-800">{{ user.mbti_type }}</p>
 
-      {% if user.mbti_date %}
+    {% if user.mbti_date %}
       <a href="{{ url_for('mbti.mbti') }}" 
          class="inline-block bg-[#4F8C8C] text-white px-4 py-2 rounded-lg shadow hover:bg-[#3E7676] transition">
          旅行タイプの再診断
       </a>
       <p class="text-sm text-gray-600">診断日: {{ user.mbti_date }}</p>
-      {% endif %}
-    </div>
-
-    <!-- 🔴 ログアウトボタン -->
-    <div class="mt-8 text-center">
-      <a href="{{ url_for('home.logout') }}" 
-         class="inline-block bg-red-500 text-white text-lg font-semibold px-6 py-2 rounded-lg shadow hover:bg-red-600 transition-all duration-200">
-         🚪 ログアウト
-      </a>
-    </div>
+    {% endif %}
   </div>
+
+  <!-- 🔴 ログアウトボタン -->
+  <div class="mt-8 text-center">
+    <a href="{{ url_for('home.logout') }}" 
+       class="inline-block bg-red-500 text-white text-lg font-semibold px-6 py-2 rounded-lg shadow hover:bg-red-600 transition-all duration-200">
+       🚪 ログアウト
+    </a>
+  </div>
+
+</div>
+
 
 
 
