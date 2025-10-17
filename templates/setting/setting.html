@@ -12,7 +12,7 @@
     }
   </style>
 </head>
-<body>
+<body class="pb-28">
 
   <!-- エラー文の出力 -->
   <!-- {% with messages = get_flashed_messages(with_categories=true) %}
@@ -22,37 +22,44 @@
       {% endfor %}
     {% endif %}
   {% endwith %} -->
-
-  <!-- メインコンテンツ -->
+<!-- メインコンテンツ -->
 <div class="container max-w-lg mx-auto px-6 py-8">
 
-  <div class="bg-white shadow-lg rounded-2xl p-8 border border-gray-200 mb-6 space-y-4 text-center">
-    <!-- 👤 ユーザーアイコン -->
-    <div class="flex justify-center mb-4">
+  <!-- 👤 ユーザーアイコン＆アップロード -->
+  <div class="bg-white shadow-lg rounded-2xl p-8 border border-gray-200 mb-6 space-y-6 text-center">
+    <form action="{{ url_for('setting.upload_icon') }}" method="POST" enctype="multipart/form-data" class="flex flex-col items-center">
       <div class="relative flex flex-col items-center">
         <!-- 丸いアイコン枠 -->
         <div id="iconContainer"
-          class="w-24 h-24 rounded-full bg-[#E6F3F3] flex items-center justify-center shadow-inner overflow-hidden">
-          <img id="userIconPreview"
-            src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
-            alt="User Icon" class="w-full h-full object-cover" />
+             class="w-28 h-28 rounded-full bg-[#E6F3F3] flex items-center justify-center shadow-inner overflow-hidden">
+          {% if user.icon_base64 %}
+            <img id="userIconPreview" src="data:image/png;base64,{{ user.icon_base64 }}" alt="User Icon"
+                 class="w-full h-full object-cover" />
+          {% else %}
+            <img id="userIconPreview" src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User Icon"
+                 class="w-full h-full object-cover" />
+          {% endif %}
         </div>
 
         <!-- プラスボタン -->
-        <button id="addIconBtn"
-          class="absolute bottom-0 right-6 bg-teal-600 hover:bg-teal-700 text-white rounded-full p-1 shadow-md">
+        <button type="button" id="addIconBtn"
+                class="absolute bottom-0 right-2 bg-teal-600 hover:bg-teal-700 text-white rounded-full p-1 shadow-md">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 4v16m8-8H4" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
         </button>
 
-        <!-- ファイル選択 -->
-        <input type="file" id="iconUpload" accept="image/*" class="hidden" />
+        <input type="file" name="icon" id="iconUpload" accept="image/*" class="hidden" />
       </div>
-    </div>
 
-    <!-- 🔐 ユーザー情報 -->
+      <button type="submit" class="mt-4 px-6 py-2 bg-teal-600 text-white rounded-lg shadow hover:bg-teal-700 transition-all duration-200">
+        保存する
+      </button>
+    </form>
+  </div>
+
+  <!-- 🔐 ユーザー情報 -->
+  <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 mb-6 space-y-3 text-center">
     <h2 class="text-lg font-semibold border-b pb-2">🔐 ユーザー情報</h2>
     <h3 class="text-xl font-bold text-[#4F8C8C] mt-2">{{ user.name }} さん</h3>
     <p class="text-base"><span class="font-semibold text-gray-700">ユーザーID:</span> {{ user.id }}</p>
@@ -68,7 +75,8 @@
     </div>
   </div>
 
-  <div class="bg-teal-50 border border-teal-200 shadow-md rounded-2xl p-6 space-y-3">
+  <!-- 🌍 MBTI表示 -->
+  <div class="bg-teal-50 border border-teal-200 shadow-md rounded-2xl p-6 space-y-3 mb-6 text-center">
     <h3 class="text-lg font-semibold text-teal-700">
       🌍 あなたの旅行タイプ（MBTI診断結果）
     </h3>
@@ -84,7 +92,7 @@
   </div>
 
   <!-- 🔴 ログアウトボタン -->
-  <div class="mt-8 text-center">
+  <div class="text-center">
     <a href="{{ url_for('home.logout') }}" 
        class="inline-block bg-red-500 text-white text-lg font-semibold px-6 py-2 rounded-lg shadow hover:bg-red-600 transition-all duration-200">
        🚪 ログアウト
