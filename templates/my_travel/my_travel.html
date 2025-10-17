@@ -24,12 +24,13 @@
       {% endfor %}
     {% endif %}
   {% endwith %} 
-
+     
 <header class="w-full flex justify-end items-center p-4 bg-white shadow-md">
-<img src="{{ user_icon | default('https://cdn-icons-png.flaticon.com/512/847/847969.png') }}" 
-     alt="User Icon" class="w-10 h-10 rounded-full object-cover" />
-
+  <img src="{{ user_icon }}"
+       alt="User Icon"
+       class="w-10 h-10 rounded-full object-cover border-2 border-teal-600" />
 </header>
+
 
 <div>
     <h1>ようこそ、{{ username }} さん！</h1>

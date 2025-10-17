@@ -24,8 +24,10 @@ def get_conn():
 def get_user_icon(user_id):
     """
     user_iconsテーブルから指定ユーザーの最新アイコンを取得し、
-    ブラウザで表示可能な形式のdata URIに変換して返す
+    ブラウザで表示可能な形式のdata URIに変換して返す。
+    未設定の場合はデフォルト画像URLを返す。
     """
+    DEFAULT_ICON_URL = "https://cdn-icons-png.flaticon.com/512/847/847969.png"
     conn = None
     try:
         conn = get_conn()
@@ -41,16 +43,17 @@ def get_user_icon(user_id):
         cur.close()
 
         if result and result[0]:
-            # ブラウザで使える形式に変換
             return f"data:image/png;base64,{result[0]}"
-        return None  # アイコン未設定の場合
+        
+        return DEFAULT_ICON_URL
 
     except Exception as e:
         print(f"アイコン取得エラー: {e}")
-        return None
+        return DEFAULT_ICON_URL
     finally:
         if conn:
             conn.close()
+
 
 
 @my_travel_bp.route("/my_travel")
@@ -60,12 +63,11 @@ def my_travel():
 
     user_id = session["user_id"]
     username = session.get("username", "ゲスト")
-
-    # アイコン取得
-    user_icon_base64 = get_user_icon(user_id)
+    user_icon = get_user_icon(user_id)  # ←ここでアイコン取得
 
     return render_template(
         "my_travel/my_travel.html",
         username=username,
-        user_icon_base64=user_icon_base64
+        user_icon=user_icon
     )
+
