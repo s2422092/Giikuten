@@ -98,19 +98,90 @@
 
 </div>
 
+<main class="max-w-6xl mx-auto mt-6">
+  <!-- グリッド：横3列 × 縦2列 -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+    
+    <!-- 旅行1 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">東京・京都グルメ旅</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 東京・京都</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 3人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 50,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          観光スポットを巡りつつ、地元グルメを楽しむ旅です。宿泊は快適なホテルで、ゆったり回ります。
+        </p>
+      </div>
+    </a>
 
-<a href="{{ url_for('my_travel.travel_details') }}" class="block">
-  <div class="max-w-lg mx-auto mt-6 bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 hover:shadow-2xl transition-shadow duration-200">
-    <h2 class="text-2xl font-bold text-teal-700">旅行タイトル</h2>
-    <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 東京・京都</p>
-    <p class="text-gray-700"><span class="font-semibold">人数:</span> 3人</p>
-    <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 50,000円</p>
-    <p class="text-gray-600 text-sm leading-relaxed">
-      この旅行は、観光スポットを巡りつつ、地元グルメを楽しむことを目的としています。宿泊は快適なホテルを選び、ゆったりとした日程で回る予定です。
-    </p>
+    <!-- 旅行2 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">北海道自然満喫ツアー</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 北海道</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 2人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 70,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          大自然を満喫する旅。温泉や美味しい海鮮も楽しめます。
+        </p>
+      </div>
+    </a>
+
+    <!-- 旅行3 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">沖縄ビーチリゾート</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 沖縄</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 4人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 80,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          海を眺めながらのんびり過ごすリゾート旅。シュノーケリングやマリンスポーツも体験。
+        </p>
+      </div>
+    </a>
+
+    <!-- 旅行4 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">九州歴史巡り</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 九州</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 3人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 60,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          歴史的建造物や名所を巡る旅。温泉街でゆったり休息も。
+        </p>
+      </div>
+    </a>
+
+    <!-- 旅行5 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">長野スキー＆温泉</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 長野</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 2人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 55,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          冬のスキー旅行と温泉を楽しむ旅。雪景色を眺めながらリラックス。
+        </p>
+      </div>
+    </a>
+
+    <!-- 旅行6 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">広島文化体験</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 広島</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 3人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 45,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          平和記念公園や宮島を巡る文化体験旅。地元グルメも満喫。
+        </p>
+      </div>
+    </a>
+
   </div>
-</a>
-
+</main>
 
 </body>
 </html>
