@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import psycopg2
 import os
 from dotenv import load_dotenv
-from app.user_icon import get_user_icon
 from app.travel_mbti_logic import (
     calculate_travel_mbti,
 )  # ← 判定関数（別ファイル化推奨）
@@ -23,203 +22,198 @@ DB_CONFIG = {
 def get_conn():
     return psycopg2.connect(**DB_CONFIG)
 
-
-# travel_mbti_questions.py
-
-QUESTIONS = [
-    {"id": 1, "text": "旅行先では予定をきっちり立てたい"},
-    {"id": 2, "text": "知らない土地で新しい人と出会うのが好き"},
-    {"id": 3, "text": "一人旅の方が落ち着く"},
-    {"id": 4, "text": "旅行前の準備は早めに済ませたい"},
-    {"id": 5, "text": "旅行中もSNSで発信したい"},
-    {"id": 6, "text": "旅の途中で予定変更があっても気にしない"},
-    {"id": 7, "text": "旅先で地元の人と話すのが楽しい"},
-    {"id": 8, "text": "ホテルは快適さより価格重視"},
-    {"id": 9, "text": "グループ旅行より少人数の方が好き"},
-    {"id": 10, "text": "写真を撮ることが好き"},
-    {"id": 11, "text": "旅先では観光地を全部回りたい"},
-    {"id": 12, "text": "旅行中に人と深く話すのが楽しい"},
-    {"id": 13, "text": "休暇の予定を細かく立てるタイプ"},
-    {"id": 14, "text": "感覚的に行動する方が性に合う"},
-    {"id": 15, "text": "宿泊施設は雰囲気より実用性を重視"},
-    {"id": 16, "text": "旅先では静かに過ごしたい"},
-    {"id": 17, "text": "現地で友達を作ることに抵抗はない"},
-    {"id": 18, "text": "予定が崩れると不安になる"},
-    {"id": 19, "text": "旅行先の文化に深く触れたい"},
-    {"id": 20, "text": "グループをまとめるのは得意"},
-    {"id": 21, "text": "旅先でトラブルがあっても楽しめる"},
-    {"id": 22, "text": "感情で行動することが多い"},
-    {"id": 23, "text": "直感的に目的地を決めることがある"},
-    {"id": 24, "text": "旅行ではリラックス重視"},
-    {"id": 25, "text": "旅先での買い物が好き"},
-    {"id": 26, "text": "旅行計画は人に任せたい"},
-    {"id": 27, "text": "スケジュール管理は得意"},
-    {"id": 28, "text": "新しいアクティビティに挑戦したい"},
-    {"id": 29, "text": "食事はその場の気分で決める"},
-    {"id": 30, "text": "旅行の写真や記録を残すのが好き"},
-    {"id": 31, "text": "予定外のハプニングを楽しめる"},
-    {"id": 32, "text": "旅行の後で反省点を振り返る"},
-    {"id": 33, "text": "一人でも知らない国に行ける"},
-    {"id": 34, "text": "旅行の予算は厳密に決める"},
-    {"id": 35, "text": "旅先でアートや建築に興味を持つ"},
-    {"id": 36, "text": "旅の目的はリフレッシュより刺激"},
-    {"id": 37, "text": "団体旅行の方が安心できる"},
-    {"id": 38, "text": "現地の食文化を体験するのが好き"},
-    {"id": 39, "text": "旅先で予定をコロコロ変えがち"},
-    {"id": 40, "text": "旅行から帰った後、次の旅をすぐ計画したくなる"},
-]
-
-
-# MBTIタイプ分類（例: 12種類）
-TRAVEL_TYPES = {
-    "ESTJ": "計画的アドベンチャラー",
-    "INFP": "感性派トラベラー",
-    "ENFP": "ひらめき旅人",
-    "ISTP": "孤高の探検家",
-    "ESFP": "盛り上げ上手な旅仲間",
-    "ISFJ": "安心重視の保守派",
-    "ENTJ": "リーダーシップ旅行者",
-    "INTJ": "戦略家タイプの旅人",
-    "ESFJ": "社交的ホストタイプ",
-    "ISTJ": "完璧主義な旅プランナー",
-    "ENTP": "自由奔放なトリッキー旅行者",
-    "INFJ": "哲学的ロマンチスト",
-}
-
-TRAVEL_STYLE_EXPLANATIONS = {
-    "計画的アドベンチャラー": "綿密に計画を立てて行動する頼れる冒険者。効率重視で時間を無駄にせず満喫します。",
-    "感性派トラベラー": "感性を大切にする旅人。美術・自然・街並みに心を動かされる、静かな体験型の旅を好みます。",
-    "ひらめき旅人": "直感と好奇心で動く自由な旅人。偶然の出会いや新しい体験を楽しむことを最優先します。",
-    "孤高の探検家": "一人で深く冒険するタイプ。リスクを恐れず自分のペースで未知の体験を追い求めます。",
-    "盛り上げ上手な旅仲間": "社交的で場を盛り上げるムードメーカー。仲間との時間を最大限に楽しむのが得意です。",
-    "安心重視の保守派": "安全・快適さを最優先。落ち着いた旅程と安定した宿を選び、安心感ある旅を好みます。",
-    "リーダーシップ旅行者": "目的志向で統率力が高い。グループをまとめて効率的に行動し、成果のある旅を作ります。",
-    "戦略家タイプの旅人": "事前リサーチ重視の計画派。目的と効率を重んじ、知的好奇心を満たす旅を設計します。",
-    "社交的ホストタイプ": "誰とでも仲良くなれるホスピタリティ派。周囲を気遣い、みんなが楽しめる旅を企画します。",
-    "完璧主義な旅プランナー": "詳細な準備と管理が得意な堅実派。時間や予算を厳守して安心できる旅を実現します。",
-    "自由奔放なトリッキー旅行者": "即興性が高く予測不能な楽しみを好む冒険家。予定外の出来事も楽しみに変えます。",
-    "哲学的ロマンチスト": "静かで深い感動を求める内省派。歴史や文化、自然に触れて心に残る旅を好みます。",
-}
-
-
 @mbti_bp.route("/mbti", methods=["GET", "POST"])
 def mbti():
-    conn = None
-    # --- ログインチェック ---
     if "user_id" not in session:
         flash("ログインしてください。", "warning")
         return redirect(url_for("index.login"))
 
     username = session.get("username", "ゲスト")
+    user_id = session["user_id"]
 
     if request.method == "POST":
-        # --- 回答を取得 ---
-        answers = [
-            int(request.form.get(f"q{i}", 3)) for i in range(1, len(QUESTIONS) + 1)
-        ]
+        q_purpose = request.form.get("q_purpose")
+        q_priority = request.form.get("q_priority")
+        q_theme = request.form.get("q_theme")
+        q_want = request.form.get("q_want")
+        q_avoid = request.form.get("q_avoid")
+        q_rhythm = request.form.get("q_rhythm")
+        q_motion = request.form.get("q_motion")
+        q_distance = request.form.get("q_distance")
 
-        # --- 診断ロジックを呼び出し ---
-        mbti_result = calculate_travel_mbti(answers)
+        if not all([q_purpose, q_priority, q_theme, q_want, q_avoid, q_rhythm, q_motion, q_distance]):
+            flash("全ての質問に回答してください。", "danger")
+            return redirect(url_for("mbti.mbti"))
 
-        # --- DBに保存（既存なら更新）---
-        user_id = session["user_id"]
+        result = calculate_travel_mbti(request.form)
+
+        # --- タイプ説明マップ ---
+        # --- タイプ説明マップ（mbti_result.html から移植） ---
+        type_map = {
+            # 観光×文化派
+            "名所攻略家": "名所を効率よく巡る文化好き。事前予約と朝活で混雑回避し、主要スポットを短時間で制覇。",
+            "文化探訪者": "ゆったり文化施設を押さえるスタイル。美術館や博物館で解説を楽しみ、休憩多めの巡り方。",
+            "史跡ハンター": "遠方の史跡も攻める長距離派。交通手段の最適化と日程の余白確保が成功の鍵。",
+            "夜景キュレーター": "都市夜景と映え重視。夕方以降のスポットと撮影ポイントを中心に計画。",
+            "美術館コンプリ勢": "近場中心で美術館を網羅。常設展と企画展のバランスを取り、効率よく周遊。",
+
+            # 観光×アウトドア派
+            "二刀流トラベラー": "名所＋自然をバランスよく。都市観光と軽アクティビティを組み合わせる器用さが魅力。",
+            "絶景ハンター": "映える自然景観狙いで長距離可。天候チェックと予備日設定でベストショットを狙う。",
+            "ライトトレッカー": "軽めの自然と移動負担軽減。無理のないコースで自然を心地よく楽しむ。",
+            "季節追い": "花見・紅葉など旬を追う旅人。季節情報と見頃の時間帯を吟味して計画。",
+
+            # 観光×都市散策派
+            "都市散歩家": "街歩きとカフェで緩やかに。エリアごとのテーマ設定で散策の満足度を高める。",
+            "路地裏探索者": "路地や市場のローカル感重視。ローカルフードや生活圏のリアルに触れるのが好き。",
+            "フォトウォーカー": "写真映えを効率よく回収。光の条件と動線最適化で撮影効率を最大化。",
+
+            # グルメ×都市派
+            "美食家": "話題店を計画的に攻める。予約と移動時間の調整で人気店をスマートに攻略。",
+            "屋台ハンター": "屋台・B級を気軽に。小腹が空いたらすぐに現地食を試す気軽さが魅力。",
+            "ナイトグルマー": "夜営業もフル活用。バーや深夜食堂まで、夜の食文化を楽しむ。",
+            "節約グルメラー": "コスパ最優先で行列回避。口コミと回転率を見極めて賢く食べ歩き。",
+            "予約主義者": "予約で確実に名店押さえ。キャンセル規定と時間管理が得意。",
+
+            # グルメ×田舎/ローカル派
+            "郷土味発掘者": "郷土料理と市場に強い。地元食材の魅力を体感し、地域の食文化を深掘り。",
+            "酒蔵巡礼者": "地酒やワイナリーを点々と。試飲計画と移動手段の安全確保が必須。",
+            "農泊テイスター": "農家民宿で食体験中心。収穫体験や地産地消を通じた学びを重視。",
+
+            # 自然・癒し×温泉/スパ派
+            "湯治人": "温泉で心身回復。泉質や効能を調べて、自分に合う湯を選ぶこだわり派。",
+            "静養主義者": "近場で徹底的に休む。移動を控え、宿の快適性と休息時間に予算を配分。",
+            "サウナ巡礼者": "サウナ/スパを目的に転戦。施設の特徴（ロウリュ、外気浴など）を楽しむ。",
+            "ラグジュ温泉家": "快適重視で上質宿。客室露天や食事グレードに投資して滞在価値を最大化。",
+
+            # 自然・癒し×アウトドア派
+            "緑浴旅人": "森・湖・海でのびのび。自然の中で心身を開放する時間を最優先。",
+            "海風スロー派": "海辺で何もしない贅沢。読書や昼寝など、ゆっくり過ごすための計画を。",
+            "高原ピクニッカー": "高地で軽アクティビティ。負担少なめの遊びで爽やかな時間を満喫。",
+            "オーロラ追跡者": "遠征もいとわない絶景狙い。天候運と時期選定が成果を左右。",
+
+            # イベント/親族/仕事×都市基点
+            "イベント効率家": "会場動線最適化。タイムテーブルと移動の無駄を極小化して満足度UP。",
+            "タイムテーブラー": "予算と時間を綿密管理。計画の精度で安心と成果を両立。",
+            "兼業ノマド": "仕事と観光を両立。Wi-Fi・電源・静かな作業環境の確保が重要。",
+            "親族訪問者": "負担少なく交流重視。滞在先の快適性やアクセスを優先。",
+
+            # 行列/混雑・移動負担の嗜好別
+            "混雑回避主義者": "朝活＋事前予約で避密。ピークを外す戦略でストレスを低減。",
+            "スロートラベラー": "少行程で深掘り滞在。移動を減らし、体験の質を重視。",
+            "急行派": "詰め込み快感型、移動も厭わず。短期集中で多くのスポットに挑む。",
+            "寄り道名人": "ローカル寄り道を楽しむ。予定に余白を残し、偶然の出会いを取り込む。",
+
+            # 活動リズム別
+            "朝活プランナー": "朝から稼いで昼過ぎ休憩。人気スポットは開場直後に攻略。",
+            "余白主義者": "昼前スタートで無理しない。休憩とカフェ時間を含めた設計。",
+            "宵闇トラベラー": "夜景・ナイトライフ重視。夕方からの映えとイベントに強い。",
+            "変幻自在": "現地都合に柔軟適応。天候や混雑次第で即座に組み替え。",
+
+            # 乗り物酔い/距離耐性別
+            "近場派": "2時間以内を基本に。アクセスの良い近場で満足度を高める。",
+            "中距離派": "4〜6時間まで現実的。休憩ポイントを織り込んで無理なく移動。",
+            "遠征家": "乗継含め長距離もOK。移動そのものも旅の一部として楽しむ。",
+            "揺れ弱さん": "酔いやすく配慮必須。座席選びと休憩頻度で負担を軽減。",
+            "鉄の胃袋": "乗り物に強い。過酷な移動でもへこたれない耐性が武器。",
+
+            # 複合キャラクター
+            "冒険家": "名所＋自然を果敢に攻める遠征型。挑戦的な行程が似合う。",
+            "探検家": "未踏の自然フィールドを求める。未知への好奇心が原動力。",
+            "都市策士": "都市を効率よく攻略。動線と時間管理で成果を最大化。",
+            "美食探求者": "夜も食で攻める。食文化の奥行きを体験するのが喜び。",
+            "町歩き職人": "路地と市場を味わい尽くす。細部に宿る生活感に惹かれる。",
+            "静寂守護者": "静けさと休養を最優先。騒がしさからの距離を保つ設計。",
+            "予定表魔術師": "イベント軸で最適化。綿密なスケジュールが武器。",
+            "映え収集家": "撮って残すが旅の核。時間帯と構図を計算する撮影派。",
+            "温泉賢者": "泉質と宿を見極める。入浴順序や滞在設計にこだわる。",
+            "行列拒否同盟": "並ばず賢く楽しむ。回避戦略と代替案の引き出しが豊富。",
+            "夜景愛好家": "夜の都市景観に強い関心。展望台や高層スポットを好む。",
+            "大陸横断屋": "時差もいとわぬ長距離攻勢。遠征の達成感を重視。",
+            "土着主義者": "一地域に腰を据えて深掘り。コミュニティとの関係性を築く。",
+            "省エネ旅人": "体力・費用を省エネ運用。負担を下げて満足度を守る。",
+            "即興家": "その場のノリで組み替える。予定より直感を優先。",
+            "家族守護者": "同行者の負担最小化を優先。安全と快適が最上位。",
+            "写真家": "撮影計画が旅を導く。作品作りの視点で場所を選ぶ。",
+            "祭り追っかけ": "祭礼・花火・季節行事に遠征。スケジュールと移動に強い。",
+            "雨天対応力": "天候代替案を常備。計画の頑健性が高い。",
+            "渋滞嫌い": "時間帯調整で回避徹底。混雑情報のチェックが習慣。"
+        }
+
+
+        mbti_description = type_map.get(result["mbti_result"], "")
+
+        # --- DB保存 ---
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO user_mbti (user_id, mbti_type)
-            VALUES (%s, %s)
-            ON CONFLICT (user_id)
-            DO UPDATE SET mbti_type = EXCLUDED.mbti_type;
-        """, (user_id, mbti_result))
+            INSERT INTO travel_survey (
+                user_id, q_purpose, q_priority, q_theme, q_want, q_avoid,
+                q_rhythm, q_motion, q_distance,
+                mbti_result, label, description, code, travel_name, mbti_description
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            user_id, q_purpose, q_priority, q_theme, q_want, q_avoid,
+            q_rhythm, q_motion, q_distance,
+            result["mbti_result"], result["label"], result["description"],
+            result["code"], result["travel_name"], mbti_description
+        ))
         conn.commit()
         cur.close()
         conn.close()
 
-        flash("診断結果を保存しました！", "success")
+        flash("旅行タイプ診断の回答を保存しました！", "success")
+
         return render_template(
-            "mbti/mbti_result.html", mbti_result=mbti_result, username=username
+            "mbti/mbti_result.html",
+            username=username,
+            mbti_result=result["mbti_result"],
+            label=result["label"],
+            description=result["description"],
+            code=result["code"],
+            travel_name=result["travel_name"],
+            mbti_description=mbti_description  # ← ここ追加
         )
 
-    # --- 初回アクセス時：質問を表示 ---
-    return render_template("mbti/mbti.html", questions=QUESTIONS, username=username)
-
+    return render_template("mbti/mbti.html", username=username)
 
 @mbti_bp.route("/mbti_result")
 def mbti_result():
-    conn = None
-    # --- ログインチェック ---
     if "user_id" not in session:
         flash("ログインしてください。", "warning")
         return redirect(url_for("index.login"))
 
-    user_id = session["user_id"]
-
-    # --- DBからMBTI結果を取得 ---
-    conn = get_conn()
-    cur = conn.cursor()
-
-    cur.execute(
-        "SELECT mbti_type FROM user_mbti WHERE user_id = %s ORDER BY id DESC LIMIT 1",
-        (user_id,),
-    )
-    result = cur.fetchone()
-
-    cur.close()
-    conn.close()
-
-    if result:
-        mbti_result = result[0]
-        description = TRAVEL_TYPES.get(
-            mbti_result, "あなたにぴったりの旅行タイプです！"
-        )
-        # ★ 結果ページ表示時にもセッションへ同期（直アクセス対策）
-        session["mbti_type"] = mbti_result
-
-    else:
-        mbti_result = "未診断"
-        description = "まだ診断を受けていません。"
-
-    # --- 結果ページを表示 ---
-    return render_template("mbti/mbti_result.html",mbti_result=mbti_result,description=description)
-
-@mbti_bp.route("/mbti_explanation")
-def mbti_explanation():
-    conn = None
-    # --- ログインチェック ---
-    if "user_id" not in session:
-        flash("ログインしてください。", "warning")
-        return redirect(url_for("index.login"))
-
-    user_id = session["user_id"]
     username = session.get("username", "ゲスト")
+    user_id = session["user_id"]
 
-    # --- DBから最新のMBTI結果を取得 ---
+    # 最新の診断結果をDBから取得
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute(
-        "SELECT mbti_type FROM user_mbti WHERE user_id = %s ORDER BY id DESC LIMIT 1",
-        (user_id,)
-    )
-    result = cur.fetchone()
+    cur.execute("""
+        SELECT mbti_result, label, description, code, travel_name, mbti_description
+        FROM travel_survey
+        WHERE user_id = %s
+        ORDER BY created_at DESC
+        LIMIT 1
+    """, (user_id,))
+    row = cur.fetchone()
     cur.close()
     conn.close()
-    user_icon = get_user_icon(user_id) # ←ここでアイコン取得
 
-    if result:
-        mbti_result = result[0]  # 例: "ENFP"
-        travel_name = TRAVEL_TYPES.get(mbti_result, "あなたにぴったりの旅行タイプです！")
-        mbti_description = TRAVEL_STYLE_EXPLANATIONS.get(travel_name, "このタイプの説明はまだ登録されていません。")
+    if row:
+        mbti_result, label, description, code, travel_name, mbti_description = row
     else:
-        mbti_result = "未診断"
-        travel_name = "未診断"
-        mbti_description = "まだ診断が行われていません。"
-
+        flash("診断結果が見つかりません。", "warning")
+        return redirect(url_for("mbti.mbti"))
 
     return render_template(
-        "mbti/mbti_explanation.html",
+        "mbti/mbti_result.html",
         username=username,
         mbti_result=mbti_result,
+        label=label,
+        description=description,
+        code=code,
         travel_name=travel_name,
         mbti_description=mbti_description,
-        user_icon=user_icon
     )

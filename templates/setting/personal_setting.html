@@ -16,14 +16,14 @@
 
   <!-- ===== ヘッダー（タイトル＆戻るボタン） ===== -->
   <header class="w-full flex justify-between items-center px-6 py-4 bg-white shadow-md fixed top-0 left-0 z-50">
-    <h1 class="text-lg font-bold text-teal-700">⚙️ 個人設定</h1>
-    <a href="{{ url_for('home.home') }}"
+    <a href="{{ url_for('setting.setting') }}"
        class="text-gray-600 hover:text-teal-600 transition-colors"
        title="ホームへ戻る">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
       </svg>
     </a>
+    <h1 class="text-lg font-bold text-teal-700">⚙️ 個人設定</h1>
   </header>
 
   <main class="max-w-lg mx-auto px-6 py-24">
@@ -37,16 +37,20 @@
           <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
                alt="Default Icon" class="w-28 h-28 rounded-full border-4 border-gray-300 shadow-md object-cover">
         {% endif %}
-        <h2 class="text-xl font-semibold text-gray-800">{{ username }} さん</h2>
+      
       </div>
     </div>
 
+    <h2 class="text-xl font-semibold text-gray-800">{{ user.name }} さん</h2>
+
     <!-- 🧾 ユーザー情報 -->
     <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 space-y-4 text-center">
-      <h3 class="text-lg font-bold text-teal-700 border-b pb-2">🔐 ユーザー情報</h3>
-      <p class="text-base"><span class="font-semibold text-gray-700">ユーザー名:</span> {{ username }}</p>
-      <p class="text-base"><span class="font-semibold text-gray-700">ユーザーID:</span> {{ session.get("user_id") }}</p>
-      <p class="text-sm text-gray-600">ログイン中のアカウント情報です。</p>
+    <h3 class="text-lg font-bold text-teal-700 border-b pb-2">🔐 ユーザー情報</h3>
+    <p class="text-base"><span class="font-semibold text-gray-700">ユーザー名:</span> {{ user.name }}</p>
+    <p class="text-base"><span class="font-semibold text-gray-700">ユーザーID:</span> {{ user.id }}</p>
+    <p class="text-base"><span class="font-semibold text-gray-700">メールアドレス:</span> {{ user.email }}</p>
+    <p class="text-base"><span class="font-semibold text-gray-700">MBTIタイプ:</span> {{ user.mbti_type }}</p>
+    <p class="text-sm text-gray-600">ログイン中のアカウント情報です。</p>
     </div>
 
     <!-- 📄 情報ページ・診断など -->
