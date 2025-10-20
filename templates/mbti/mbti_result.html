@@ -131,6 +131,11 @@
     </div>
 
     <div class="desc">
+      <p>{{ description }}</p>
+      <div class="hint">タイプコード：{{ code }}  正規化コード：{{ travel_name }}</div>
+    </div>
+
+    <div class="desc">
       {# タイプ名 -> 説明 のマップ。診断結果に応じて該当説明を表示します。 #}
       {% set type_map = {
         // 観光×文化派

@@ -71,7 +71,7 @@ def mbti():
 
             flash("旅行タイプ診断の回答を保存しました！", "success")
 
-            # --- 結果ページへ遷移（後で分析やMBTI結果を表示可能） ---
+            # --- 結果ページへ遷移 ---
             return render_template(
                 "mbti/mbti_result.html",
                 username=username,
@@ -87,49 +87,70 @@ def mbti():
                 }
             )
 
+        # exceptブロックを削除 → エラーが発生した場合は Flask のデフォルトエラー画面になる
+
+
         except Exception as e:
-            print("DBエラー:", e)
-            flash("データの保存中にエラーが発生しました。", "danger")
+            pass
 
     # --- 初回アクセス時（質問フォームを表示） ---
     return render_template("mbti/mbti.html", username=username)
 
 
 
-@mbti_bp.route("/mbti_result")
+@mbti_bp.route("/mbti_result", methods=["POST"])
 def mbti_result():
-    conn = None
-    # --- ログインチェック ---
-    if "user_id" not in session:
-        flash("ログインしてください。", "warning")
-        return redirect(url_for("index.login"))
+    """
+    フォーム回答をDBに保存し、travel_mbti_logic.pyで診断を実行 → 結果表示
+    """
+    form_data = request.form
+    user_id = session.get("user_id")  # ログインユーザーID（なければNone）
 
-    user_id = session["user_id"]
+    # --- 1️⃣ 診断ロジック実行 ---
+    result = calculate_travel_mbti(form_data)
 
-    # --- DBからMBTI結果を取得 ---
+    # --- 2️⃣ DBに保存 ---
     conn = get_conn()
     cur = conn.cursor()
 
-    cur.execute(
-        "SELECT mbti_type FROM user_mbti WHERE user_id = %s ORDER BY id DESC LIMIT 1",
-        (user_id,),
-    )
-    result = cur.fetchone()
+    cur.execute("""
+        INSERT INTO travel_survey (
+            user_id, q_purpose, q_priority, q_theme, q_want, q_avoid,
+            q_rhythm, q_motion, q_distance,
+            mbti_result, label, description, code, travel_name
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """, (
+        user_id,
+        form_data.get("q_purpose"),
+        form_data.get("q_priority"),
+        form_data.get("q_theme"),
+        form_data.get("q_want"),
+        form_data.get("q_avoid"),
+        form_data.get("q_rhythm"),
+        form_data.get("q_motion"),
+        form_data.get("q_distance"),
+        result["mbti_result"],
+        result["label"],
+        result["description"],
+        result["code"],
+        result["travel_name"]
+    ))
 
+    conn.commit()
     cur.close()
     conn.close()
 
-    if result:
-        mbti_result = result[0]
-        description = TRAVEL_TYPES.get(
-            mbti_result, "あなたにぴったりの旅行タイプです！"
-        )
-        # ★ 結果ページ表示時にもセッションへ同期（直アクセス対策）
-        session["mbti_type"] = mbti_result
+    # --- 3️⃣ 結果ページを描画 ---
+    username = session.get("username", "ゲスト")
 
-    else:
-        mbti_result = "未診断"
-        description = "まだ診断を受けていません。"
-
-    # --- 結果ページを表示 ---
-    return render_template("mbti/mbti_result.html",mbti_result=mbti_result,description=description)
+    return render_template(
+        "mbti_result.html",
+        username=username,
+        mbti_result=result["mbti_result"],
+        label=result["label"],
+        description=result["description"],
+        code=result["code"],
+        travel_name=result["travel_name"],
+        mbti_description=result["mbti_description"]
+    )
