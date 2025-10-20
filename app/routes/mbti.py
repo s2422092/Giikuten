@@ -23,7 +23,6 @@ def get_conn():
     return psycopg2.connect(**DB_CONFIG)
 
 
-
 @mbti_bp.route("/mbti", methods=["GET", "POST"])
 def mbti():
     # --- ログインチェック ---
@@ -35,7 +34,7 @@ def mbti():
     user_id = session["user_id"]
 
     if request.method == "POST":
-        # --- フォームから回答を取得 ---
+        # フォーム回答取得
         q_purpose = request.form.get("q_purpose")
         q_priority = request.form.get("q_priority")
         q_theme = request.form.get("q_theme")
@@ -45,112 +44,84 @@ def mbti():
         q_motion = request.form.get("q_motion")
         q_distance = request.form.get("q_distance")
 
-        # --- 未入力チェック（念のため） ---
         if not all([q_purpose, q_priority, q_theme, q_want, q_avoid, q_rhythm, q_motion, q_distance]):
             flash("全ての質問に回答してください。", "danger")
             return redirect(url_for("mbti.mbti"))
 
-        try:
-            # --- DBに接続 ---
-            conn = get_conn()
-            cur = conn.cursor()
+        # --- 診断ロジック ---
+        result = calculate_travel_mbti(request.form)
 
-            # --- travel_surveyテーブルにINSERT ---
-            cur.execute("""
-                INSERT INTO travel_survey (
-                    user_id, q_purpose, q_priority, q_theme, q_want, q_avoid, q_rhythm, q_motion, q_distance
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                user_id, q_purpose, q_priority, q_theme, q_want, q_avoid, q_rhythm, q_motion, q_distance
-            ))
-
-            conn.commit()
-            cur.close()
-            conn.close()
-
-            flash("旅行タイプ診断の回答を保存しました！", "success")
-
-            # --- 結果ページへ遷移 ---
-            return render_template(
-                "mbti/mbti_result.html",
-                username=username,
-                answers={
-                    "目的": q_purpose,
-                    "重視ポイント": q_priority,
-                    "テーマ": q_theme,
-                    "したいこと": q_want,
-                    "避けたいこと": q_avoid,
-                    "活動リズム": q_rhythm,
-                    "乗り物酔い": q_motion,
-                    "移動時間": q_distance
-                }
+        # --- DB保存 ---
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO travel_survey (
+                user_id, q_purpose, q_priority, q_theme, q_want, q_avoid,
+                q_rhythm, q_motion, q_distance,
+                mbti_result, label, description, code, travel_name
             )
-
-        # exceptブロックを削除 → エラーが発生した場合は Flask のデフォルトエラー画面になる
-
-
-        except Exception as e:
-            pass
-
-    # --- 初回アクセス時（質問フォームを表示） ---
-    return render_template("mbti/mbti.html", username=username)
-
-
-
-@mbti_bp.route("/mbti_result", methods=["POST"])
-def mbti_result():
-    """
-    フォーム回答をDBに保存し、travel_mbti_logic.pyで診断を実行 → 結果表示
-    """
-    form_data = request.form
-    user_id = session.get("user_id")  # ログインユーザーID（なければNone）
-
-    # --- 1️⃣ 診断ロジック実行 ---
-    result = calculate_travel_mbti(form_data)
-
-    # --- 2️⃣ DBに保存 ---
-    conn = get_conn()
-    cur = conn.cursor()
-
-    cur.execute("""
-        INSERT INTO travel_survey (
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
             user_id, q_purpose, q_priority, q_theme, q_want, q_avoid,
             q_rhythm, q_motion, q_distance,
-            mbti_result, label, description, code, travel_name
-        )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """, (
-        user_id,
-        form_data.get("q_purpose"),
-        form_data.get("q_priority"),
-        form_data.get("q_theme"),
-        form_data.get("q_want"),
-        form_data.get("q_avoid"),
-        form_data.get("q_rhythm"),
-        form_data.get("q_motion"),
-        form_data.get("q_distance"),
-        result["mbti_result"],
-        result["label"],
-        result["description"],
-        result["code"],
-        result["travel_name"]
-    ))
+            result["mbti_result"], result["label"], result["description"],
+            result["code"], result["travel_name"]
+        ))
+        conn.commit()
+        cur.close()
+        conn.close()
 
-    conn.commit()
+        flash("旅行タイプ診断の回答を保存しました！", "success")
+
+        # --- 結果ページへ ---
+        return render_template(
+            "mbti/mbti_result.html",
+            username=username,
+            mbti_result=result["mbti_result"],
+            label=result["label"],
+            description=result["description"],
+            code=result["code"],
+            travel_name=result["travel_name"]
+        )
+
+    # 初回アクセス：フォーム表示
+    return render_template("mbti/mbti.html", username=username)
+
+@mbti_bp.route("/mbti_result")
+def mbti_result():
+    if "user_id" not in session:
+        flash("ログインしてください。", "warning")
+        return redirect(url_for("index.login"))
+
+    username = session.get("username", "ゲスト")
+    user_id = session["user_id"]
+
+    # 最新の診断結果をDBから取得
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT mbti_result, label, description, code, travel_name
+        FROM travel_survey
+        WHERE user_id = %s
+        ORDER BY created_at DESC
+        LIMIT 1
+    """, (user_id,))
+    row = cur.fetchone()
     cur.close()
     conn.close()
 
-    # --- 3️⃣ 結果ページを描画 ---
-    username = session.get("username", "ゲスト")
+    if row:
+        mbti_result, label, description, code, travel_name = row
+    else:
+        flash("診断結果が見つかりません。", "warning")
+        return redirect(url_for("mbti.mbti"))
 
     return render_template(
-        "mbti_result.html",
+        "mbti/mbti_result.html",
         username=username,
-        mbti_result=result["mbti_result"],
-        label=result["label"],
-        description=result["description"],
-        code=result["code"],
-        travel_name=result["travel_name"],
-        mbti_description=result["mbti_description"]
+        mbti_result=mbti_result,
+        label=label,
+        description=description,
+        code=code,
+        travel_name=travel_name
     )
