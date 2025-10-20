@@ -92,20 +92,79 @@ def setting():
 
     return render_template("setting/setting.html", user=user_info)
 
+# =========================
+# 🔹 個人設定ページ（/personal_setting）
+# =========================
 @setting_bp.route("/personal_setting")
 def personal_setting():
+    # --- ログインチェック ---
     if "user_id" not in session:
         return redirect(url_for("index.login"))
 
     user_id = session["user_id"]
-    username = session.get("username", "ゲスト")
-    user_icon = get_user_icon(user_id)
+    conn = None
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
 
-    return render_template(
-        "setting/personal_setting.html",
-        username=username,
-        user_icon=user_icon
-    )
+        # --- usersテーブルから基本情報を取得 ---
+        cur.execute(
+            "SELECT u_id, u_name, gmail FROM users WHERE u_id = %s",
+            (user_id,)
+        )
+        user_data = cur.fetchone()
+
+        # --- user_mbtiテーブルから最新の診断結果を取得 ---
+        cur.execute(
+            """
+            SELECT mbti_type, created_at 
+            FROM user_mbti 
+            WHERE user_id = %s 
+            ORDER BY created_at DESC 
+            LIMIT 1
+            """,
+            (user_id,)
+        )
+        mbti_data = cur.fetchone()
+
+        # --- user_iconsテーブルから最新のアイコンを取得 ---
+        cur.execute(
+            """
+            SELECT icon_base64
+            FROM user_icons
+            WHERE user_id = %s
+            ORDER BY uploaded_at DESC
+            LIMIT 1
+            """,
+            (user_id,)
+        )
+        icon_data = cur.fetchone()
+        icon_base64 = icon_data[0] if icon_data else None
+
+        cur.close()
+        conn.close()
+
+        if not user_data:
+            flash("ユーザー情報が見つかりません。", "error")
+            return redirect(url_for("home.home"))
+
+        # --- データまとめ ---
+        user_info = {
+            "id": user_data[0],
+            "name": user_data[1],
+            "email": user_data[2],
+            "mbti_type": mbti_data[0] if mbti_data else "未診断",
+            "mbti_date": mbti_data[1].strftime("%Y-%m-%d %H:%M:%S") if mbti_data else None,
+            "icon_base64": icon_base64
+        }
+
+    except Exception as e:
+        flash(f"ユーザー情報の取得中にエラーが発生しました: {e}", "error")
+        return redirect(url_for("home.home"))
+
+    # --- 取得データをテンプレートに渡す ---
+    return render_template("setting/personal_setting.html", user=user_info)
+
 
 @setting_bp.route("/upload_icon", methods=["POST"])
 def upload_icon():

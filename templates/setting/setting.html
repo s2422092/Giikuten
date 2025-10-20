@@ -67,10 +67,6 @@
   <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 mb-6 space-y-3 text-center">
     <h2 class="text-lg font-semibold border-b pb-2">🔐 ユーザー情報</h2>
     <h3 class="text-xl font-bold text-[#4F8C8C] mt-2">{{ user.name }} さん</h3>
-    <p class="text-base"><span class="font-semibold text-gray-700">ユーザーID:</span> {{ user.id }}</p>
-    <p class="text-base"><span class="font-semibold text-gray-700">メールアドレス:</span> {{ user.email }}</p>
-    <p class="text-sm text-gray-600">ここはログイン後の個人情報画面です。</p>
-
     <div class="pt-4">
       <a href="{{ url_for('home.information') }}" 
          class="inline-block bg-[#4F8C8C] text-white text-sm font-semibold px-5 py-2 rounded-lg shadow hover:bg-[#3E7676] transition-all duration-200">
@@ -78,32 +74,6 @@
       </a>
     </div>
   </div>
-
-  <!-- 🌍 MBTI表示 -->
-  <div class="bg-teal-50 border border-teal-200 shadow-md rounded-2xl p-6 space-y-3 mb-6 text-center">
-    <h3 class="text-lg font-semibold text-teal-700">
-      🌍 あなたの旅行タイプ（MBTI診断結果）
-    </h3>
-    <p class="text-xl font-bold text-teal-800">{{ user.mbti_type }}</p>
-
-    {% if user.mbti_date %}
-      <a href="{{ url_for('mbti.mbti') }}" 
-         class="inline-block bg-[#4F8C8C] text-white px-4 py-2 rounded-lg shadow hover:bg-[#3E7676] transition">
-         旅行タイプの再診断
-      </a>
-      <p class="text-sm text-gray-600">診断日: {{ user.mbti_date }}</p>
-    {% endif %}
-  </div>
-
-  <!-- 🔴 ログアウトボタン -->
-  <div class="text-center mb-10">
-    <a href="{{ url_for('home.logout') }}" 
-       class="inline-block bg-red-500 text-white text-lg font-semibold px-6 py-2 rounded-lg shadow hover:bg-red-600 transition-all duration-200">
-       🚪 ログアウト
-    </a>
-  </div>
-</div>
-
 <!-- === 🌏 あなたの旅行プラン一覧 === -->
 <main class="max-w-6xl mx-auto mt-6 mb-32 px-6">
   <h2 class="text-2xl font-bold text-teal-700 mb-6 text-center">🌏 あなたの旅行プラン一覧</h2>
