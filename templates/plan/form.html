@@ -24,6 +24,17 @@
 2:ユーザー側の性格はバックエンドで入れる。旅行を一緒に行く人はみんな同じ人であることを前提としておくそれ以外の特徴量は性格診断の結果のそれぞれの結果から持ってくる
 -->
 
+<header class="w-full flex justify-between items-center p-4 bg-white shadow-md">
+  <a href="#">💬</a>
+
+    <a href="{{ url_for('setting.setting') }}">
+        <img src="{{ user_icon }}"
+            alt="User Icon"
+            class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
+    </a>
+
+</header>
+
 <body class="bg-baseBg text-textMain font-['Noto Sans JP'] p-8 pb-28">
 
   <h1 class="text-2xl font-semibold text-[#31405F] mb-6">
