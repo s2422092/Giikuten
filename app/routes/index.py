@@ -29,10 +29,11 @@ def index():
 @index_bp.route("/login", methods=["GET", "POST"])
 def login():
     conn = None
+    
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-
+        
         # ✅ 入力チェック
         if not username or not password:
             flash("ユーザー名とパスワードを入力してください。", "error")

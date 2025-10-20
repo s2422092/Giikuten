@@ -1,3 +1,4 @@
+
 CREATE TABLE travel_survey (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
@@ -14,5 +15,6 @@ CREATE TABLE travel_survey (
     description TEXT,
     code TEXT,
     travel_name TEXT,
+    mbti_description TEXT,  -- ← 追加
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
