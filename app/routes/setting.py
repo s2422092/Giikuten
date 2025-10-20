@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import base64
+from app.user_icon import get_user_icon
 
 load_dotenv()  # ← .envファイルの内容を読み込む
 
@@ -91,6 +92,20 @@ def setting():
 
     return render_template("setting/setting.html", user=user_info)
 
+@setting_bp.route("/personal_setting")
+def personal_setting():
+    if "user_id" not in session:
+        return redirect(url_for("index.login"))
+
+    user_id = session["user_id"]
+    username = session.get("username", "ゲスト")
+    user_icon = get_user_icon(user_id)
+
+    return render_template(
+        "setting/personal_setting.html",
+        username=username,
+        user_icon=user_icon
+    )
 
 @setting_bp.route("/upload_icon", methods=["POST"])
 def upload_icon():
