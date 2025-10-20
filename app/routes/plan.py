@@ -14,6 +14,7 @@ from datetime import datetime
 #from ..services.itinerary import generate_itinerary
 import os
 from dotenv import load_dotenv
+from app.user_icon import get_user_icon
 
 load_dotenv()
 
@@ -132,12 +133,13 @@ def plan():
 
     username = session.get("username", "ゲスト")
     mbti_type = session.get("mbti_type")
+    user_icon = get_user_icon(session["user_id"]) # ←ここでアイコン取得
     if not mbti_type:
         mbti_type = get_latest_mbti(session["user_id"]) or "バランスタイプ"
         session["mbti_type"] = mbti_type
 
     if request.method == "GET":
-        return render_template("plan/form.html", username=username, mbti=mbti_type)
+        return render_template("plan/form.html", username=username, mbti=mbti_type, user_icon=user_icon)
 
     # --- POST: 旅行条件  場所選択を受け取り LLM 提案 ---
     try:

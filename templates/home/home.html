@@ -24,12 +24,15 @@
     {% endif %}
   {% endwith %} 
 
-<header class="w-full flex justify-end items-center p-4 bg-white shadow-md">
-  <a href="{{ url_for('setting.setting') }}">
-    <img src="{{ user_icon }}"
-         alt="User Icon"
-         class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
-  </a>
+<header class="w-full flex justify-between items-center p-4 bg-white shadow-md">
+  <a href="#">💬</a>
+
+    <a href="{{ url_for('setting.setting') }}">
+        <img src="{{ user_icon }}"
+            alt="User Icon"
+            class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
+    </a>
+
 </header>
 
 
