@@ -14,22 +14,27 @@
 </head>
 <body class="pb-28">
 
-  <!-- エラー文の出力 -->
-  <!-- {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %} -->
-<!-- メインコンテンツ -->
+<!-- ★ ヘッダー（右上に設定ボタン追加） -->
+<header class="w-full flex justify-end items-center px-6 py-4 bg-white shadow-md fixed top-0 left-0 z-50">
+  <a href="{{ url_for('setting.personal_setting') }}"
+     class="text-gray-600 hover:text-teal-600 transition-colors"
+     title="設定">
+    <!-- 歯車アイコン -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M10.325 4.317a1 1 0 00-.948.684l-.56 1.68a8.001 8.001 0 00-2.56 1.48l-1.518-.506a1 1 0 00-1.21.45l-1 1.732a1 1 0 00.22 1.304l1.273.982a8.003 8.003 0 000 2.962l-1.273.982a1 1 0 00-.22 1.304l1 1.732a1 1 0 001.21.45l1.518-.506a8.001 8.001 0 002.56 1.48l.56 1.68a1 1 0 00.948.684h2.35a1 1 0 00.948-.684l.56-1.68a8.001 8.001 0 002.56-1.48l1.518.506a1 1 0 001.21-.45l1-1.732a1 1 0 00-.22-1.304l-1.273-.982a8.003 8.003 0 000-2.962l1.273-.982a1 1 0 00.22-1.304l-1-1.732a1 1 0 00-1.21-.45l-1.518.506a8.001 8.001 0 00-2.56-1.48l-.56-1.68a1 1 0 00-.948-.684h-2.35z" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  </a>
+</header>
+
+<!-- ===== 個人情報メインコンテンツ ===== -->
 <div class="container max-w-lg mx-auto px-6 py-8">
 
   <!-- 👤 ユーザーアイコン＆アップロード -->
   <div class="bg-white shadow-lg rounded-2xl p-8 border border-gray-200 mb-6 space-y-6 text-center">
     <form action="{{ url_for('setting.upload_icon') }}" method="POST" enctype="multipart/form-data" class="flex flex-col items-center">
       <div class="relative flex flex-col items-center">
-        <!-- 丸いアイコン枠 -->
         <div id="iconContainer"
              class="w-28 h-28 rounded-full bg-[#E6F3F3] flex items-center justify-center shadow-inner overflow-hidden">
           {% if user.icon_base64 %}
@@ -62,123 +67,135 @@
   <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 mb-6 space-y-3 text-center">
     <h2 class="text-lg font-semibold border-b pb-2">🔐 ユーザー情報</h2>
     <h3 class="text-xl font-bold text-[#4F8C8C] mt-2">{{ user.name }} さん</h3>
-    <p class="text-base"><span class="font-semibold text-gray-700">ユーザーID:</span> {{ user.id }}</p>
-    <p class="text-base"><span class="font-semibold text-gray-700">メールアドレス:</span> {{ user.email }}</p>
-    <p class="text-sm text-gray-600">ここはログイン後の個人情報画面です。</p>
-
-    <!-- ℹ️ informationリンク -->
-    <div class="pt-4">
-      <a href="{{ url_for('home.information') }}" 
-         class="inline-block bg-[#4F8C8C] text-white text-sm font-semibold px-5 py-2 rounded-lg shadow hover:bg-[#3E7676] transition-all duration-200">
-         ℹ️ information
-      </a>
-    </div>
   </div>
+<!-- === 🌏 あなたの旅行プラン一覧 === -->
+<main class="max-w-6xl mx-auto mt-6 mb-32 px-6">
+  <h2 class="text-2xl font-bold text-teal-700 mb-6 text-center">🌏 あなたの旅行プラン一覧</h2>
 
-  <!-- 🌍 MBTI表示 -->
-  <div class="bg-teal-50 border border-teal-200 shadow-md rounded-2xl p-6 space-y-3 mb-6 text-center">
-    <h3 class="text-lg font-semibold text-teal-700">
-      🌍 あなたの旅行タイプ（MBTI診断結果）
-    </h3>
-    <p class="text-xl font-bold text-teal-800">{{ user.mbti_type }}</p>
-
-    {% if user.mbti_date %}
-      <a href="{{ url_for('mbti.mbti') }}" 
-         class="inline-block bg-[#4F8C8C] text-white px-4 py-2 rounded-lg shadow hover:bg-[#3E7676] transition">
-         旅行タイプの再診断
-      </a>
-      <p class="text-sm text-gray-600">診断日: {{ user.mbti_date }}</p>
-    {% endif %}
-  </div>
-
-  <!-- 🔴 ログアウトボタン -->
-  <div class="text-center">
-    <a href="{{ url_for('home.logout') }}" 
-       class="inline-block bg-red-500 text-white text-lg font-semibold px-6 py-2 rounded-lg shadow hover:bg-red-600 transition-all duration-200">
-       🚪 ログアウト
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+    
+    <!-- 旅行1 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">東京・京都グルメ旅</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 東京・京都</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 3人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 50,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          観光スポットを巡りつつ、地元グルメを楽しむ旅です。宿泊は快適なホテルで、ゆったり回ります。
+        </p>
+      </div>
     </a>
+
+    <!-- 旅行2 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">北海道自然満喫ツアー</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 北海道</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 2人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 70,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          大自然を満喫する旅。温泉や美味しい海鮮も楽しめます。
+        </p>
+      </div>
+    </a>
+
+    <!-- 旅行3 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">沖縄ビーチリゾート</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 沖縄</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 4人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 80,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          海を眺めながらのんびり過ごすリゾート旅。シュノーケリングやマリンスポーツも体験。
+        </p>
+      </div>
+    </a>
+
+    <!-- 旅行4 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">九州歴史巡り</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 九州</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 3人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 60,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          歴史的建造物や名所を巡る旅。温泉街でゆったり休息も。
+        </p>
+      </div>
+    </a>
+
+    <!-- 旅行5 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">長野スキー＆温泉</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 長野</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 2人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 55,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          冬のスキー旅行と温泉を楽しむ旅。雪景色を眺めながらリラックス。
+        </p>
+      </div>
+    </a>
+
+    <!-- 旅行6 -->
+    <a href="{{url_for('my_travel.travel_details')}}" class="block">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
+        <h2 class="text-xl font-bold text-teal-700">広島文化体験</h2>
+        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 広島</p>
+        <p class="text-gray-700"><span class="font-semibold">人数:</span> 3人</p>
+        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 45,000円</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          平和記念公園や宮島を巡る文化体験旅。地元グルメも満喫。
+        </p>
+      </div>
+    </a>
+
   </div>
+</main>
 
-</div>
-
-
-
-
-
+<!-- ==== 下部ナビバー ==== -->
 <div class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
-
-  <!-- 診断の詳細について（Test） -->
-  <a href="{{ url_for('mbti.mbti_explanation') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'mbti.mbti_explanation' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
-    <svg class="w-5 h-5 {% if request.endpoint == 'mbti.mbti_explanation' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <path d="M4 6h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="8" cy="6" r="1.5" fill="currentColor"/>
-      <circle cx="8" cy="12" r="1.5" fill="currentColor"/>
-      <circle cx="8" cy="18" r="1.5" fill="currentColor"/>
-    </svg>
-    <span class="text-xs mt-1">Test</span>
-  </a>
-
-  <!-- 旅のタイムライン（Time Line） -->
-  <a href="{{ url_for('plan.plan') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'plan.plan' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
-    <svg class="w-5 h-5 {% if request.endpoint == 'plan.plan' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <a href="{{ url_for('my_travel.travel_details') }}" 
+     class="flex flex-col items-center text-gray-700 hover:text-teal-600 focus:outline-none">
+    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
       <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <span class="text-xs mt-1">Time Line</span>
   </a>
 
-  <!-- ホームボタン（Home） -->
   <a href="{{ url_for('home.home') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'home.home' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
-    <svg class="w-5 h-5 {% if request.endpoint == 'home.home' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <g fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="3 12 12 3 21 12" />
-        <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
-      </g>
+     class="flex flex-col items-center text-gray-700 hover:text-teal-600 focus:outline-none">
+    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <polyline points="3 12 12 3 21 12" stroke="currentColor" stroke-width="2"/>
+      <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" stroke="currentColor" stroke-width="2"/>
     </svg>
     <span class="text-xs mt-1">Home</span>
   </a>
 
-  <!-- マイトラベル（My Travel） -->
-  <a href="{{ url_for('my_travel.my_travel') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'my_travel.my_travel' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
-    <svg class="w-5 h-5 {% if request.endpoint == 'my_travel.my_travel' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <a href="{{ url_for('plan.plan') }}" 
+     class="flex flex-col items-center text-gray-700 hover:text-teal-600 focus:outline-none">
+    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <rect x="6" y="7" width="12" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
       <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
     </svg>
-    <span class="text-xs mt-1">My Travel</span>
+    <span class="text-xs mt-1">旅行作成</span>
   </a>
-
-  <!-- マイページ（My Page） -->
-  <a href="{{ url_for('setting.setting') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'setting.setting' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
-    <svg class="w-5 h-5 {% if request.endpoint == 'setting.setting' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
-      <path d="M4 21v-1a7 7 0 0 1 14 0v1" fill="none" stroke="currentColor" stroke-width="2"/>
-    </svg>
-    <span class="text-xs mt-1">My Page</span>
-  </a>
-
 </div>
+
+<!-- ==== JS ==== -->
 <script>
-  // プラスボタンクリックでファイル選択を開く
   document.getElementById('addIconBtn').addEventListener('click', () => {
     document.getElementById('iconUpload').click();
   });
 
-  // 選択された画像をプレビュー表示
   document.getElementById('iconUpload').addEventListener('change', function (event) {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
-    reader.onload = function (e) {
-      document.getElementById('userIconPreview').src = e.target.result;
-    };
+    reader.onload = e => document.getElementById('userIconPreview').src = e.target.result;
     reader.readAsDataURL(file);
   });
 </script>
