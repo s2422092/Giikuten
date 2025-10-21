@@ -5,116 +5,40 @@
   <title>旅行MBTI診断結果</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: "Hiragino Kaku Gothic ProN", sans-serif;
-      background: linear-gradient(135deg, #F6F5F3, #EFD8C0);
-      color: #2C3E50;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
+    /* カスタムフォント指定（Tailwindのベースに追加） */
+    body { font-family: "Hiragino Kaku Gothic ProN", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
+    /* グラデ背景はインライン style で設定済みにするか、ここで補助 */
+    .bg-grad { background: linear-gradient(135deg, #F6F5F3, #EFD8C0); }
 
-    .container {
-      max-width: 600px;
-      margin: 50px auto;
-      background: #FFFFFF;
-      border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(79, 140, 140, 0.2);
-      padding: 40px 30px;
-      animation: fadeIn 0.8s ease;
-      border: 2px solid #F2D3C2;
-    }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    h1 { color: #4F8C8C; margin-bottom: 15px; }
-    h2 { font-size: 1.3em; color: #31405F; }
-
-    .type-box {
-      background: rgba(79, 140, 140, 0.2);
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 25px;
-      font-size: 1.2em;
-      color: #31405F;
-      box-shadow: 0 2px 6px rgba(79, 140, 140, 0.15);
-    }
-
-    .desc {
-      text-align: left;
-      margin-top: 20px;
-      line-height: 1.8;
-      color: #2C3E50;
-      opacity: 0;
-      transform: translateY(10px);
-      animation: fadeInDesc 1.2s ease forwards;
-      animation-delay: 3s;
-    }
-
-    .desc p {
-      padding: 12px;
-      background: #F6F5F3;
-      border-radius: 6px;
-      margin-bottom: 10px;
-    }
-
-    .hint {
-      font-size: 0.95em;
-      color: #51616A;
-      margin-top: 6px;
-    }
-
-    a {
-      display: inline-block;
-      margin-top: 35px;
-      padding: 12px 24px;
-      background: #4F8C8C;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 10px;
-      transition: 0.3s;
-      font-weight: bold;
-    }
-    a:hover {
-      background: #3E7676;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(79, 140, 140, 0.3);
-    }
-
-    .mbti-result {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #4F8C8C;
-      margin-top: 20px;
-      opacity: 0;
-      transform: translateY(10px);
-      animation: fadeInResult 1.2s ease forwards;
-      animation-delay: 1.5s;
-      letter-spacing: 1px;
-    }
-
+    /* フェードインの簡易アニメーション（Tailwind 標準に無いので最低限カスタム保持） */
     @keyframes fadeInResult { to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeInDesc { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInDesc   { to { opacity: 1; transform: translateY(0); } }
+
+    .fade-result { opacity: 0; transform: translateY(10px); animation: fadeInResult 1.2s ease forwards; animation-delay: 1.5s; }
+    .fade-desc   { opacity: 0; transform: translateY(10px); animation: fadeInDesc 1.2s ease forwards; animation-delay: 3s; }
   </style>
 </head>
-<body>
+<body class="bg-grad text-[#2C3E50] text-center m-0 p-0">
 
-  <div class="container">
-    <h1>旅行MBTI診断結果</h1>
-    <h2>こんにちは、{{ username }} さん！</h2>
+  <div class="max-w-[600px] mx-auto mt-[50px] bg-white rounded-[20px] shadow-[0_4px_12px_rgba(79,140,140,0.2)] p-[40px] border-2 border-[#F2D3C2]">
+    <h1 class="text-[#4F8C8C] mb-[15px] text-2xl font-bold">旅行MBTI診断結果</h1>
+    <h2 class="text-[1.3em] text-[#31405F]">こんにちは、{{ username }} さん！</h2>
 
-    <div class="type-box">
-      <h2>あなたの旅行タイプは...</h2>
-      <h1 class="mbti-result">{{ mbti_result }}</h1>
+    <div class="bg-[rgba(79,140,140,0.2)] rounded-[12px] p-5 mt-[25px] text-[#31405F] shadow-[0_2px_6px_rgba(79,140,140,0.15)]">
+      <h2 class="text-[1.3em] text-[#31405F]">あなたの旅行タイプは...</h2>
+      <h1 class="mbti-result fade-result text-4xl font-extrabold text-[#4F8C8C] mt-5 tracking-wide">{{ mbti_result }}</h1>
     </div>
 
-    <div class="desc">
+    <div class="desc fade-desc text-left mt-5 leading-8 text-[#2C3E50]">
       {% if travel_name %}
-        <p class="hint">タイプコード: {{ travel_name }}</p>
+        <p class="hint text-sm text-[#51616A] mt-2 p-3 bg-[#F6F5F3] rounded-md mb-2">
+          タイプコード: {{ travel_name }}
+        </p>
       {% endif %}
     </div>
 
-    <a href="{{ url_for('home.home') }}">
+    <a href="{{ url_for('home.home') }}"
+       class="inline-block mt-9 px-6 py-3 bg-[#4F8C8C] text-white no-underline rounded-[10px] font-bold transition hover:bg-[#3E7676] hover:-translate-y-[2px] hover:shadow-[0_4px_8px_rgba(79,140,140,0.3)]">
       ← ホームに戻る
     </a>
   </div>
