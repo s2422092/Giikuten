@@ -1,28 +1,141 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-  <meta charset="UTF-8">
-  <title>ログイン前</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      background-color: #F6F5F3;
-      color: #2C3E50;
-      font-family: "Noto Sans JP", sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スライダーのあるサイト</title>
     
-  </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
 </head>
-<body>
 
-    <div>
-        <a href="{{ url_for('index.login') }}">
-        ログイン
-        </a>
-        <a href="{{ url_for('index.registration') }}">
-        新規登録
-        </a>
-    </div>
+<body class="bg-white text-gray-800">
 
+  <header class="absolute top-0 w-full z-10">
+      <div class="container mx-auto flex justify-between items-center px-6 py-4 text-white">
+          
+          <h1 class="text-xl font-light tracking-tight">
+              <a href="#">MY BRAND -こだわりのモノづくり-</a>
+          </h1>
+
+          <nav class="hidden md:flex">
+              <ul class="flex space-x-8">
+                  <li><a href="#" class="hover:text-gray-300">TOP</a></li>
+                  <li><a href="#" class="hover:text-gray-300">PRODUCT</a></li>
+                  <li><a href="#" class="hover:text-gray-300">ABOUT</a></li>
+                  <li><a href="#" class="hover:text-gray-300">NEWS</a></li>
+                  <li><a href="#" class="hover:text-gray-300">CONTACT</a></li>
+              </ul>
+          </nav>
+
+          <div class="md:hidden">
+              <button class="border border-white px-3 py-1 rounded">
+                  MENU
+              </button>
+          </div>
+      </div>
+  </header>
+
+    <section class="relative h-screen overflow-hidden">
+    
+        <div class="swiper mainVisualSwiper h-full absolute inset-0 z-0">
+            
+            <div class="swiper-wrapper">
+                <!-- 出典　https://find47.jp/ -->
+                <div class="swiper-slide">
+                    <img src="./img/image3.jpg" 
+                        alt="メインビジュアル 1" 
+                        class="w-full h-full object-cover">
+                </div>
+                
+                <div class="swiper-slide">
+                    <img src="./img/image8.jpg" 
+                        alt="メインビジュアル 2" 
+                        class="w-full h-full object-cover">
+                </div>
+                
+                <div class="swiper-slide">
+                    <img src="./img/image10.jpg" 
+                        alt="メインビジュアル 3" 
+                        class="w-full h-full object-cover">
+                </div>
+
+                <div class="swiper-slide">
+                    <img src="./img/image11.jpg" 
+                        alt="メインビジュアル 4" 
+                        class="w-full h-full object-cover">
+                
+                </div>
+
+                <div class="swiper-slide">
+                    <img src="./img/image12.jpg" 
+                        alt="メインビジュアル 5" 
+                        class="w-full h-full object-cover">
+
+                </div>
+
+                
+
+            </div>
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-white animate-bounce z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+            </svg>
+        </div>
+    </section>
+
+    <main>
+        <section class="py-16 sm:py-24 bg-gray-50">
+            <div class="container mx-auto px-6 max-w-3xl text-center">
+                <h1 class="text-4xl font-bold mb-8 tracking-tight">
+                    旅に出よう。
+                </h1>
+                <div class="space-y-6 leading-relaxed text-gray-700">
+                    <p>
+                        僕たちが作りたいのは<br class="sm:hidden">
+                        持っているだけで旅に出たくなるモノ。<br>
+                        持っているだけでわくわくするモノ。
+                    </p>
+                    <p>
+                        それは新しい時代の “パスポート”<br>
+                        僕たちが作るものは、<br>
+                        そんな、存在でありたい。
+                    </p>
+                    <p class="text-xl font-semibold pt-4">
+                        MY BRAND
+                    </p>
+                    <p>
+                        それは、自分と世界を繋げる<br>
+                        モノづくりブランド
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</body>
+
+<script>
+        // メインビジュアルのスライダーを初期化
+        var swiper = new Swiper(".mainVisualSwiper", {
+            effect: "fade",         // フェードエフェクト
+            fadeEffect: {
+                crossFade: true     // クロスフェードを有効に
+            },
+            autoplay: {
+                delay: 4000,            // 4秒ごとに切り替え
+                disableOnInteraction: false, // ユーザー操作後も自動再生を続ける
+            },
+            loop: true,             // ループ再生
+            speed: 1500,            // 切り替えのアニメーション速度 (1.5秒)
+            allowTouchMove: false,  // マウスでのドラッグ操作を無効化
+        });
+    </script>
+    
 </body>
 </html>
