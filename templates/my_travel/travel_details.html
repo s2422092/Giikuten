@@ -2,151 +2,306 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <title>京都旅行しおり | 3日間の旅</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <title>関西旅行 - 詳細</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    body { background-color: #F6F5F3; color: #2C3E50; font-family: "Noto Sans JP", sans-serif; }
+    body {
+      background-color: #F9F8F5;
+      font-family: "Noto Sans JP", sans-serif;
+      color: #2C3E50;
+    }
+    h1, h2, h3 {
+      font-family: "Noto Serif JP", serif;
+    }
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+      border-left: 3px solid #5FB3B3;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.6s ease forwards;
+    }
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -11px;
+      top: 10px;
+      width: 14px;
+      height: 14px;
+      background: #14b8a6;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px #e0f7f6;
+    }
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .detail {
+      display: none;
+      background-color: #f9fafb;
+      border-left: 4px solid #14b8a6;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #374151;
+    }
+    .place-toggle {
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .place-toggle:hover {
+      background-color: #f1f5f9;
+    }
+    .travel-time {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #3b82f6;
+      margin: 0.5rem 0;
+    }
+    .time-badge {
+      background-color: #E0F2F1;
+      color: #00695C;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      margin-right: 0.5rem;
+    }
   </style>
 </head>
+
 <body class="pb-28">
 
-<header class="w-full flex justify-between items-center p-4 bg-white shadow-md">
-  <a href="#">💬</a>
+  <!-- 固定ヘッダー -->
+  <header class="fixed top-0 left-0 w-full bg-white shadow-sm p-4 flex justify-between items-center border-b border-gray-200 z-50">
+    <h1 class="text-2xl font-bold text-teal-700 tracking-wide">📖 京都旅行しおり</h1>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png" alt="User Icon"
+         class="w-9 h-9 rounded-full border-2 border-teal-600 hover:scale-110 transition-transform duration-200 object-cover"/>
+  </header>
 
-    <a href="{{ url_for('setting.setting') }}">
-        <img src="{{ user_icon }}"
-            alt="User Icon"
-            class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
-    </a>
+  <!-- メイン -->
+  <main class="max-w-5xl mx-auto pt-24 pb-28 px-6 grid md:grid-cols-3 gap-8">
 
-</header>
+    <!-- 左：タイムライン部分 -->
+    <section class="md:col-span-2 timeline">
 
-<div class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
-  <!-- 旅のタイムライン（Time Line） -->
-  <a href="{{ url_for('my_travel.travel_details') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'my_travel.travel_details' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
-    <svg class="w-5 h-5 {% if request.endpoint == 'my_travel.travel_details' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
-      <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span class="text-xs mt-1">Time Line</span>
-  </a>
+      <!-- 概要 -->
+      <div class="timeline-item page-card p-6">
+        <h2 class="text-2xl text-teal-700 font-semibold">🗺️ 旅の概要</h2>
+        <p class="text-gray-600 mt-2">
+          京都の伝統と四季を感じる3日間の癒し旅プランです。  
+          文化遺産や町並みだけでなく、地元のグルメ・自然・人との触れ合いを通じて「本物の京都」を体験します。
+          特に今回は、王道の観光地に加えて“歩く楽しさ”を感じられるエリアを厳選しました。
+        </p>
+        
+        <!-- ★ 追加部分：出発情報 -->
+        <div class="bg-teal-50 border-l-4 border-teal-500 mt-4 p-3 rounded-lg">
+          <h3 class="font-semibold text-teal-700 mb-1">🚅 出発情報</h3>
+          <p class="text-sm text-gray-700">
+            西船橋駅より出発し、新幹線で京都へ向かいます。<br>
+            <b>予定ルート：</b> 西船橋 →（総武線快速）→ 東京駅 →（東海道新幹線 のぞみ号）→ 京都駅<br>
+            <b>所要時間：</b> 約3時間（乗車＋乗換時間含む）<br>
+            <b>出発予定時刻：</b> 午前6:30〜7:00頃<br>
+            <b>到着予定：</b> 9:30頃 京都駅着
+          </p>
+        </div>
+        <!-- ★ 追加ここまで -->
 
-  <!-- ホームボタン（Home） -->
-  <a href="{{ url_for('home.home') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'home.home' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
-    <svg class="w-5 h-5 {% if request.endpoint == 'home.home' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <g fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="3 12 12 3 21 12" />
-        <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
-      </g>
-    </svg>
-    <span class="text-xs mt-1">Home</span>
-  </a>
+        <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
+          <li>期間：3日間（例：春や秋の観光シーズンに最適）</li>
+          <li>人数：2人（カップル・友人・親子旅行におすすめ）</li>
+          <li>予算：約65,000円 / 人（交通・宿泊・食事込み）</li>
+          <li>テーマ：癒し・文化体験・食の楽しみ</li>
+        </ul>
+      </div>
 
-  <!-- マイトラベル（My Travel） -->
-  <a href="{{ url_for('plan.plan') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'plan.plan' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
-    <svg class="w-5 h-5 {% if request.endpoint == 'plan.plan' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <rect x="6" y="7" width="12" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-      <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
-    </svg>
-    <span class="text-xs mt-1">旅行作成</span>
-  </a>
-</div>
+      <!-- 1日目 -->
+      <div class="timeline-item page-card p-6">
+        <h2 class="text-2xl font-semibold text-teal-700 mb-2">🌸 1日目: 東山エリア観光</h2>
+        <p class="text-gray-600 text-sm mb-3">
+          京都駅から出発し、清水寺・二寧坂・祇園と王道ルートを散策。  
+          京都の古都情緒をたっぷり味わいながら、カフェや和菓子店で一息つきましょう。
+        </p>
 
-<main class="max-w-3xl mx-auto mt-6 bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-6">
+        <p class="mb-4 text-sm text-gray-700">
+          🕗 <b>ホテル出発：</b> 8:30（ホテルグランヴィア京都）
+        </p>
 
-  <h1 class="text-3xl font-bold text-teal-700">関西旅行（4日間）</h1>
-  <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 大阪・京都・奈良</p>
-  <p class="text-gray-700"><span class="font-semibold">人数:</span> 4人</p>
-  <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 80,000円</p>
+        <ul class="space-y-3">
+          <li class="p-3 bg-white border rounded-lg place-toggle">
+            <h3><span class="time-badge">9:00</span>⛩ 清水寺</h3>
+            <p class="text-sm text-gray-600">
+              京都の象徴とも言える名所。清水の舞台から眺める京都市街の景色は圧巻です。
+              境内には音羽の滝や地主神社もあり、恋愛成就を願う人にも人気。
+            </p>
+            <p class="text-xs text-gray-500">9:00〜18:00 | 拝観料 400円 | 滞在：約90分</p>
+            <div class="detail">
+              <p>📖 <b>豆知識：</b> 舞台は釘を一本も使わずに組まれた構造で、江戸時代からその姿を保っています。</p>
+              <p>🚃 アクセス：京阪「清水五条駅」から徒歩20分</p>
+              <a href="https://goo.gl/maps/RpckZ2bZNhF2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
+            </div>
+          </li>
 
-  <hr class="border-gray-300">
+          <div class="travel-time">🚶‍♀️ 徒歩 約5分</div>
 
-  <!-- 1日目概要 -->
-  <div>
-    <h2 class="text-2xl font-semibold text-teal-600">1日目: 大阪観光</h2>
-    <p class="text-gray-600 text-sm mt-1">
-      大阪に到着してから道頓堀を散策し、地元グルメを楽しむ一日です。午後は大阪城周辺を観光し、夜はホテルでゆっくり休息。<span class="font-semibold text-teal-700">目玉: 道頓堀食べ歩き体験</span>
-    </p>
+          <li class="p-3 bg-white border rounded-lg place-toggle">
+            <h3><span class="time-badge">10:45</span>🌸 二寧坂・三年坂</h3>
+            <p class="text-sm text-gray-600">
+              石畳の坂道に伝統家屋が並ぶ、京都らしいエリア。  
+              可愛い雑貨店や抹茶スイーツの名店も多く、カメラ片手に歩くのが楽しい通りです。
+            </p>
+            <p class="text-xs text-gray-500">滞在：約40分</p>
+            <div class="detail">
+              <p>📷 写真スポット：「八坂の塔」を背景にした坂道の風景が特に人気！</p>
+              <a href="https://goo.gl/maps/P5qj8zk2GkL2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
+            </div>
+          </li>
 
-    <!-- タイムスケジュール -->
-    <ul class="list-disc list-inside space-y-1 text-gray-700 mt-2">
-      <li>07:30 - 東京出発、新幹線乗車（交通費: 8,000円/人）</li>
-      <li>09:40 - 新大阪駅到着、ホテルに荷物を預ける</li>
-      <li>10:15 - 道頓堀散策開始</li>
-      <li>10:45 - たこ焼き・串カツを食べ歩き（食費: 1,500円/人）</li>
-      <li>11:30 - 心斎橋ショッピング（お土産購入: 約1,000円）</li>
-      <li>12:15 - ランチ（お好み焼き屋さん、2,000円/人）</li>
-      <li>13:30 - 大阪城へ移動（移動費: 200円/人）</li>
-      <li>14:00 - 大阪城観光（入場料: 600円/人）</li>
-      <li>15:30 - 大阪歴史博物館見学（入場料: 700円/人）</li>
-      <li>17:00 - ホテルチェックイン、休憩</li>
-      <li>18:30 - 夕食（近隣居酒屋、2,500円/人）</li>
-      <li>19:30 - 夜の道頓堀ライトアップ見学</li>
-      <li>21:00 - ホテルで就寝</li>
-    </ul>
-    <p class="text-gray-600 mt-1">宿泊候補: ホテル阪急イン、リーガロイヤルホテル、スイスホテル南海大阪</p>
-  </div>
+          <div class="travel-time">🚶‍♀️ 徒歩 約10分</div>
 
-  <!-- 2日目概要 -->
-  <div>
-    <h2 class="text-2xl font-semibold text-teal-600">2日目: 京都寺社巡り</h2>
-    <p class="text-gray-600 text-sm mt-1">
-      京都の有名寺社を巡る文化体験の一日。嵐山や金閣寺などの観光スポットを楽しみます。<span class="font-semibold text-teal-700">目玉: 嵐山竹林散策</span>
-    </p>
-    <ul class="list-disc list-inside space-y-1 text-gray-700 mt-2">
-      <li>07:00 - ホテルで朝食（食費: 500円/人）</li>
-      <li>08:10 - 新幹線で京都へ移動（交通費: 1,500円/人）</li>
-      <li>09:00 - 清水寺観光（入場料: 400円/人）</li>
-      <li>10:15 - 二年坂・三年坂散策</li>
-      <li>11:00 - 祇園散策・カフェ休憩（飲食: 700円/人）</li>
-      <li>12:00 - ランチ（京料理: 2,000円/人）</li>
-      <li>13:30 - 金閣寺観光（入場料: 400円/人）</li>
-      <li>14:30 - 銀閣寺観光（入場料: 400円/人）</li>
-      <li>15:30 - 嵐山竹林散策（無料）</li>
-      <li>17:00 - 京都駅近くホテルチェックイン</li>
-      <li>18:30 - 夕食（レストラン: 2,500円/人）</li>
-      <li>20:00 - ホテルで就寝</li>
-    </ul>
-    <p class="text-gray-600 mt-1">宿泊候補: 京都ホテルオークラ、ホテルグランヴィア京都、ザ・ゲートホテル京都</p>
-  </div>
+          <li class="p-3 bg-white border rounded-lg place-toggle">
+            <h3><span class="time-badge">12:00</span>🍵 祇園 花見小路</h3>
+            <p class="text-sm text-gray-600">
+              舞妓さんが行き交う伝統的な通り。昼食には京料理の老舗「一子相伝なかむら」などもおすすめ。
+              木造の町家建築が並び、まるで時代を遡ったような感覚を味わえます。
+            </p>
+            <div class="detail">
+              <p>☕ カフェ情報：「ぎおん小森」の抹茶パフェは京都スイーツの定番。</p>
+              <a href="https://goo.gl/maps/9M6aV2P8XMM2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
+            </div>
+          </li>
+        </ul>
 
-  <!-- 3日目概要 -->
-  <div>
-    <h2 class="text-2xl font-semibold text-teal-600">3日目: 奈良の自然と歴史</h2>
-    <p class="text-gray-600 text-sm mt-1">
-      奈良公園で鹿と触れ合い、東大寺や興福寺など歴史的建造物を見学。<span class="font-semibold text-teal-700">目玉: 鹿と触れ合い体験</span>
-    </p>
-    <ul class="list-disc list-inside space-y-1 text-gray-700 mt-2">
-      <li>07:30 - ホテルで朝食（食費: 500円/人）</li>
-      <li>08:15 - 奈良へ電車移動（交通費: 800円/人）</li>
-      <li>09:30 - 奈良公園到着・鹿と触れ合い（入場料: 無料、餌: 200円/人）</li>
-      <li>10:15 - 東大寺観光（入場料: 600円/人）</li>
-      <li>12:00 - ランチ（柿の葉寿司: 1,500円/人）</li>
-      <li>13:00 - 興福寺見学（入場料: 500円/人）</li>
-      <li>14:00 - 奈良町散策・休憩（飲食: 300円/人）</li>
-      <li>15:30 - 大阪へ移動（交通費: 800円/人）</li>
-      <li>17:30 - ホテルチェックイン</li>
-      <li>18:30 - 夕食（レストラン: 2,500円/人）</li>
-      <li>20:00 - ホテルで休息・就寝</li>
-    </ul>
-    <p class="text-gray-600 mt-1">宿泊候補: ホテルモントレ大阪、クロスホテル大阪、ホテル京阪ユニバーサル・シティ</p>
-  </div>
+        <p class="mt-4 text-sm text-gray-700">
+          🕓 <b>ホテル帰着予定：</b> 15:00 頃
+        </p>
+      </div>
 
-  <hr class="border-gray-300">
+      <!-- 2日目 -->
+      <div class="timeline-item page-card p-6">
+        <h2 class="text-2xl font-semibold text-teal-700 mb-2">🍃 2日目: 嵐山と金閣寺</h2>
+        <p class="text-gray-600 text-sm mb-3">
+          自然豊かな嵐山と、世界遺産・金閣寺をめぐる充実の一日。  
+          竹林の爽やかな風と金色の輝きが心に残る京都の美を堪能します。
+        </p>
+        <p class="mb-4 text-sm text-gray-700">🕗 <b>ホテル出発：</b> 8:00</p>
 
-  <!-- 予算内訳 -->
-  <h2 class="text-xl font-semibold text-teal-700 mt-4">予算内訳（詳細）</h2>
-  <ul class="list-disc list-inside text-gray-700 text-sm space-y-1">
-    <li>交通費（新幹線・在来線・バス）: 20,000円</li>
-    <li>宿泊費（3泊×4人）: 30,000円</li>
-    <li>食費（朝・昼・夕×4人）: 15,000円</li>
-    <li>観光施設入場料: 5,000円</li>
-    <li>お土産代: 10,000円</li>
-  </ul>
+        <ul class="space-y-3">
+          <li class="p-3 bg-white border rounded-lg place-toggle">
+            <h3><span class="time-badge">9:00</span>🎋 嵐山竹林の小径</h3>
+            <p class="text-sm text-gray-600">
+              京都でも屈指の癒しスポット。早朝の静けさの中で風に揺れる竹の音を楽しめます。  
+              写真映えも抜群で、外国人観光客にも大人気。
+            </p>
+            <div class="detail">
+              <p>🗣️ 周辺には「天龍寺」や「渡月橋」などの名所もあり、合わせて観光可能。</p>
+              <a href="https://goo.gl/maps/4FZtpU8A2ER2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
+            </div>
+          </li>
 
-</main>
+          <div class="travel-time">🚌 バス 約40分</div>
+
+          <li class="p-3 bg-white border rounded-lg place-toggle">
+            <h3><span class="time-badge">11:00</span>🏯 金閣寺</h3>
+            <p class="text-sm text-gray-600">
+              金箔に包まれた舎利殿が池に映る美しい姿は、日本を代表する絶景。  
+              四季折々の表情を見せる庭園も見どころです。
+            </p>
+            <div class="detail">
+              <p>📜 <b>豆知識：</b> 室町時代の将軍・足利義満が建立した北山文化の象徴。</p>
+              <a href="https://goo.gl/maps/qWv6xYbKf7p" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
+            </div>
+          </li>
+        </ul>
+
+        <p class="mt-4 text-sm text-gray-700">🕓 <b>ホテル帰着予定：</b> 16:00 頃</p>
+      </div>
+
+      <!-- 3日目 -->
+      <div class="timeline-item page-card p-6">
+        <h2 class="text-2xl font-semibold text-teal-700 mb-2">🛍️ 3日目: 京都駅周辺 & お土産</h2>
+        <p class="text-gray-600 text-sm mb-3">
+          最終日は京都駅周辺でショッピングやグルメを満喫。  
+          観光を終えた後も駅直結の施設で京都の魅力を味わい尽くせます。
+        </p>
+        <p class="mb-4 text-sm text-gray-700">🕗 <b>ホテルチェックアウト：</b> 10:00</p>
+
+        <ul class="space-y-3">
+          <li class="p-3 bg-white border rounded-lg place-toggle">
+            <h3><span class="time-badge">10:30</span>🛍️ 京都駅ビル専門店街</h3>
+            <p class="text-sm text-gray-600">
+              伊勢丹・ポルタ・キューブなど大型施設が充実。京都限定の和菓子や雑貨も多数。
+              旅行の締めくくりにぴったりなお土産選びが楽しめます。
+            </p>
+            <div class="detail">
+              <p>🎁 おすすめ土産：「阿闍梨餅」「茶の菓」「よーじや あぶらとり紙」</p>
+              <a href="https://goo.gl/maps/RHjCe2i4Zyt" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
+            </div>
+          </li>
+
+          <div class="travel-time">🚶‍♀️ 徒歩 約5分</div>
+
+          <li class="p-3 bg-white border rounded-lg place-toggle">
+            <h3><span class="time-badge">12:00</span>🍱 京料理「はしたて」</h3>
+            <p class="text-sm text-gray-600">
+              京都駅構内の人気和食店。旬の食材を使った繊細な味わいの御膳が人気です。
+              お手頃価格で本格的な京料理が楽しめると評判。
+            </p>
+            <div class="detail">
+              <p>🍵 人気メニュー：鯛の胡麻だれ丼・おばんざい定食。</p>
+              <a href="https://goo.gl/maps/7gH6YFGBQVR2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
+            </div>
+          </li>
+        </ul>
+
+        <p class="mt-4 text-sm text-gray-700">🚅 <b>帰路出発：</b> 14:00（京都駅）</p>
+      </div>
+
+    </section>
+
+    <!-- 右：ホテル情報 -->
+    <aside class="hidden md:block sticky top-24 h-fit space-y-6">
+      <div class="p-6 bg-white rounded-xl shadow-md border border-gray-200">
+        <h3 class="text-lg font-semibold text-teal-700 mb-4">🏨 宿泊情報</h3>
+        <p class="text-sm text-gray-700">
+          ホテルグランヴィア京都（JR京都駅直結）<br>
+          チェックイン 15:00 ／ チェックアウト 11:00<br><br>
+          駅直結でアクセス抜群。モダンな客室と丁寧なサービスが魅力。  
+          館内にはフィットネスジム・プール・高層階レストランなど充実の設備があります。
+        </p>
+      </div>
+
+      <div class="p-6 bg-white rounded-xl shadow-md border border-gray-200">
+        <h3 class="text-lg font-semibold text-teal-700 mb-3">💰 予算概要</h3>
+        <ul class="text-sm text-gray-700 space-y-1">
+          <li>交通費: 約15,000円（新幹線往復＋市内移動）</li>
+          <li>宿泊費: 約30,000円（2泊）</li>
+          <li>食費: 約12,000円（朝・昼・夜）</li>
+          <li>拝観料: 約3,000円（主要寺社含む）</li>
+          <li>お土産: 約5,000円（スイーツ・雑貨など）</li>
+        </ul>
+        <p class="mt-3 text-xs text-gray-500">※時期や人数によって変動します。</p>
+      </div>
+    </aside>
+
+  </main>
+
+  <script>
+    document.querySelectorAll('.place-toggle').forEach(item => {
+      item.addEventListener('click', () => {
+        const detail = item.querySelector('.detail');
+        detail.style.display = (detail.style.display === 'block') ? 'none' : 'block';
+      });
+    });
+  </script>
+
 </body>
 </html>
