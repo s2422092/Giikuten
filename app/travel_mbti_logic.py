@@ -4,61 +4,20 @@ from collections import Counter
 
 def calculate_travel_mbti(form):
     """
-    2〜4択の選択式フォーム回答から旅行タイプコード・ラベル・説明を生成します。
-
-    入力（form）は Flask などで受け取った POST データを想定。
-    以下の name を持つラジオボタンの value を使用します（mbti.html に合わせる）:
-      - q_purpose: S/G/N/E
-      - q_priority: EX/FO/BU/CO
-      - q_theme: CU/OU/SP/CI/RU
-      - q_want: GO_SPOT / LO_LOCAL / RE_EASE / GO_ACTIVE
-      - q_avoid: AV_QUEUE / AV_WALK / AV_FOOD / AV_NIGHT
-      - q_rhythm: M/L/N/F
-      - q_motion: Y_STRONG / Y_MILD / N_NONE
-      - q_distance: S/M/ML/L
-
-    戻り値:
-      {
-        "code": "P-V-T|R-MM",  # 例: "G-FO-CI|N-ML"
-        "label": "グルメ都市派（夜型・中長距離可）",
-        "description": "話題店巡り、ナイトライフも楽しむ。移動は4~6時間以上も可。",
-        "mbti_result": "グルメ都市派",        # テンプレ表示用のタイプ名
-        "travel_name": "G-FO-CI|N-ML",       # コード（テンプレで hint として表示可）
-        "mbti_description": "上記説明と同じか詳細版"  # 説明文
-      }
+    問題数・診断結果（タイプ定義）は変更せず、スコアリングで近似を強化したバージョン。
     """
 
-    # 1) 軸の確定（P, V, T, R, M）
-    P = form.get("q_purpose")  # S/G/N/E
-    V = form.get("q_priority") # EX/FO/BU/CO
-    T = form.get("q_theme")    # CU/OU/SP/CI/RU
-    R = form.get("q_rhythm")   # M/L/N/F
+    # 1) 回答取得
+    P = form.get("q_purpose")   # S/G/N/E
+    V = form.get("q_priority")  # EX/FO/BU/CO
+    T = form.get("q_theme")     # CU/OU/SP/CI/RU
+    R = form.get("q_rhythm")    # M/L/N/F
 
-    # 移動耐性 M 軸（酔い Y/N + 距離 S/M/L）
-    motion_raw = form.get("q_motion")        # Y_STRONG / Y_MILD / N_NONE
-    dist_raw = form.get("q_distance")        # S / M / ML / L
+    motion_raw = form.get("q_motion")   # Y_STRONG / Y_MILD / N_NONE
+    dist_raw = form.get("q_distance")   # S / M / ML / L
 
-    # Y/N 判定
-    if motion_raw in ("Y_STRONG", "Y_MILD"):
-        M_yn = "Y"
-    else:
-        M_yn = "N"
-
-    # 距離レンジの正規化（ML は M/L の中庸扱いだがコードは ML をそのまま使う）
-    if dist_raw == "S":
-        M_dist = "SY"  # 近場派（Short + 酔い耐性記号は別で Y/N 付与するが、一覧に合わせて SY というラベル使用）
-    elif dist_raw == "M":
-        M_dist = "MN"  # 中距離（~4h）
-    elif dist_raw == "ML":
-        M_dist = "ML"  # 中長距離（~6h）
-    elif dist_raw == "L":
-        M_dist = "LL"  # 長距離（6h超）
-    else:
-        M_dist = "MN"  # 未設定は中距離にフォールバック
-
-    # 2) D軸（GO/LO/RE/AV）のスコアリング
+    # D軸スコア（説明補助・僅差のタイブレーク用）
     d_scores = Counter(GO=0, LO=0, RE=0, AV=0)
-
     want = form.get("q_want")
     if want == "GO_SPOT":
         d_scores["GO"] += 1
@@ -70,31 +29,38 @@ def calculate_travel_mbti(form):
         d_scores["GO"] += 1
 
     avoid = form.get("q_avoid")
+    co_hint = False
     if avoid in ("AV_QUEUE", "AV_WALK", "AV_FOOD", "AV_NIGHT"):
         d_scores["AV"] += 1
-        # 補正（説明文でのニュアンス付け。コードには直接載せない）
-        # 長歩き回避 → RE をやや補強
         if avoid == "AV_WALK":
             d_scores["RE"] += 0.5
-        # 行列回避 → CO（快適/映え）志向の補助とみなす（説明用に反映）
-        co_hint = (avoid == "AV_QUEUE")
-    else:
-        co_hint = False
+        if avoid == "AV_QUEUE":
+            co_hint = True
 
-    # D代表値（GO/LO/REの最大）
+    # 距離カテゴリ（M側）の正規化
+    if dist_raw == "S":
+        M_dist = "SY"
+    elif dist_raw == "M":
+        M_dist = "MN"
+    elif dist_raw == "ML":
+        M_dist = "ML"
+    elif dist_raw == "L":
+        M_dist = "LL"
+    else:
+        M_dist = "MN"
+
+    # D代表（説明補足用）
     D_rep = "GO"
     if d_scores["LO"] >= d_scores["GO"] and d_scores["LO"] >= d_scores["RE"]:
         D_rep = "LO"
     elif d_scores["RE"] >= d_scores["GO"] and d_scores["RE"] >= d_scores["LO"]:
         D_rep = "RE"
 
-    # 3) タイプコード生成
-    # 代表コードは P-V-T|R-M の形式だが、距離側は一覧に合わせて SY/MN/ML/LL を使用
+    # 生コード（ユーザー回答そのまま）
     code = f"{P}-{V}-{T}|{R}-{M_dist}"
 
-    # 4) 代表12タイプ＋周辺タイプのマップ（コード -> タイプ名・説明）
+    # タイプ定義（既存の辞書をそのまま利用）
     TYPE_DEFS = {
-        # 代表12タイプ
         "S-EX-CU|M-NM": ("スポット制覇派（文化特化・朝型・中距離）",
                          "名所を効率よく回す。博物館・歴史建築が好き。午前から動き、4~6時間の移動も許容。"),
         "S-CO-CI|F-SN": ("快適都市散策派（柔軟・短距離）",
@@ -119,7 +85,6 @@ def calculate_travel_mbti(form):
                          "展覧会や夜間イベントも。遠方都市へも積極的に。"),
         "E-BU-CI|F-MS": ("予算管理イベント派（柔軟・中距離）",
                          "イベント参加に合わせて費用最適化。中距離までなら問題なし。"),
-        # 周辺（例示）
         "S-CO-CI|N-SN": ("夜景キュレーター（都市映え重視）",
                          "都市夜景と映えを重視。夕方以降の撮影・散策中心。"),
         "S-EX-CU|M-LL": ("史跡ハンター（長距離文化遠征）",
@@ -146,44 +111,96 @@ def calculate_travel_mbti(form):
                          "予算と時間を綿密管理。スケジュール精度が武器。"),
     }
 
-    # 5) コードの補正・近似（代表12タイプに寄せるロジック）
-    # - 移動耐性の N/Y をコードに直接含めない代わりに、距離側を SY/MN/ML/LL として表現
-    # - 代表定義に存在しないコードは近似にマッピング
-    # 近似規則：CI/RU のどちらか、CO/EX の優勢、R はそのまま、距離は ML→MN に丸める場合あり
+    # 2) まずそのまま一致があれば採用
     normalized_code = code
-
-    # ML を代表定義に寄せたい場合の簡易丸め（必要に応じて）
-    if normalized_code.endswith("|M-ML"):
-        approx = normalized_code.replace("|M-ML", "|M-MN")
-        if approx in TYPE_DEFS:
-            normalized_code = approx
-
-    # 定義がなければ、いくつかの代表に寄せるヒューリスティック
     if normalized_code not in TYPE_DEFS:
-        # 文化夜活派に寄せる条件例
-        if P == "S" and T == "CU" and R == "N":
-            normalized_code = "S-EX-CU|N-LL" if M_dist == "LL" else "S-EX-CU|N-LL"
-        # グルメ都市派に寄せる
-        elif P == "G" and T == "CI" and R == "N":
-            normalized_code = "G-FO-CI|N-ML"
-        # 癒し温泉派に寄せる
-        elif P == "N" and T == "SP" and R == "M":
-            normalized_code = "N-CO-SP|M-SN"
-        # イベント効率派に寄せる
-        elif P == "E" and T == "CI" and R == "M":
-            normalized_code = "E-CO-CI|M-SN"
-        # 名所＋アウトドア派に寄せる
-        elif P == "S" and T == "OU" and R == "M":
-            normalized_code = "S-EX-OU|M-NL"
-        # 快適都市散策派に寄せる
-        elif P == "S" and T == "CI" and R == "F":
-            normalized_code = "S-CO-CI|F-SN"
+        # 3) スコアリングで近似タイプを選ぶ
 
-    # 6) ラベル・説明の確定
+        # 重み（調整可能）
+        W_P = 3  # 旅行目的
+        W_V = 2  # 優先度
+        W_T = 3  # テーマ
+        W_R = 2  # リズム
+        W_M = 2  # 距離カテゴリ
+        # D補助はタイブレーク用
+
+        # ユーザーの要素
+        user = {"P": P, "V": V, "T": T, "R": R, "M": M_dist}
+
+        def parse_code(c):
+            # "P-V-T|R-M" を分解
+            left, right = c.split("|")
+            p, v, t = left.split("-")
+            r, m = right.split("-")
+            return {"P": p, "V": v, "T": t, "R": r, "M": m}
+
+        best = []
+        best_score = -1
+
+        for cand_code in TYPE_DEFS.keys():
+            parts = parse_code(cand_code)
+            score = 0
+            # 各要素一致で加点
+            if parts["P"] == user["P"]:
+                score += W_P
+            if parts["V"] == user["V"]:
+                score += W_V
+            if parts["T"] == user["T"]:
+                score += W_T
+            if parts["R"] == user["R"]:
+                score += W_R
+            # 距離カテゴリは近似も許容（ML と MN 近接など）
+            if parts["M"] == user["M"]:
+                score += W_M
+            else:
+                # 近接ボーナス（ML と MN、SY と SN、LL と ML は+1）
+                near_pairs = {("ML", "MN"), ("MN", "ML"), ("SY", "SN"), ("SN", "SY"), ("LL", "ML"), ("ML", "LL")}
+                if (parts["M"], user["M"]) in near_pairs:
+                    score += 1  # 近い距離カテゴリ
+
+            if score > best_score:
+                best = [cand_code]
+                best_score = score
+            elif score == best_score:
+                best.append(cand_code)
+
+        # タイブレーク（同点多数のとき）
+        if len(best) > 1:
+            # 1) D代表のニュアンスで選ぶ
+            #   GO なら EX/OU/観光系を、LO なら LO/RU/CI（ローカル/田舎/都市散策）を、
+            #   RE なら SP/短距離系を優先する簡易規則
+            pref = []
+            if D_rep == "GO":
+                pref = ["EX", "OU", "CU", "CI"]
+            elif D_rep == "LO":
+                pref = ["LO", "RU", "CI"]
+            elif D_rep == "RE":
+                pref = ["SP", "SY", "SN"]
+
+            def tie_key(c):
+                parts = parse_code(c)
+                bonus = 0
+                # テーマ優先
+                if parts["T"] in pref:
+                    bonus += 1
+                # CO志向ヒントがある場合は V=CO を微優遇
+                if co_hint and parts["V"] == "CO":
+                    bonus += 1
+                # 夜型なら R=N を微優遇、朝型なら R=M を微優遇
+                if R == "N" and parts["R"] == "N":
+                    bonus += 1
+                if R == "M" and parts["R"] == "M":
+                    bonus += 1
+                return -bonus  # 小さい方が優先されるため符号反転
+
+            best.sort(key=tie_key)
+
+        normalized_code = best[0]
+
+    # ラベル・説明の確定
     if normalized_code in TYPE_DEFS:
         label, desc = TYPE_DEFS[normalized_code]
-        mbti_result = label.split("（")[0]  # 括弧前をタイプ名とする
-        # 説明補足（CO 行列回避ヒントや D代表値のニュアンス）
+        mbti_result = label.split("（")[0]
         hints = []
         if co_hint:
             hints.append("混雑回避志向（事前予約・朝活が有効）")
@@ -193,11 +210,10 @@ def calculate_travel_mbti(form):
             hints.append("ローカル体験重視（市場や路地散策）")
         elif D_rep == "GO":
             hints.append("スポット攻略志向（動線最適化）")
-
         if hints:
             desc = f"{desc} {' / '.join(hints)}"
     else:
-        # 未定義コードは中庸へフォールバック
+        # ここには基本来ないが保険
         mbti_result = "バランスタイプ"
         label = "バランスタイプ（中庸設定）"
         desc = "目的や優先が拮抗。柔軟に組める万能型。"
