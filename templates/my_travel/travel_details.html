@@ -19,17 +19,6 @@
       padding-left: 2rem;
       border-left: 3px solid #5FB3B3;
     }
-    .timeline::before {
-      content: "";
-      position: absolute;
-      left: -7px;
-      top: 0;
-      bottom: 0;
-      width: 10px;
-      background: linear-gradient(to bottom, #5FB3B3 0%, #a7ecee 100%);
-      border-radius: 5px;
-      opacity: 0.2;
-    }
     .timeline-item {
       position: relative;
       margin-bottom: 2.5rem;
@@ -54,8 +43,6 @@
         transform: translateY(0);
       }
     }
-
-    /* 詳細パネル（観光地の下に展開） */
     .detail {
       display: none;
       background-color: #f9fafb;
@@ -72,6 +59,21 @@
     }
     .place-toggle:hover {
       background-color: #f1f5f9;
+    }
+    .travel-time {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #3b82f6;
+      margin: 0.5rem 0;
+    }
+    .time-badge {
+      background-color: #E0F2F1;
+      color: #00695C;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      margin-right: 0.5rem;
     }
   </style>
 </head>
@@ -107,86 +109,117 @@
       <!-- 1日目 -->
       <div class="timeline-item page-card p-6">
         <h2 class="text-2xl font-semibold text-teal-700 mb-2">🌸 1日目: 東山エリア観光</h2>
-        <p class="text-gray-600 text-sm mb-3">清水寺・八坂神社を中心に京都らしい街並みを散策。</p>
+        <p class="text-gray-600 text-sm mb-3">京都駅から出発して、清水寺〜祇園をゆったり観光。</p>
+
+        <p class="mb-4 text-sm text-gray-700">
+          🕗 <b>ホテル出発：</b> 8:30（ホテルグランヴィア京都）
+        </p>
 
         <ul class="space-y-3">
           <li class="p-3 bg-white border rounded-lg place-toggle">
-            <h3 class="font-semibold text-gray-800">⛩ 清水寺</h3>
+            <h3><span class="time-badge">9:00</span>⛩ 清水寺</h3>
             <p class="text-sm text-gray-600">世界遺産・京都の代表的観光地。舞台からの眺望が圧巻。</p>
-            <p class="text-xs text-gray-500">9:00〜18:00 | 拝観料 400円</p>
+            <p class="text-xs text-gray-500">9:00〜18:00 | 拝観料 400円 | 滞在：約90分</p>
             <div class="detail">
-              <p>🚶‍♀️ <b>アクセス：</b> 京阪「清水五条駅」から徒歩20分</p>
-              <p>🕒 <b>所要時間：</b> 約1時間半</p>
-              <a href="https://goo.gl/maps/RpckZ2bZNhF2" target="_blank" class="text-sky-600 hover:underline">📍 Googleマップで見る</a>
+              <p>🚃 京阪「清水五条駅」から徒歩20分</p>
+              <a href="https://goo.gl/maps/RpckZ2bZNhF2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
             </div>
           </li>
 
+          <div class="travel-time">🚶‍♀️ 徒歩 約5分</div>
+
           <li class="p-3 bg-white border rounded-lg place-toggle">
-            <h3 class="font-semibold text-gray-800">🌸 二寧坂・三年坂</h3>
+            <h3><span class="time-badge">10:45</span>🌸 二寧坂・三年坂</h3>
             <p class="text-sm text-gray-600">情緒ある石畳の道を散策しながらお土産選び。</p>
+            <p class="text-xs text-gray-500">滞在：約40分</p>
             <div class="detail">
-              <p>🚶‍♀️ <b>移動：</b> 清水寺から徒歩5分</p>
-              <p>🕒 <b>滞在時間：</b> 約40分</p>
-              <a href="https://goo.gl/maps/P5qj8zk2GkL2" target="_blank" class="text-sky-600 hover:underline">📍 Googleマップで見る</a>
+              <p>🚶‍♀️ 清水寺から徒歩5分</p>
+              <a href="https://goo.gl/maps/P5qj8zk2GkL2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
+            </div>
+          </li>
+
+          <div class="travel-time">🚶‍♀️ 徒歩 約10分</div>
+
+          <li class="p-3 bg-white border rounded-lg place-toggle">
+            <h3><span class="time-badge">12:00</span>🍵 祇園 花見小路</h3>
+            <p class="text-sm text-gray-600">舞妓さんが行き交う伝統的な通り。昼食にも最適。</p>
+            <div class="detail">
+              <p>🚶‍♀️ 二寧坂から徒歩10分</p>
+              <p>🕒 滞在：約1時間</p>
+              <a href="https://goo.gl/maps/9M6aV2P8XMM2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
             </div>
           </li>
         </ul>
+
+        <p class="mt-4 text-sm text-gray-700">
+          🕓 <b>ホテル帰着予定：</b> 15:00 頃
+        </p>
       </div>
 
       <!-- 2日目 -->
       <div class="timeline-item page-card p-6">
         <h2 class="text-2xl font-semibold text-teal-700 mb-2">🍃 2日目: 嵐山と金閣寺</h2>
-        <p class="text-gray-600 text-sm mb-3">自然と文化を感じる京都西部をゆったり観光。</p>
+        <p class="text-gray-600 text-sm mb-3">自然と歴史を感じる西京都エリアを満喫。</p>
+        <p class="mb-4 text-sm text-gray-700">🕗 <b>ホテル出発：</b> 8:00</p>
 
         <ul class="space-y-3">
           <li class="p-3 bg-white border rounded-lg place-toggle">
-            <h3 class="font-semibold text-gray-800">🎋 嵐山竹林の小径</h3>
+            <h3><span class="time-badge">9:00</span>🎋 嵐山竹林の小径</h3>
             <p class="text-sm text-gray-600">竹林のトンネルを歩きながら癒しのひととき。</p>
             <div class="detail">
-              <p>🚃 <b>アクセス：</b> JR「嵯峨嵐山駅」から徒歩10分</p>
-              <p>🕒 <b>所要時間：</b> 約1時間</p>
-              <a href="https://goo.gl/maps/4FZtpU8A2ER2" target="_blank" class="text-sky-600 hover:underline">📍 Googleマップで見る</a>
+              <p>🚃 JR「嵯峨嵐山駅」から徒歩10分</p>
+              <p>🕒 滞在：約1時間</p>
+              <a href="https://goo.gl/maps/4FZtpU8A2ER2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
             </div>
           </li>
 
+          <div class="travel-time">🚌 バス 約40分</div>
+
           <li class="p-3 bg-white border rounded-lg place-toggle">
-            <h3 class="font-semibold text-gray-800">🏯 金閣寺</h3>
-            <p class="text-sm text-gray-600">光り輝く金色の舎利殿。庭園の美しさも見どころ。</p>
-            <p class="text-xs text-gray-500">9:00〜17:00 | 拝観料 500円</p>
+            <h3><span class="time-badge">11:00</span>🏯 金閣寺</h3>
+            <p class="text-sm text-gray-600">金色に輝く舎利殿と池の美しい庭園。</p>
+            <p class="text-xs text-gray-500">9:00〜17:00 | 拝観料 500円 | 滞在：約1時間</p>
             <div class="detail">
-              <p>🚌 <b>アクセス：</b> 嵐山から市バスで約40分</p>
-              <p>🕒 <b>滞在時間：</b> 約1時間</p>
-              <a href="https://goo.gl/maps/qWv6xYbKf7p" target="_blank" class="text-sky-600 hover:underline">📍 Googleマップで見る</a>
+              <p>🚌 嵐山から市バスで約40分</p>
+              <a href="https://goo.gl/maps/qWv6xYbKf7p" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
             </div>
           </li>
         </ul>
+
+        <p class="mt-4 text-sm text-gray-700">🕓 <b>ホテル帰着予定：</b> 16:00 頃</p>
       </div>
 
       <!-- 3日目 -->
       <div class="timeline-item page-card p-6">
-        <h2 class="text-2xl font-semibold text-teal-700 mb-2">🛍️ 3日目: 祇園と帰路</h2>
-        <p class="text-gray-600 text-sm mb-3">最終日は祇園を散策し、京都グルメを堪能。</p>
+        <h2 class="text-2xl font-semibold text-teal-700 mb-2">🛍️ 3日目: 京都駅周辺 & お土産</h2>
+        <p class="text-gray-600 text-sm mb-3">最終日は駅周辺でゆったり買い物＆グルメ。</p>
+        <p class="mb-4 text-sm text-gray-700">🕗 <b>ホテルチェックアウト：</b> 10:00</p>
 
         <ul class="space-y-3">
           <li class="p-3 bg-white border rounded-lg place-toggle">
-            <h3 class="font-semibold text-gray-800">🍵 祇園 花見小路</h3>
-            <p class="text-sm text-gray-600">舞妓さんに出会える伝統の街並み。</p>
+            <h3><span class="time-badge">10:30</span>🛍️ 京都駅ビル専門店街</h3>
+            <p class="text-sm text-gray-600">伊勢丹や地下街でお土産・スイーツを購入。</p>
             <div class="detail">
-              <p>🚶‍♀️ <b>アクセス：</b> 京阪「祇園四条駅」から徒歩5分</p>
-              <p>🕒 <b>滞在時間：</b> 約1時間</p>
-              <a href="https://goo.gl/maps/9M6aV2P8XMM2" target="_blank" class="text-sky-600 hover:underline">📍 Googleマップで見る</a>
+              <p>🚶‍♀️ ホテルから徒歩すぐ</p>
+              <p>🕒 滞在：約1.5時間</p>
+              <a href="https://goo.gl/maps/RHjCe2i4Zyt" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
             </div>
           </li>
+
+          <div class="travel-time">🚶‍♀️ 徒歩 約5分</div>
+
           <li class="p-3 bg-white border rounded-lg place-toggle">
-            <h3 class="font-semibold text-gray-800">🍱 京料理「たん熊北店」</h3>
-            <p class="text-sm text-gray-600">季節の懐石料理を味わいながら旅の締めくくり。</p>
+            <h3><span class="time-badge">12:00</span>🍱 京料理「はしたて」</h3>
+            <p class="text-sm text-gray-600">京都駅構内の人気和食店でランチ。</p>
             <div class="detail">
-              <p>🚶‍♀️ <b>移動：</b> 花見小路から徒歩10分</p>
-              <p>💰 <b>昼懐石：</b> 約4,500円〜</p>
-              <a href="https://goo.gl/maps/GLceE9iETpY2" target="_blank" class="text-sky-600 hover:underline">📍 Googleマップで見る</a>
+              <p>🚶‍♀️ 京都駅構内</p>
+              <p>💰 昼食予算：約2,000円</p>
+              <a href="https://goo.gl/maps/7gH6YFGBQVR2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
             </div>
           </li>
         </ul>
+
+        <p class="mt-4 text-sm text-gray-700">🚅 <b>帰路出発：</b> 14:00（京都駅）</p>
       </div>
 
     </section>
@@ -195,20 +228,10 @@
     <aside class="hidden md:block sticky top-24 h-fit space-y-6">
       <div class="p-6 bg-white rounded-xl shadow-md border border-gray-200">
         <h3 class="text-lg font-semibold text-teal-700 mb-4">🏨 宿泊情報</h3>
-
-        <div class="space-y-3 text-gray-700">
-          <p><span class="font-semibold text-gray-800">宿泊施設名：</span> ホテルグランヴィア京都</p>
-          <p><span class="font-semibold text-gray-800">住所：</span> 京都府京都市下京区烏丸通塩小路下ル JR京都駅中央口</p>
-          <p><span class="font-semibold text-gray-800">チェックイン／チェックアウト：</span> 15:00 ／ 11:00</p>
-
-          <div class="mt-4 p-4 bg-gray-50 border-l-4 border-teal-500 rounded-lg">
-            <p class="text-sm leading-relaxed">
-              🚉 京都駅直結でアクセス抜群。<br>
-              高層階からは京都の街並みが一望でき、上質な空間でくつろげます。<br>
-              朝食ビュッフェや和モダンな客室も好評です。
-            </p>
-          </div>
-        </div>
+        <p class="text-sm text-gray-700">
+          ホテルグランヴィア京都（JR京都駅直結）<br>
+          チェックイン 15:00 ／ チェックアウト 11:00
+        </p>
       </div>
 
       <div class="p-6 bg-white rounded-xl shadow-md border border-gray-200">
@@ -226,7 +249,6 @@
   </main>
 
   <script>
-    // 各観光地クリック時に詳細を開閉
     document.querySelectorAll('.place-toggle').forEach(item => {
       item.addEventListener('click', () => {
         const detail = item.querySelector('.detail');
