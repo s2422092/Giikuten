@@ -3,74 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>旅行タイプ診断（MBTI風）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      background: #F6F5F3;
-      color: #2C3E50;
-      font-family: "Noto Sans JP", sans-serif;
-      line-height: 1.7;
-      margin: 0;
-      padding: 0;
-    }
-    .wrap {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 24px 16px;
-    }
-    .panel {
-      background: #FFFFFF;
-      border: 1px solid #E7DDD2;
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-top: 16px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 10px 18px;
-      background: #4F8C8C;
-      color: #fff;
-      border-radius: 10px;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .btn:hover { background: #3E7676; }
-    .options {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 10px;
-      margin: 8px 0 14px;
-    }
-    .opt {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      background: #F6F5F3;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #E7DDD2;
-    }
-    .opt input {
-      margin-top: 2px;
-    }
-    .q-head {
-      font-weight: 600;
-      margin: 12px 0 6px;
-    }
-    .small {
-      color: #57636F;
-      font-size: 12px;
-    }
+    /* Tailwindにない最小限のカスタム（任意） */
+    body { font-family: "Noto Sans JP", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
   </style>
 </head>
-<body>
+<body class="bg-[#F6F5F3] text-[#2C3E50] leading-[1.7] m-0 p-0">
 
-<div class="wrap">
+<div class="max-w-[960px] mx-auto px-4 py-6">
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      <div class="panel">
+      <div class="bg-white border border-[#E7DDD2] rounded-xl p-5 mt-4">
         {% for category, message in messages %}
           <div class="flash {{ category }}">{{ message }}</div>
         {% endfor %}
@@ -78,105 +23,172 @@
     {% endif %}
   {% endwith %}
 
-  <div class="panel">
-    <h1>ようこそ、{{ username }} さん！</h1>
-    <p>以下の設問にお答えください。各設問は単一選択（2〜4択）です。</p>
+  <div class="bg-white border border-[#E7DDD2] rounded-xl p-5 mt-4">
+    <h1 class="text-2xl font-bold">ようこそ、{{ username }} さん！</h1>
+    <p class="mt-2">以下の設問にお答えください。各設問は単一選択（2~4択）です。</p>
   </div>
 
-  <div class="panel">
-    <h2>旅行タイプ診断（MBTI風・選択式）</h2>
+  <div class="bg-white border border-[#E7DDD2] rounded-xl p-5 mt-4">
+    <h2 class="text-xl font-semibold">旅行タイプ診断（MBTI風・選択式）</h2>
 
-    <form method="POST">
+    <form method="POST" class="mt-4">
       <!-- 1. 旅行の目的 -->
-      <div>
-        <p class="q-head">1. 今回の主な旅行目的はどれですか？</p>
-        <div class="options">
-          <label class="opt"><input type="radio" name="q_purpose" value="S" required> 観光名所巡り</label>
-          <label class="opt"><input type="radio" name="q_purpose" value="G" required> グルメ・食べ歩き</label>
-          <label class="opt"><input type="radio" name="q_purpose" value="N" required> 自然・リラックス</label>
-          <label class="opt"><input type="radio" name="q_purpose" value="E" required> イベント参加/親族訪問/仕事兼用</label>
+      <div class="mt-3">
+        <p class="font-semibold mt-3 mb-1">1. 今回の主な旅行目的はどれですか？</p>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 my-2">
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_purpose" value="S" required class="mt-[2px]"> 観光名所巡り
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_purpose" value="G" required class="mt-[2px]"> グルメ・食べ歩き
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_purpose" value="N" required class="mt-[2px]"> 自然・リラックス
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_purpose" value="E" required class="mt-[2px]"> イベント参加/親族訪問/仕事兼用
+          </label>
         </div>
       </div>
 
       <!-- 2. 優先度（重視ポイント） -->
-      <div>
-        <p class="q-head">2. 旅で最も重視したいのはどれですか？</p>
-        <div class="options">
-          <label class="opt"><input type="radio" name="q_priority" value="EX" required> 観光の充実（見どころを多く回る）</label>
-          <label class="opt"><input type="radio" name="q_priority" value="FO" required> 食体験（話題店・ご当地グルメ）</label>
-          <label class="opt"><input type="radio" name="q_priority" value="BU" required> 予算重視（コスパ最優先）</label>
-          <label class="opt"><input type="radio" name="q_priority" value="CO" required> 移動負担の少なさ/写真映え</label>
+      <div class="mt-3">
+        <p class="font-semibold mt-3 mb-1">2. 旅で最も重視したいのはどれですか？</p>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 my-2">
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_priority" value="EX" required class="mt-[2px]"> 観光の充実（見どころを多く回る）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_priority" value="FO" required class="mt-[2px]"> 食体験（話題店・ご当地グルメ）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_priority" value="BU" required class="mt-[2px]"> 予算重視（コスパ最優先）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_priority" value="CO" required class="mt-[2px]"> 移動負担の少なさ/写真映え
+          </label>
         </div>
       </div>
 
       <!-- 3. 旅のテーマ -->
-      <div>
-        <p class="q-head">3. 興味のある旅のテーマを選んでください。</p>
-        <div class="options">
-          <label class="opt"><input type="radio" name="q_theme" value="CU" required> 歴史・アート・文化</label>
-          <label class="opt"><input type="radio" name="q_theme" value="OU" required> 野外活動（ハイキング/海/山）</label>
-          <label class="opt"><input type="radio" name="q_theme" value="SP" required> 温泉・スパ・癒し</label>
-          <label class="opt"><input type="radio" name="q_theme" value="CI" required> 都市散策・ショッピング</label>
-          <label class="opt"><input type="radio" name="q_theme" value="RU" required> 田舎ののんびり</label>
+      <div class="mt-3">
+        <p class="font-semibold mt-3 mb-1">3. 興味のある旅のテーマを選んでください。</p>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 my-2">
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_theme" value="CU" required class="mt-[2px]"> 歴史・アート・文化
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_theme" value="OU" required class="mt-[2px]"> 野外活動（ハイキング/海/山）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_theme" value="SP" required class="mt-[2px]"> 温泉・スパ・癒し
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_theme" value="CI" required class="mt-[2px]"> 都市散策・ショッピング
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_theme" value="RU" required class="mt-[2px]"> 田舎ののんびり
+          </label>
         </div>
       </div>
 
       <!-- 4. 絶対にしたいこと -->
-      <div>
-        <p class="q-head">4. 絶対にしたいことに近いものを選んでください。</p>
-        <div class="options">
-          <label class="opt"><input type="radio" name="q_want" value="GO_SPOT" required> 有名スポット制覇</label>
-          <label class="opt"><input type="radio" name="q_want" value="LO_LOCAL" required> ローカル体験（市場・屋台・現地コミュニティ）</label>
-          <label class="opt"><input type="radio" name="q_want" value="RE_EASE" required> とにかくのんびり（ホテル/温泉中心）</label>
-          <label class="opt"><input type="radio" name="q_want" value="GO_ACTIVE" required> アクティビティ（アスレチック/マリン/ウィンター）</label>
+      <div class="mt-3">
+        <p class="font-semibold mt-3 mb-1">4. 絶対にしたいことに近いものを選んでください。</p>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 my-2">
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_want" value="GO_SPOT" required class="mt-[2px]"> 有名スポット制覇
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_want" value="LO_LOCAL" required class="mt-[2px]"> ローカル体験（市場・屋台・現地コミュニティ）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_want" value="RE_EASE" required class="mt-[2px]"> とにかくのんびり（ホテル/温泉中心）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_want" value="GO_ACTIVE" required class="mt-[2px]"> アクティビティ（アスレチック/マリン/ウィンター）
+          </label>
         </div>
       </div>
 
       <!-- 5. 絶対に避けたいこと -->
-      <div>
-        <p class="q-head">5. 絶対に避けたいことはどれですか？</p>
-        <div class="options">
-          <label class="opt"><input type="radio" name="q_avoid" value="AV_QUEUE" required> 行列・混雑</label>
-          <label class="opt"><input type="radio" name="q_avoid" value="AV_WALK" required> 長時間の徒歩/階段</label>
-          <label class="opt"><input type="radio" name="q_avoid" value="AV_FOOD" required> 辛い/生ものなどの食</label>
-          <label class="opt"><input type="radio" name="q_avoid" value="AV_NIGHT" required> 夜遅い行動/騒がしい場所</label>
+      <div class="mt-3">
+        <p class="font-semibold mt-3 mb-1">5. 絶対に避けたいことはどれですか？</p>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 my-2">
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_avoid" value="AV_QUEUE" required class="mt-[2px]"> 行列・混雑
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_avoid" value="AV_WALK" required class="mt-[2px]"> 長時間の徒歩/階段
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_avoid" value="AV_FOOD" required class="mt-[2px]"> 辛い/生ものなどの食
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_avoid" value="AV_NIGHT" required class="mt-[2px]"> 夜遅い行動/騒がしい場所
+          </label>
         </div>
+        <p class="text-[#57636F] text-xs mt-1">混雑回避や長歩き回避は、結果の説明に反映されます。</p>
       </div>
 
       <!-- 6. 起床・就寝時間／活動時間帯 -->
-      <div>
-        <p class="q-head">6. あなたの活動リズムはどれに近いですか？</p>
-        <div class="options">
-          <label class="opt"><input type="radio" name="q_rhythm" value="M" required> 朝型（早起きして早めに就寝）</label>
-          <label class="opt"><input type="radio" name="q_rhythm" value="L" required> 昼型（10時前後に始動、夜はほどほど）</label>
-          <label class="opt"><input type="radio" name="q_rhythm" value="N" required> 夜型（遅めに始動、夜遅くまでOK）</label>
-          <label class="opt"><input type="radio" name="q_rhythm" value="F" required> どれでも可（現地に合わせる）</label>
+      <div class="mt-3">
+        <p class="font-semibold mt-3 mb-1">6. あなたの活動リズムはどれに近いですか？</p>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 my-2">
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_rhythm" value="M" required class="mt-[2px]"> 朝型（早起きして早めに就寝）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_rhythm" value="L" required class="mt-[2px]"> 昼型（10時前後に始動、夜はほどほど）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_rhythm" value="N" required class="mt-[2px]"> 夜型（遅めに始動、夜遅くまでOK）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_rhythm" value="F" required class="mt-[2px]"> どれでも可（現地に合わせる）
+          </label>
         </div>
       </div>
 
       <!-- 7. 乗り物酔い -->
-      <div>
-        <p class="q-head">7. 乗り物酔いはありますか？</p>
-        <div class="options">
-          <label class="opt"><input type="radio" name="q_motion" value="Y_STRONG" required> 強い（短時間でも酔いやすい）</label>
-          <label class="opt"><input type="radio" name="q_motion" value="Y_MILD" required> ややある（条件次第）</label>
-          <label class="opt"><input type="radio" name="q_motion" value="N_NONE" required> ほとんどない</label>
+      <div class="mt-3">
+        <p class="font-semibold mt-3 mb-1">7. 乗り物酔いはありますか？</p>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 my-2">
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_motion" value="Y_STRONG" required class="mt-[2px]"> 強い（短時間でも酔いやすい）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_motion" value="Y_MILD" required class="mt-[2px]"> ややある（条件次第）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_motion" value="N_NONE" required class="mt-[2px]"> ほとんどない
+          </label>
         </div>
       </div>
 
       <!-- 8. 旅行中の移動時間 -->
-      <div>
-        <p class="q-head">8. 旅行中、1日の移動時間はどの程度まで許容できますか？</p>
-        <div class="options">
-          <label class="opt"><input type="radio" name="q_distance" value="S" required> 〜2時間（できるだけ移動は少なくしたい）</label>
-          <label class="opt"><input type="radio" name="q_distance" value="M" required> 〜4時間（多少の移動は気にならない）</label>
-          <label class="opt"><input type="radio" name="q_distance" value="ML" required> 〜6時間（観光地を多く回りたい）</label>
-          <label class="opt"><input type="radio" name="q_distance" value="L" required> 6時間超でも可（遠方まで足を延ばしたい）</label>
+      <div class="mt-3">
+        <p class="font-semibold mt-3 mb-1">8. 旅行中、1日の移動時間はどの程度まで許容できますか？</p>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2 my-2">
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_distance" value="S" required class="mt-[2px]"> ~2時間（できるだけ移動は少なくしたい）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_distance" value="M" required class="mt-[2px]"> ~4時間（多少の移動は気にならない）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_distance" value="ML" required class="mt-[2px]"> ~6時間（観光地を多く回りたい）
+          </label>
+          <label class="flex items-start gap-2 bg-[#F6F5F3] px-3 py-2 rounded-lg border border-[#E7DDD2]">
+            <input type="radio" name="q_distance" value="L" required class="mt-[2px]"> 6時間超でも可（遠方まで足を延ばしたい）
+          </label>
         </div>
       </div>
 
-      <div style="text-align:center; margin-top: 20px;">
-        <button type="submit" class="btn">診断結果を見る</button>
+      <div class="text-center mt-5">
+        <button type="submit" class="inline-block px-5 py-2.5 bg-[#4F8C8C] text-white rounded-[10px] font-bold hover:bg-[#3E7676] transition-colors">
+          診断結果を見る
+        </button>
       </div>
     </form>
   </div>
