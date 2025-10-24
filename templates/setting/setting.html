@@ -17,14 +17,14 @@
 <!-- ★ 固定ヘッダー（右上に設定ボタン） -->
 <header class="w-full flex justify-end items-center px-6 py-4 bg-white shadow-md fixed top-0 left-0 z-50 border-b border-gray-200">
   <a href="{{ url_for('setting.personal_setting') }}"
-     class="text-gray-600 hover:text-teal-600 transition-colors"
-     title="設定">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round"
-        d="M10.325 4.317a1 1 0 00-.948.684l-.56 1.68a8.001 8.001 0 00-2.56 1.48l-1.518-.506a1 1 0 00-1.21.45l-1 1.732a1 1 0 00.22 1.304l1.273.982a8.003 8.003 0 000 2.962l-1.273.982a1 1 0 00-.22 1.304l1 1.732a1 1 0 001.21.45l1.518-.506a8.001 8.001 0 002.56 1.48l.56 1.68a1 1 0 00.948.684h2.35a1 1 0 00.948-.684l.56-1.68a8.001 8.001 0 002.56-1.48l1.518.506a1 1 0 001.21-.45l1-1.732a1 1 0 00-.22-1.304l-1.273-.982a8.003 8.003 0 000-2.962l1.273-.982a1 1 0 00.22-1.304l-1-1.732a1 1 0 00-1.21-.45l-1.518.506a8.001 8.001 0 00-2.56-1.48l-.56-1.68a1 1 0 00-.948-.684h-2.35z" />
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-  </a>
+       class="text-gray-600 hover:text-teal-600 transition-colors"
+       title="設定">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M10.325 4.317a1 1 0 00-.948.684l-.56 1.68a8.001 8.001 0 00-2.56 1.48l-1.518-.506a1 1 0 00-1.21.45l-1 1.732a1 1 0 00.22 1.304l1.273.982a8.003 8.003 0 000 2.962l-1.273.982a1 1 0 00-.22 1.304l1 1.732a1 1 0 001.21.45l1.518-.506a8.001 8.001 0 002.56 1.48l.56 1.68a1 1 0 00.948.684h2.35a1 1 0 00.948-.684l.56-1.68a8.001 8.001 0 002.56-1.48l1.518.506a1 1 0 001.21-.45l1-1.732a1 1 0 00-.22-1.304l-1.273-.982a8.003 8.003 0 000-2.962l1.273-.982a1 1 0 00.22-1.304l-1-1.732a1 1 0 00-1.21-.45l-1.518.506a8.001 8.001 0 00-2.56-1.48l-.56-1.68a1 1 0 00-.948-.684h-2.35z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    </a>
 </header>
 
 <!-- 🌿 幅いっぱいのユーザーヘッダー -->
@@ -63,7 +63,7 @@
 
 <!-- === あなたの旅行プラン一覧 === -->
 <main class="max-w-6xl mx-auto mt-10 mb-32 px-6">
-  <h2 class="text-2xl font-bold text-teal-700 mb-6 text-center">🌏 あなたの旅行プラン一覧</h2>
+  <h2 class="text-2xl font-bold text-teal-700 mb-6 text-center">あなたの旅行プラン一覧</h2>
 
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
     <!-- 以下は既存の旅行カード（削除せず保持） -->
