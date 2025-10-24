@@ -26,9 +26,9 @@
 
           <nav class="hidden md:flex">
               <ul class="flex space-x-8">
-                  <li><a href="#" class="hover:text-gray-300">TOP</a></li>
-                  <li><a href="#" class="hover:text-gray-300">REGISTRATION</a></li>
-                  <li><a href="#" class="hover:text-gray-300">LOG IN</a></li>
+                  <li><a href="{{ url_for('index.index') }}" class="hover:text-gray-300">TOP</a></li>
+                  <li><a href="{{ url_for('index.registration') }}" class="hover:text-gray-300">REGISTRATION</a></li>
+                  <li><a href="{{ url_for('index.login') }}" class="hover:text-gray-300">LOG IN</a></li>
               </ul>
           </nav>
 
@@ -47,32 +47,32 @@
             <div class="swiper-wrapper">
                 <!-- 出典　https://find47.jp/ -->
                 <div class="swiper-slide">
-                    <img src="./img/image3.jpg" 
+                    <img src="{{ url_for('static', filename='img/image3.jpg') }}" 
                         alt="メインビジュアル 1" 
                         class="w-full h-full object-cover">
                 </div>
                 
                 <div class="swiper-slide">
-                    <img src="./img/image8.jpg" 
+                    <img src="{{ url_for('static', filename='img/image8.jpg') }}" 
                         alt="メインビジュアル 2" 
                         class="w-full h-full object-cover">
                 </div>
                 
                 <div class="swiper-slide">
-                    <img src="./img/image10.jpg" 
+                    <img src="{{ url_for('static', filename='img/image10.jpg') }}" 
                         alt="メインビジュアル 3" 
                         class="w-full h-full object-cover">
                 </div>
 
                 <div class="swiper-slide">
-                    <img src="./img/image11.jpg" 
+                    <img src="{{ url_for('static', filename='img/image11.jpg') }}" 
                         alt="メインビジュアル 4" 
                         class="w-full h-full object-cover">
                 
                 </div>
 
                 <div class="swiper-slide">
-                    <img src="./img/image12.jpg" 
+                    <img src="{{ url_for('static', filename='img/image12.jpg') }}" 
                         alt="メインビジュアル 5" 
                         class="w-full h-full object-cover">
 
@@ -95,23 +95,23 @@
                     旅に出よう。
                 </h1>
                 <div class="space-y-6 leading-relaxed text-gray-700">
-                    <p>
-                        僕たちが作りたいのは<br class="sm:hidden">
-                        持っているだけで旅に出たくなるモノ。<br>
-                        持っているだけでわくわくするモノ。
-                    </p>
-                    <p>
-                        それは新しい時代の “パスポート”<br>
-                        僕たちが作るものは、<br>
-                        そんな、存在でありたい。
-                    </p>
-                    <p class="text-xl font-semibold pt-4">
-                        MY BRAND
-                    </p>
-                    <p>
-                        それは、自分と世界を繋げる<br>
-                        モノづくりブランド
-                    </p>
+                  <p>
+                      僕たちが目指すのは、<br class="sm:hidden">
+                      もっと気軽に、自分らしく旅を楽しめる世界。
+                  </p>
+                  <p>
+                      性格診断×LLMが導き出す、<br>
+                      あなたにぴったりの旅のかたち。<br>
+                      それは、あなたの中にある“旅心”を映す鏡。
+                  </p>
+                  <p class="text-xl font-semibold pt-4">
+                      MY TRAVEL STYLE
+                  </p>
+                  <p>
+                      自分を知り、世界を感じる。<br>
+                      そんな、新しい旅のはじまりを。
+                  </p>
+
                 </div>
             </div>
         </section>
