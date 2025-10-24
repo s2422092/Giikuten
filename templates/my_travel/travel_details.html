@@ -81,15 +81,40 @@
 <body class="pb-28">
 
   <!-- 固定ヘッダー -->
-  <header class="fixed top-0 left-0 w-full bg-white shadow-sm p-4 flex justify-between items-center border-b border-gray-200 z-50">
-    <h1 class="text-2xl font-bold text-teal-700 tracking-wide">📖 京都旅行しおり</h1>
+<!-- 固定ヘッダー -->
+<header class="fixed top-0 left-0 w-full bg-white shadow-sm p-4 flex justify-between items-center border-b border-gray-200 z-50">
+  <h1 class="text-2xl font-bold text-teal-700 tracking-wide">📖 京都旅行しおり</h1>
 
-    <a href="{{ url_for('setting.setting') }}">
-        <img src="{{ user_icon }}"
-            alt="User Icon"
-            class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
-    </a>
-  </header>
+  <a href="{{ url_for('setting.setting') }}">
+      <img src="{{ user_icon }}"
+          alt="User Icon"
+          class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
+  </a>
+</header>
+
+<!-- ヘッダー右側に横並びタブ -->
+<div class="fixed right-0 z-50 flex flex-row space-x-0" style="top: 64px;">
+  <!-- スケジュールタブ -->
+  <button
+    class="tab-btn bg-teal-500 text-white font-semibold px-4 py-2 shadow border border-gray-200"
+    data-target="schedule"
+  >
+    スケジュール
+  </button>
+
+  <!-- 予算タブ -->
+  <button
+    class="tab-btn bg-yellow-400 text-white font-semibold px-4 py-2 shadow border border-gray-200"
+    data-target="budget"
+  >
+    予算詳細
+  </button>
+</div>
+
+
+
+
+
 
   
   <!-- メイン -->
@@ -128,13 +153,16 @@
         </ul>
       </div>
 
-      <!-- 1日目 -->
+     <!-- 1日目 -->
       <div class="timeline-item page-card p-6">
         <h2 class="text-2xl font-semibold text-teal-700 mb-2">🌸 1日目: 東山エリア観光</h2>
         <p class="text-gray-600 text-sm mb-3">
           京都駅から出発し、清水寺・二寧坂・祇園と王道ルートを散策。  
           京都の古都情緒をたっぷり味わいながら、カフェや和菓子店で一息つきましょう。
         </p>
+
+        <!-- ホテル → 清水寺 -->
+        <div class="travel-time text-center text-gray-500 text-sm mb-2">🏨 ホテル → 清水寺：約15分（徒歩またはバス）</div>
 
         <p class="mb-4 text-sm text-gray-700">
           🕗 <b>ホテル出発：</b> 8:30（ホテルグランヴィア京都）
@@ -143,10 +171,7 @@
         <ul class="space-y-3">
           <li class="p-3 bg-white border rounded-lg place-toggle">
             <h3><span class="time-badge">9:00</span>⛩ 清水寺</h3>
-            <p class="text-sm text-gray-600">
-              京都の象徴とも言える名所。清水の舞台から眺める京都市街の景色は圧巻です。
-              境内には音羽の滝や地主神社もあり、恋愛成就を願う人にも人気。
-            </p>
+            <p class="text-sm text-gray-600">京都の象徴とも言える名所。清水の舞台から眺める京都市街の景色は圧巻です。</p>
             <p class="text-xs text-gray-500">9:00〜18:00 | 拝観料 400円 | 滞在：約90分</p>
             <div class="detail">
               <p>📖 <b>豆知識：</b> 舞台は釘を一本も使わずに組まれた構造で、江戸時代からその姿を保っています。</p>
@@ -159,10 +184,7 @@
 
           <li class="p-3 bg-white border rounded-lg place-toggle">
             <h3><span class="time-badge">10:45</span>🌸 二寧坂・三年坂</h3>
-            <p class="text-sm text-gray-600">
-              石畳の坂道に伝統家屋が並ぶ、京都らしいエリア。  
-              可愛い雑貨店や抹茶スイーツの名店も多く、カメラ片手に歩くのが楽しい通りです。
-            </p>
+            <p class="text-sm text-gray-600">石畳の坂道に伝統家屋が並ぶ、京都らしいエリア。可愛い雑貨店や抹茶スイーツの名店も多い。</p>
             <p class="text-xs text-gray-500">滞在：約40分</p>
             <div class="detail">
               <p>📷 写真スポット：「八坂の塔」を背景にした坂道の風景が特に人気！</p>
@@ -174,10 +196,7 @@
 
           <li class="p-3 bg-white border rounded-lg place-toggle">
             <h3><span class="time-badge">12:00</span>🍵 祇園 花見小路</h3>
-            <p class="text-sm text-gray-600">
-              舞妓さんが行き交う伝統的な通り。昼食には京料理の老舗「一子相伝なかむら」などもおすすめ。
-              木造の町家建築が並び、まるで時代を遡ったような感覚を味わえます。
-            </p>
+            <p class="text-sm text-gray-600">舞妓さんが行き交う伝統的な通り。昼食には京料理の老舗「一子相伝なかむら」などもおすすめ。</p>
             <div class="detail">
               <p>☕ カフェ情報：「ぎおん小森」の抹茶パフェは京都スイーツの定番。</p>
               <a href="https://goo.gl/maps/9M6aV2P8XMM2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
@@ -185,9 +204,10 @@
           </li>
         </ul>
 
-        <p class="mt-4 text-sm text-gray-700">
-          🕓 <b>ホテル帰着予定：</b> 15:00 頃
-        </p>
+        <!-- 最後の観光地 → ホテル -->
+        <div class="travel-time text-center text-gray-500 text-sm mt-2">⛩ 祇園 花見小路 → ホテル：約20分（徒歩またはバス）</div>
+
+        <p class="mt-4 text-sm text-gray-700">🕓 <b>ホテル帰着予定：</b> 15:00 頃</p>
       </div>
 
       <!-- 2日目 -->
@@ -197,15 +217,16 @@
           自然豊かな嵐山と、世界遺産・金閣寺をめぐる充実の一日。  
           竹林の爽やかな風と金色の輝きが心に残る京都の美を堪能します。
         </p>
+
+        <!-- ホテル → 嵐山竹林 -->
+        <div class="travel-time text-center text-gray-500 text-sm mb-2">🏨 ホテル → 嵐山竹林の小径：約50分（JR＋徒歩）</div>
+
         <p class="mb-4 text-sm text-gray-700">🕗 <b>ホテル出発：</b> 8:00</p>
 
         <ul class="space-y-3">
           <li class="p-3 bg-white border rounded-lg place-toggle">
             <h3><span class="time-badge">9:00</span>🎋 嵐山竹林の小径</h3>
-            <p class="text-sm text-gray-600">
-              京都でも屈指の癒しスポット。早朝の静けさの中で風に揺れる竹の音を楽しめます。  
-              写真映えも抜群で、外国人観光客にも大人気。
-            </p>
+            <p class="text-sm text-gray-600">京都でも屈指の癒しスポット。早朝の静けさの中で風に揺れる竹の音を楽しめます。</p>
             <div class="detail">
               <p>🗣️ 周辺には「天龍寺」や「渡月橋」などの名所もあり、合わせて観光可能。</p>
               <a href="https://goo.gl/maps/4FZtpU8A2ER2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
@@ -216,16 +237,16 @@
 
           <li class="p-3 bg-white border rounded-lg place-toggle">
             <h3><span class="time-badge">11:00</span>🏯 金閣寺</h3>
-            <p class="text-sm text-gray-600">
-              金箔に包まれた舎利殿が池に映る美しい姿は、日本を代表する絶景。  
-              四季折々の表情を見せる庭園も見どころです。
-            </p>
+            <p class="text-sm text-gray-600">金箔に包まれた舎利殿が池に映る美しい姿は、日本を代表する絶景。</p>
             <div class="detail">
               <p>📜 <b>豆知識：</b> 室町時代の将軍・足利義満が建立した北山文化の象徴。</p>
               <a href="https://goo.gl/maps/qWv6xYbKf7p" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
             </div>
           </li>
         </ul>
+
+        <!-- 最後の観光地 → ホテル -->
+        <div class="travel-time text-center text-gray-500 text-sm mt-2">🏯 金閣寺 → ホテル：約35分（バス＋徒歩）</div>
 
         <p class="mt-4 text-sm text-gray-700">🕓 <b>ホテル帰着予定：</b> 16:00 頃</p>
       </div>
@@ -237,15 +258,16 @@
           最終日は京都駅周辺でショッピングやグルメを満喫。  
           観光を終えた後も駅直結の施設で京都の魅力を味わい尽くせます。
         </p>
+
+        <!-- ホテル → 京都駅ビル -->
+        <div class="travel-time text-center text-gray-500 text-sm mb-2">🏨 ホテル → 京都駅ビル専門店街：約10分（徒歩）</div>
+
         <p class="mb-4 text-sm text-gray-700">🕗 <b>ホテルチェックアウト：</b> 10:00</p>
 
         <ul class="space-y-3">
           <li class="p-3 bg-white border rounded-lg place-toggle">
             <h3><span class="time-badge">10:30</span>🛍️ 京都駅ビル専門店街</h3>
-            <p class="text-sm text-gray-600">
-              伊勢丹・ポルタ・キューブなど大型施設が充実。京都限定の和菓子や雑貨も多数。
-              旅行の締めくくりにぴったりなお土産選びが楽しめます。
-            </p>
+            <p class="text-sm text-gray-600">伊勢丹・ポルタ・キューブなど大型施設が充実。旅行の締めくくりにぴったり。</p>
             <div class="detail">
               <p>🎁 おすすめ土産：「阿闍梨餅」「茶の菓」「よーじや あぶらとり紙」</p>
               <a href="https://goo.gl/maps/RHjCe2i4Zyt" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
@@ -256,10 +278,7 @@
 
           <li class="p-3 bg-white border rounded-lg place-toggle">
             <h3><span class="time-badge">12:00</span>🍱 京料理「はしたて」</h3>
-            <p class="text-sm text-gray-600">
-              京都駅構内の人気和食店。旬の食材を使った繊細な味わいの御膳が人気です。
-              お手頃価格で本格的な京料理が楽しめると評判。
-            </p>
+            <p class="text-sm text-gray-600">京都駅構内の人気和食店。旬の食材を使った繊細な味わいの御膳が人気です。</p>
             <div class="detail">
               <p>🍵 人気メニュー：鯛の胡麻だれ丼・おばんざい定食。</p>
               <a href="https://goo.gl/maps/7gH6YFGBQVR2" target="_blank" class="text-sky-600 hover:underline">📍 地図を見る</a>
@@ -267,13 +286,17 @@
           </li>
         </ul>
 
+        <!-- 最後の観光地 → ホテル（帰路） -->
+        <div class="travel-time text-center text-gray-500 text-sm mt-2">🍱 京料理「はしたて」 → ホテル：約10分（徒歩）</div>
+
         <p class="mt-4 text-sm text-gray-700">🚅 <b>帰路出発：</b> 14:00（京都駅）</p>
       </div>
+
 
     </section>
     
     <!-- 右：ホテル情報 -->
-    <aside class="hidden md:block sticky top-24 h-fit space-y-6">
+    <aside class="hidden md:block sticky top-32 h-fit space-y-6">
       <div class="p-6 bg-white rounded-xl shadow-md border border-gray-200">
         <h3 class="text-lg font-semibold text-teal-700 mb-4">🏨 宿泊情報</h3>
         <p class="text-sm text-gray-700">
@@ -311,7 +334,7 @@
       >
         💾 保存
       </button>
-      
+
     </aside>
 
 
