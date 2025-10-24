@@ -31,13 +31,13 @@
     <!-- 👤 ユーザーアイコン -->
     <div class="bg-white shadow-lg rounded-2xl p-8 border border-gray-200 mb-6 text-center">
       <div class="flex flex-col items-center space-y-4">
-        {% if user_icon %}
-          <img src="{{ user_icon }}" alt="User Icon" class="w-28 h-28 rounded-full border-4 border-teal-500 shadow-md object-cover">
+        {% if user.icon_base64 %}
+          <img id="userIconPreview" src="data:image/png;base64,{{ user.icon_base64 }}" alt="User Icon"
+              class="w-28 h-28 rounded-full border-4 border-gray-300 shadow-md object-cover" />
         {% else %}
           <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png"
-               alt="Default Icon" class="w-28 h-28 rounded-full border-4 border-gray-300 shadow-md object-cover">
+              alt="Default Icon" class="w-28 h-28 rounded-full border-4 border-gray-300 shadow-md object-cover">
         {% endif %}
-      
       </div>
     </div>
 
