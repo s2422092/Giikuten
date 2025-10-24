@@ -15,7 +15,7 @@
 </head>
 
 <body>
-  <h1>{{ plan.title }}</h1>
+  <h1 class="text-2xl font-bold mb-2">{{ plan.title }}</h1>
   <p>こんにちは、{{ username }} さん</p>
   <p>{{ plan.summary }}</p>
 
@@ -44,10 +44,17 @@
       <li>{{ r }}</li>
     {% endfor %}
   </ul>
+
+  <!-- ★ 追加：デバッグ用・LLM生JSONを確認（そのまま出す） -->
+  <details class="mt-6">
+    <summary class="cursor-pointer text-sm text-gray-600">LLM 生JSONを表示（デバッグ用）</summary>
+    <pre class="mt-2 p-3 bg-gray-100 rounded text-xs overflow-x-auto">{{ plan_json | tojson(indent=2) }}</pre>
+  </details>
+  
   <nav class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
 
   <!-- 診断の詳細について（Test） -->
-  <a href="{{ url_for('mbti.mbti_explanation') }}" 
+  <a href="{{ url_for('mbti.mbti_result') }}" 
      class="flex flex-col items-center text-gray-700 hover:text-teal-600">
     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <path d="M4 6h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -71,7 +78,7 @@
   </a>
 
   <!-- ホーム画面（Home） -->
-  <a href="{{ url_for('home.home') }}" 
+  <a href="{{ url_for('home.home') }}"
      class="flex flex-col items-center text-gray-700 hover:text-teal-600">
     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <g fill="none" stroke="currentColor" stroke-width="2">
@@ -83,7 +90,7 @@
   </a>
 
   <!-- 今までの旅行一覧（My Travel） -->
-  <a href="{{ url_for('my_travel.my_travel') }}" 
+  <a href="{{ url_for('my_travel.travel_details') }}"
      class="flex flex-col items-center text-gray-700 hover:text-teal-600">
     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
       <rect x="6" y="7" width="12" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
