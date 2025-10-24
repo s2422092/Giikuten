@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <script src="https://cdn.tailwindcss.com"></script>
-  <title>アプリ説明</title>
+  <title>アプリ説明 | たびあい</title>
   <style>
     body {
       background-color: #F6F5F3;
@@ -12,28 +12,72 @@
     }
   </style>
 </head>
-<body class="flex flex-col justify-center items-center min-h-screen">
 
-  <!-- エラー文の出力 -->
-  <!-- {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}     -->
+<body class="flex flex-col justify-center items-center min-h-screen px-4">
 
+  <div class="bg-white shadow-lg rounded-3xl px-10 pt-10 pb-12 w-full max-w-3xl border border-[#EFD8C0] text-center">
+    <!-- タイトル -->
+    <h1 class="text-4xl font-extrabold text-[#4F8C8C] mb-8 tracking-wide">
+      アプリ説明
+    </h1>
 
-<nav>
-    <div>
-        <a href="{{ url_for('home.home') }}" >戻る</a>
+    <!-- セクション -->
+    <section class="text-left space-y-8">
+      <!-- たびあいとは？ -->
+      <div>
+        <h2 class="text-xl font-bold text-[#4F8C8C] mb-2 border-b border-[#EFD8C0] inline-block pb-1">
+          たびあいとは？
+        </h2>
+        <p class="leading-relaxed text-gray-700">
+          <span>たびあいは、旅行の計画から思い出の共有までをサポートする</span>
+          <span class="font-semibold">総合旅行管理アプリ</span>です。<br>
+          友人や家族と一緒に旅行を楽しむための便利な機能が満載で、
+          計画づくり・スケジュール調整・思い出投稿がこれ1つで完結します。
+        </p>
+      </div>
+
+      <!-- 旅行詳細画面 -->
+      <div>
+        <h2 class="text-xl font-bold text-[#4F8C8C] mb-2 border-b border-[#EFD8C0] inline-block pb-1">
+          旅行詳細画面について
+        </h2>
+        <p class="leading-relaxed text-gray-700">
+          旅行詳細画面では、旅行の基本情報や日程表、宿泊地、参加者リストを確認・編集できます。<br>
+          地図やスケジュールと連動して、旅行全体の流れをひと目で把握することができます。
+        </p>
+      </div>
+
+      <!-- タイムライン -->
+      <div>
+        <h2 class="text-xl font-bold text-[#4F8C8C] mb-2 border-b border-[#EFD8C0] inline-block pb-1">
+          旅のタイムラインについて
+        </h2>
+        <p class="leading-relaxed text-gray-700">
+          旅のタイムラインでは、旅行中の出来事や写真、コメントを時系列で表示します。<br>
+          旅行中に投稿した写真やメモが自動で整理され、後から見返してもすぐに当時の思い出が蘇ります。
+        </p>
+      </div>
+
+      <!-- 設定画面 -->
+      <div>
+        <h2 class="text-xl font-bold text-[#4F8C8C] mb-2 border-b border-[#EFD8C0] inline-block pb-1">
+          設定画面について
+        </h2>
+        <p class="leading-relaxed text-gray-700">
+          設定画面では、アカウント情報の変更や通知設定、テーマのカスタマイズが可能です。<br>
+          自分好みにアプリを調整して、より快適な旅の体験をお楽しみいただけます。
+        </p>
+      </div>
+    </section>
+
+    <!-- ホームへ戻るボタン -->
+    <div class="mt-6">
+      <a href="{{ url_for('home.home') }}"
+       class="inline-block mt-9 px-6 py-3 bg-[#4F8C8C] text-white no-underline rounded-[10px] font-bold transition hover:bg-[#3E7676] hover:-translate-y-[2px] hover:shadow-[0_4px_8px_rgba(79,140,140,0.3)]">
+      ← ホームに戻る
+    </a>
     </div>
-</nav>
-
-<div>
-    <h1>アプリ説明</h1>
-    <p>ここから下に説明を記述する</p>
-</div>
+  </div>
 
 </body>
 </html>
