@@ -153,6 +153,7 @@ def plan():
         headcount = int(request.form.get("headcount", "1"))
         budget = int(request.form.get("budget", "0"))
         notes = request.form.get("notes", "").strip()
+        must_visit = request.form.get("must_visit", "").strip()
         # ★ 新規：出発地・交通手段（DBなしの表面入力）
         departure = request.form.get("departure", "").strip() or None
         transport_pref = request.form.get("transport_pref", "auto").strip() or "auto"
@@ -199,13 +200,12 @@ def plan():
             "headcount": headcount,
             "budget": budget,
             "notes": notes,
-            # 新フィールド（LLMへのヒントとして渡す）
+            "must_visit": must_visit,
             "region": region,
             "prefecture": prefecture,
             "city": city,
             "departure": departure,
             "transport_pref": transport_pref,
-            # 既存の互換用（表示にも使える）
             "area": area_label,
         }
 

@@ -28,15 +28,38 @@
     <li>その他: {{ plan.budget_breakdown.other | int }} 円</li>
   </ul>
 
-  <h2>日程</h2>
-  <ol>
-    {% for d in plan.daily_plan %}
-      <li>
-        <strong>Day {{ d.day }}</strong>：
-        AM: {{ d.am }} / PM: {{ d.pm }} / Night: {{ d.night }}
-      </li>
-    {% endfor %}
-  </ol>
+  <h2 class="text-xl font-semibold mt-6 mb-2">🗓 日程</h2>
+  {% for day in plan.daily_plan %}
+    <section class="mb-6 p-4 bg-white rounded-lg shadow-sm">
+      <h3 class="text-lg font-bold text-teal-700 mb-1">
+        Day {{ day.day }}：{{ day.theme }}
+      </h3>
+      {% if day.route_summary %}
+        <p class="text-gray-600 text-sm mb-2">{{ day.route_summary }}</p>
+      {% endif %}
+      <ul class="space-y-3">
+        {% for place in day.places %}
+          <li class="p-3 bg-gray-50 border rounded-lg">
+            <div class="flex items-center mb-1">
+              <span class="bg-teal-100 text-teal-800 text-xs font-semibold px-2 py-0.5 rounded-full mr-2">
+                {{ place.time }}
+              </span>
+              <span class="font-semibold">{{ place.name }}</span>
+            </div>
+            <p class="text-sm text-gray-700">{{ place.description }}</p>
+            <p class="text-xs text-gray-500 mt-1">
+              🚶 {{ place.access }} ｜ ⏱ {{ place.stay_time }}
+            </p>
+            {% if place.map_url %}
+              <a href="{{ place.map_url }}" target="_blank"
+                 class="text-xs text-sky-600 hover:underline block mt-1">📍 地図を見る</a>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endfor %}
+
 
   <h2>根拠</h2>
   <ul>
@@ -48,8 +71,10 @@
   <!-- ★ 追加：デバッグ用・LLM生JSONを確認（そのまま出す） -->
   <details class="mt-6">
     <summary class="cursor-pointer text-sm text-gray-600">LLM 生JSONを表示（デバッグ用）</summary>
-    <pre class="mt-2 p-3 bg-gray-100 rounded text-xs overflow-x-auto">{{ plan_json | tojson(indent=2) }}</pre>
+    <pre class="mt-2 p-3 bg-gray-100 rounded text-xs overflow-x-auto">{{ plan | tojson(indent=2) }}</pre>
   </details>
+
+  
   
   <nav class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
 
@@ -100,7 +125,7 @@
   </a>
 </div>
 
-  <p><a href="{{ url_for('plan.plan') }}">条件を変えて再提案</a></p>
+ <p><a href="{{ url_for('plan.plan') }}">条件を変えて再提案</a></p>
   <p><a href="{{ url_for('home.home') }}">ホームへ戻る</a></p>
 
 

@@ -1,27 +1,40 @@
 # app/services/itinerary.py
 from __future__ import annotations
 import os, json, re
-from typing import List, Dict, Any
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, ValidationError
 from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
+# =============================
+# 🎯 JSON構造定義
+# =============================
 
-class Budget(BaseModel):
-    transport: int = 0
-    lodging: int = 0
-    food: int = 0
-    activities: int = 0
-    other: int = 0
+
+class Place(BaseModel):
+    name: str  # 観光地・施設名
+    description: str  # 短い説明（観光の見どころ）
+    time: str  # 開始時刻（例: "9:00"）
+    stay_time: str  # 滞在時間（例: "90分"）
+    access: str  # 交通手段＋移動時間（例: "徒歩5分", "バス20分"）
+    map_url: Optional[str]  # Google Mapsリンクなど（任意）
 
 
 class DayPlan(BaseModel):
     day: int
-    am: str
-    pm: str
-    night: str
+    theme: str  # 当日の目的・雰囲気
+    route_summary: str  # 1日のルート概要（例: "京都駅→清水寺→祇園→ホテル"）
+    places: List[Place]  # 訪問場所のリスト
+
+
+class Budget(BaseModel):
+    transport: int
+    lodging: int
+    food: int
+    activities: int
+    other: int
 
 
 class Plan(BaseModel):
@@ -30,32 +43,41 @@ class Plan(BaseModel):
     budget_breakdown: Budget
     daily_plan: List[DayPlan]
     rationale: List[str]
-    # 画面でLLMの生出力を見られるように（任意）
     raw_response: Dict[str, Any] | None = None
 
 
+# =============================
+# 🧠 GPT処理
+# =============================
+
+
 def _extract_json(text: str) -> str:
+    """LLM出力から最初のJSONブロックを抽出"""
     m = re.search(r"\{.*\}", text, flags=re.S)
     if not m:
         raise ValueError("LLM出力にJSONが見つかりません")
     return m.group(0)
 
 
-def generate_itinerary(user: dict, req: dict) -> Dict:
+def generate_itinerary(user: dict, req: dict, mbti_info: dict | None = None) -> Dict:
+    """LLMを呼び出して旅行プランJSONを生成"""
     schema_str = json.dumps(Plan.model_json_schema(), ensure_ascii=False, indent=2)
 
+    # --- SYSTEM PROMPT ---
     sys = (
-        "あなたは日本国内の旅行プランナーです。"
-        "出力は必ず**有効なJSONのみ**（前後に説明文やマークダウン禁止）。"
-        "各日の AM/PM/night は**具体的な施設・スポット名**と**移動手段**を必ず含める。"
-        "例: 'AM: 東京駅→新幹線で京都駅へ（のぞみ75号）/ 清水寺見学' のように、"
-        "移動の起点/終点、代表的な列車・路線・バス・飛行機・車移動の記述を試みる。"
-        "予算配分は総額を超えない整数円。'rationale' は3〜6件の短文。"
+        "あなたは日本国内旅行のプロフェッショナルプランナーです。"
+        "ユーザーの性格タイプ（MBTI）と条件を考慮し、"
+        "現実的で具体的な観光スポット・施設・交通手段を含む旅行プランを作成してください。"
+        "出力は**有効なJSONのみ**で、説明文やマークダウンは禁止です。"
+        "金額は整数円、日程や施設は実在する日本のものにしてください。"
     )
+
+    # --- USER PROMPT ---
     usr = f"""
 user_profile:
   name: {user.get('name')}
   mbti: {user.get('mbti')}
+  mbti_summary: {mbti_info['tendency'] if mbti_info else ''}
 trip_request:
   trip_name: {req.get('trip_name')}
   start_date: {req.get('start_date')}
@@ -66,36 +88,57 @@ trip_request:
   prefecture: {req.get('prefecture')}
   city:       {req.get('city')}
   departure:  {req.get('departure')}
-  transport_pref: {req.get('transport_pref')}   # 'auto' | 'train' | 'plane' | 'car' | 'bus' | 'mixed'
+  transport_pref: {req.get('transport_pref')}
   budget_jpy: {req.get('budget')}
   notes:      {req.get('notes','')}
+must_visit: {req.get('must_visit','')}
 """
+
+    # --- FORMAT PROMPT（スキーマ＋制約） ---
     fmt = (
-        "以下の **JSONスキーマ** に厳密準拠して出力。JSON以外は出力不可：\n"
-        + schema_str
-        + "\n"
+        "次のJSONスキーマに厳密準拠。JSON以外は出力禁止。\n"
         "制約:\n"
-        "- 'title' は簡潔に（地名と日数が分かる）。\n"
-        "- 'daily_plan' の各 'am' 'pm' 'night' は、"
-        "  具体的スポット/施設名と移動手段（例: JR○○線/徒歩/市バス/レンタカー/飛行機 など）を含める。\n"
-        "- 出発地（departure）や transport_pref がある場合は出来る限り尊重。"
+        "- 各スポットは実在する日本の施設・観光地であること。\n"
+        "- 'must_visit' に指定された場所は、少なくとも1つは旅程（daily_plan.places）に含めること。\n"
+        "- 各timeは24時間表記（例: '9:00', '13:30'）。\n"
+        "- accessには具体的な交通手段（徒歩・バス・電車・新幹線など）と所要時間を含める。\n"
+        "- stay_timeには目安時間を記載（例: '90分', '2時間'）。\n"
+        "- 各dayには3〜5スポットを含む。\n"
+        "- 各themeは1文で当日の目的・雰囲気を表現。\n"
+        "- 出発地（departure）や transport_pref がある場合は出来る限り尊重。\n"
+        "- MBTIの傾向に基づき、活動量・時間配分を調整する。\n"
+        "- 出力例:\n"
+        "{\n"
+        '  "title": "京都3日間の癒し旅",\n'
+        '  "summary": "INFJタイプ向けの静寂と文化体験を中心とした京都プラン。",\n'
+        '  "budget_breakdown": {"transport":20000,"lodging":30000,"food":10000,"activities":8000,"other":2000},\n'
+        '  "daily_plan": [\n'
+        '    {"day":1,"theme":"東山の古都情緒を巡る","route_summary":"京都駅→清水寺→祇園→八坂神社",\n'
+        '     "places":[{"time":"9:00","name":"清水寺","description":"舞台からの眺めが絶景。","stay_time":"90分","access":"京都駅からバスで20分"}]},\n'
+        "    ...\n"
+        "  ],\n"
+        '  "rationale": ["混雑回避のため朝活重視","徒歩圏内で移動負担軽減"]\n'
+        "}\n"
+        f"スキーマ:\n{schema_str}"
     )
 
+    # --- GPT呼び出し ---
     resp = client.chat.completions.create(
         model=MODEL,
-        temperature=0.6,
+        temperature=0.7,
         messages=[
             {"role": "system", "content": sys},
             {"role": "user", "content": usr},
             {"role": "user", "content": fmt},
         ],
     )
+
     raw = resp.choices[0].message.content or ""
     data = json.loads(_extract_json(raw))
+
     try:
         plan = Plan.model_validate(data)
         plan_dict = plan.model_dump()
-        # 画面でデバッグ表示できるよう生出力を添付
         plan_dict["raw_response"] = {
             "model": MODEL,
             "content": raw,
