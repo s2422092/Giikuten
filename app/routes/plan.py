@@ -11,10 +11,11 @@ from flask import (
 )
 import psycopg2
 from datetime import datetime
-#from ..services.itinerary import generate_itinerary
+from ..services.itinerary import generate_itinerary
 import os
 from dotenv import load_dotenv
 from app.user_icon import get_user_icon
+import json
 
 load_dotenv()
 
@@ -133,13 +134,15 @@ def plan():
 
     username = session.get("username", "ゲスト")
     mbti_type = session.get("mbti_type")
-    user_icon = get_user_icon(session["user_id"]) # ←ここでアイコン取得
+    user_icon = get_user_icon(session["user_id"])  # ←ここでアイコン取得
     if not mbti_type:
         mbti_type = get_latest_mbti(session["user_id"]) or "バランスタイプ"
         session["mbti_type"] = mbti_type
 
     if request.method == "GET":
-        return render_template("plan/form.html", username=username, mbti=mbti_type, user_icon=user_icon)
+        return render_template(
+            "plan/form.html", username=username, mbti=mbti_type, user_icon=user_icon
+        )
 
     # --- POST: 旅行条件  場所選択を受け取り LLM 提案 ---
     try:
@@ -150,6 +153,9 @@ def plan():
         headcount = int(request.form.get("headcount", "1"))
         budget = int(request.form.get("budget", "0"))
         notes = request.form.get("notes", "").strip()
+        # ★ 新規：出発地・交通手段（DBなしの表面入力）
+        departure = request.form.get("departure", "").strip() or None
+        transport_pref = request.form.get("transport_pref", "auto").strip() or "auto"
 
         # 場所（3階層）
         region = request.form.get("region", "").strip()
@@ -197,14 +203,31 @@ def plan():
             "region": region,
             "prefecture": prefecture,
             "city": city,
+            "departure": departure,
+            "transport_pref": transport_pref,
             # 既存の互換用（表示にも使える）
             "area": area_label,
         }
 
-        #plan_obj = generate_itinerary(user, req)  # LLM呼び出し
+        # ← 本番：LLM を叩いて dict を受け取る
+        plan_obj = generate_itinerary(user, req)
+        plan_json = json.dumps(plan_obj, ensure_ascii=False, indent=2)
 
-        #return render_template("plan/result.html", plan=plan_obj, username=username)
+        # ←← ここで必ずレスポンスを返す
+        return render_template(
+            "plan/result.html",
+            plan=plan_obj,
+            plan_json=plan_json,  # テンプレで生JSONを見せたい場合に使用
+            username=username,
+        )
 
     except Exception as e:
-        flash(f"提案生成に失敗しました: {e}", "error")
+        import traceback
+
+        # サーバのコンソールに完全なスタックを出す（どのテンプレ/関数で url_for が呼ばれたか一発で分かる）
+        print("=== DEBUG plan(): exception ===")
+        print("type:", type(e).__name__)
+        traceback.print_exc()
+        print("=== /DEBUG ===")
+        flash(f"提案生成に失敗しました: {type(e).__name__}: {e}", "error")
         return redirect(url_for("plan.plan"))
