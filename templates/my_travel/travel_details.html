@@ -83,8 +83,12 @@
   <!-- 固定ヘッダー -->
   <header class="fixed top-0 left-0 w-full bg-white shadow-sm p-4 flex justify-between items-center border-b border-gray-200 z-50">
     <h1 class="text-2xl font-bold text-teal-700 tracking-wide">📖 京都旅行しおり</h1>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png" alt="User Icon"
-         class="w-9 h-9 rounded-full border-2 border-teal-600 hover:scale-110 transition-transform duration-200 object-cover"/>
+    
+    <a href="{{ url_for('setting.setting') }}">
+        <img src="{{ user_icon }}"
+            alt="User Icon"
+            class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
+    </a>
   </header>
 
   
@@ -338,6 +342,6 @@
       <span class="text-xs mt-1">旅行作成</span>
     </a>
   </div>
-  
+
 </body>
 </html>
