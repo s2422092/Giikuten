@@ -52,13 +52,18 @@
       onmouseout="this.style.backgroundColor='#4F8C8C'">
       登録
     </button>
-    <div class="mt-6 text-center text-sm text-[#31405F] space-y-2">
-      <p>
+    <div class="mt-6 text-sm text-[#31405F] flex justify-between items-center">
+      
+      <a href="http://localhost:5055/" class="text-[#4F8C8C] font-medium hover:underline">
+        &larr; 戻る
+      </a>
+      
+      <span>
         登録済みの方は
         <a href="{{ url_for('index.login') }}" class="text-[#4F8C8C] font-medium hover:underline">
           こちら
         </a>
-      </p>
+      </span>
     </div>
   </form>
 
