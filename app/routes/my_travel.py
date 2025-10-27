@@ -70,3 +70,18 @@ def travel_details():
         username=username,
         user_icon=user_icon
     )
+
+@my_travel_bp.route("/budget")
+def budget():
+    if "user_id" not in session:
+        return redirect(url_for("index.login"))
+
+    user_id = session["user_id"]
+    username = session.get("username", "ゲスト")
+    user_icon = get_user_icon(user_id)  # ←ここでアイコン取得
+
+    return render_template(
+        "my_travel/budget.html",
+        username=username,
+        user_icon=user_icon
+    )
