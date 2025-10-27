@@ -148,11 +148,9 @@ def mbti():
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO travel_survey (
-                user_id, q_purpose, q_priority, q_theme, q_want, q_avoid,
-                q_rhythm, q_motion, q_distance,
-                mbti_result, label, description, code, travel_name, mbti_description
+                id , user_id, mbti_id, created_at
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s)
         """, (
             user_id, q_purpose, q_priority, q_theme, q_want, q_avoid,
             q_rhythm, q_motion, q_distance,
@@ -191,7 +189,7 @@ def mbti_result():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT mbti_result, label, description, code, travel_name, mbti_description
+        SELECT id , user_id, mbti_id, created_at
         FROM travel_survey
         WHERE user_id = %s
         ORDER BY created_at DESC
