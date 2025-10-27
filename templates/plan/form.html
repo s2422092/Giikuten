@@ -28,18 +28,23 @@
 <body class="pb-28 pt-20">
 
 
-<header class="fixed top-0 left-0 w-full flex justify-end items-center p-4 bg-white shadow-md z-50">
-  <a href="#">💬</a>
+<header class="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-white shadow-md z-50">
+  <h1 class="text-2xl font-bold text-teal-700 tracking-wide">📖 京都旅行しおり</h1>
+  <div class="flex items-center space-x-4">
+    <a href="{{ url_for('home.information') }}" class="text-2xl hover:scale-110 transition-transform duration-200">💬</a>
 
     <a href="{{ url_for('setting.setting') }}">
-        <img src="{{ user_icon }}"
-            alt="User Icon"
-            class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
+      <img src="{{ user_icon }}"
+           alt="User Icon"
+           class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
     </a>
-
+  </div>
 </header>
 
 
+
+
+<main class="mt-20">
   <h1 class="text-2xl font-semibold text-[#4F8C8C] mb-6 text-center ">
     旅行条件（{{ username }} / MBTI: {{ mbti }}）
   </h1>
@@ -177,6 +182,8 @@
       決定
     </button>
   </form>
+</main>
+
 
   <!-- ✅ 固定ナビゲーションバー -->
 <div class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
