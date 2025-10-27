@@ -95,21 +95,32 @@
 <!-- ヘッダー右側に横並びタブ -->
 <div class="fixed right-0 z-50 flex flex-row space-x-0" style="top: 64px;">
   <!-- スケジュールタブ -->
-  <button
-    class="tab-btn bg-teal-500 text-white font-semibold px-4 py-2 shadow border border-gray-200"
-    data-target="schedule"
+  <a
+    href="{{ url_for('my_travel.travel_details') }}"
+    class="tab-link font-semibold px-4 py-2 border border-gray-200 shadow
+           {% if request.endpoint == 'my_travel.travel_details' %}
+             bg-teal-600 text-white
+           {% else %}
+             bg-teal-500 text-white hover:bg-teal-600
+           {% endif %}"
   >
     スケジュール
-  </button>
+  </a>
 
   <!-- 予算タブ -->
-  <button
-    class="tab-btn bg-yellow-400 text-white font-semibold px-4 py-2 shadow border border-gray-200"
-    data-target="budget"
+  <a
+    href="{{ url_for('my_travel.budget') }}"
+    class="tab-link font-semibold px-4 py-2 border border-gray-200 shadow
+           {% if request.endpoint == 'my_travel.budget' %}
+             bg-yellow-500 text-white
+           {% else %}
+             bg-yellow-400 text-white hover:bg-yellow-500
+           {% endif %}"
   >
     予算詳細
-  </button>
+  </a>
 </div>
+
 
 
 
