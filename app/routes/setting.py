@@ -217,3 +217,89 @@ def upload_icon():
         flash(f"画像の保存中にエラーが発生しました: {e}", "error")
 
     return redirect(url_for("setting.setting"))
+
+
+
+# (ファイルの先頭で request をインポート)
+#from flask import (
+    render_template, redirect, url_for, session, 
+    flash, Blueprint, request 
+#)
+# (get_conn のインポートも必要です)
+# from ..db import get_conn  # <-- あなたの環境に合わせて get_conn をインポートしてください
+
+# ... (setting_bp = Blueprint(...) の定義) ...
+
+
+# (request, flash, redirect, url_for, session, get_conn などのインポートはそのまま)
+
+@setting_bp.route("/update_profile", methods=["POST"])
+def update_profile():
+    # --- ログインチェック ---
+    if "user_id" not in session:
+        return redirect(url_for("index.login"))
+    
+    user_id = session["user_id"]
+
+    # 1. フォームからデータを取得
+    new_name = request.form.get("username")
+    new_email = request.form.get("email")
+
+    # 2. バリデーション
+    if not new_name or not new_email:
+        flash("ユーザー名とメールアドレスは必須です。", "error")
+        return redirect(url_for("setting.personal_setting"))
+
+    conn = None
+    cur = None
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+
+        # 3. Eメールが他のユーザーに使われていないかチェック
+        cur.execute(
+            "SELECT u_id FROM users WHERE gmail = %s",
+            (new_email,)
+        )
+        existing_user = cur.fetchone()
+        
+        if existing_user and existing_user[0] != user_id:
+            flash("そのメールアドレスは既に使用されています。", "error")
+            # ⬇️ ここで処理を中断し、リダイレクトします (finallyは実行されます)
+            return redirect(url_for("setting.personal_setting"))
+
+        # 4. データベースを更新 (UPDATE)
+        cur.execute(
+            """
+            UPDATE users 
+            SET u_name = %s, gmail = %s 
+            WHERE u_id = %s
+            """,
+            (new_name, new_email, user_id)
+        )
+        
+        # 5. 変更をコミット (保存)
+        conn.commit()
+        
+        # 6. 成功メッセージ
+        # ⬇️ 修正点：コミット成功時 (tryブロックの最後) でflashを呼びます
+        flash("プロフィールが正常に更新されました。", "success")
+
+    except Exception as e:
+        # 7. エラー発生時はロールバック
+        if conn:
+            conn.rollback()
+        
+        # 8. エラーメッセージ
+        # ⬇️ exceptブロックではエラーのflashのみを呼びます
+        flash(f"更新中にエラーが発生しました: {e}", "error")
+        
+    finally:
+        # 9. 接続を閉じる (これは常に実行されます)
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+    # 10. 処理が成功してもエラーでも、最後に設定ページに戻る
+    return redirect(url_for("setting.personal_setting"))
