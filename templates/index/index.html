@@ -4,23 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>スライダーのあるサイト</title>
+    <title>たびあい</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
 </head>
 
 <body class="bg-white text-gray-800">
 
-  <header class="absolute top-0 w-full z-10">
+  <header class="absolute top-0 w-full z-10" x-data="{ open: false }">
       <div class="container mx-auto flex justify-between items-center px-6 py-4 text-white">
           
           <h1 class="text-xl font-light tracking-tight">
-              <a href="#">たびあい</a>
+              <a href="{{ url_for('index.index') }}">たびあい</a>
               <span class="text-sm font-medium">-性格診断×LLMで自分らしい旅行プラン-</span>
           </h1>
 
@@ -33,11 +35,27 @@
           </nav>
 
           <div class="md:hidden">
-              <button class="border border-white px-3 py-1 rounded">
-                  MENU
+              <button @click="open = !open" class="border border-white px-2 py-1 rounded text-white focus:outline-none">
+                  <svg x-show="!open" class="w-6 h-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                      <path d="M4 6h16M4 12h16m-7 6h7"></path>
+                  </svg>
+                  <svg x-show="open" class="w-6 h-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
+                      <path d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
               </button>
           </div>
       </div>
+
+      <nav x-show="open" 
+           @click.away="open = false" 
+           class="md:hidden absolute top-full left-0 w-full bg-gray-800/90 text-white" 
+           style="display: none;">
+          <ul class="flex flex-col items-center py-4">
+              <li class="w-full text-center"><a href="{{ url_for('index.index') }}" class="block py-3 hover:bg-gray-700">TOP</a></li>
+              <li class="w-full text-center"><a href="{{ url_for('index.registration') }}" class="block py-3 hover:bg-gray-700">REGISTRATION</a></li>
+              <li class="w-full text-center"><a href="{{ url_for('index.login') }}" class="block py-3 hover:bg-gray-700">LOG IN</a></li>
+          </ul>
+      </nav>
   </header>
 
     <section class="relative h-screen overflow-hidden">
@@ -117,9 +135,7 @@
         </section>
     </main>
 
-</body>
-
-<script>
+    <script>
         // メインビジュアルのスライダーを初期化
         var swiper = new Swiper(".mainVisualSwiper", {
             effect: "fade",         // フェードエフェクト
@@ -135,6 +151,6 @@
             allowTouchMove: false,  // マウスでのドラッグ操作を無効化
         });
     </script>
-    
+
 </body>
 </html>
