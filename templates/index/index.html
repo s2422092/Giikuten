@@ -19,15 +19,15 @@
 <body class="bg-white text-gray-800">
 
   <header class="absolute top-0 w-full z-10" x-data="{ open: false }">
-      <div class="container mx-auto flex justify-between items-center px-6 py-4 text-white">
+      <div class="container mx-auto flex justify-between items-center px-6 py-6 text-white">
           
-          <h1 class="text-xl font-light tracking-tight">
-              <a href="{{ url_for('index.index') }}">たびあい</a>
-              <span class="text-sm font-medium">-性格診断×LLMで自分らしい旅行プラン-</span>
+          <h1 class="flex items-baseline font-light tracking-tight">
+              <a href="{{ url_for('index.index') }}" class="text-5xl font-normal">たびあい</a>
+              <span class="text-xl font-medium ml-4">-性格診断×LLMで自分らしい旅行プラン-</span>
           </h1>
 
           <nav class="hidden md:flex">
-              <ul class="flex space-x-8">
+              <ul class="flex space-x-10 text-xl font-medium">
                   <li><a href="{{ url_for('index.index') }}" class="hover:text-gray-300">TOP</a></li>
                   <li><a href="{{ url_for('index.registration') }}" class="hover:text-gray-300">REGISTRATION</a></li>
                   <li><a href="{{ url_for('index.login') }}" class="hover:text-gray-300">LOG IN</a></li>
@@ -50,14 +50,13 @@
            @click.away="open = false" 
            class="md:hidden absolute top-full left-0 w-full bg-gray-800/90 text-white" 
            style="display: none;">
-          <ul class="flex flex-col items-center py-4">
+          <ul class="flex flex-col items-center py-4 text-xl font-medium">
               <li class="w-full text-center"><a href="{{ url_for('index.index') }}" class="block py-3 hover:bg-gray-700">TOP</a></li>
               <li class="w-full text-center"><a href="{{ url_for('index.registration') }}" class="block py-3 hover:bg-gray-700">REGISTRATION</a></li>
               <li class="w-full text-center"><a href="{{ url_for('index.login') }}" class="block py-3 hover:bg-gray-700">LOG IN</a></li>
           </ul>
       </nav>
   </header>
-
     <section class="relative h-screen overflow-hidden">
     
         <div class="swiper mainVisualSwiper h-full absolute inset-0 z-0">
