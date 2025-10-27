@@ -40,13 +40,18 @@
     <button type="submit" id="submit-btn" class="w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200" style="background-color: #4F8C8C;" onmouseover="this.style.backgroundColor='#3E7676'" onmouseout="this.style.backgroundColor='#4F8C8C'">
       登録
     </button>
-    <div class="mt-6 text-center text-sm text-[#31405F] space-y-2">
-      <p>
+    <div class="mt-6 text-sm text-[#31405F] flex justify-between items-center">
+      
+      <a href="http://localhost:5055/" class="text-[#4F8C8C] font-medium hover:underline">
+        &larr; 戻る
+      </a>
+      
+      <span>
         アカウントをお持ちでない方は
         <a href="{{ url_for('index.registration') }}" class="text-[#4F8C8C] font-medium hover:underline">
           こちら
         </a>
-      </p>
+      </span>
     </div>
   </form>
 
