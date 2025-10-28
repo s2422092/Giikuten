@@ -24,25 +24,32 @@
     {% endif %}
   {% endwith %} 
 
-<header class="w-full flex justify-between items-center p-4 bg-white shadow-md">
-  <a href="#">💬</a>
+<header class="w-full flex justify-end items-center p-4 bg-white shadow-md">
+  <div class="flex items-center space-x-4">
+    <a href="{{ url_for('home.information') }}" class="text-2xl hover:scale-110 transition-transform duration-200">💬</a>
 
     <a href="{{ url_for('setting.setting') }}">
-        <img src="{{ user_icon }}"
-            alt="User Icon"
-            class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
+      <img src="{{ user_icon }}"
+           alt="User Icon"
+           class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
     </a>
-
+  </div>
 </header>
 
 
-<div>
-    <h1>ようこそ、{{ username }} さん！</h1>
-    <p>ここはログイン後のホーム画面です。</p>
-    <a href="{{ url_for('home.logout') }}" >ログアウト</a>
-</div>
+<!--ここのclassでmt-20を入れることによって画面をスクロールしても動かないようにする-->
 
-<a href="{{url_for('home.information')}}">💬</a>
+<main class="mt-20">
+
+  <div>
+      <h1>ようこそ、{{ username }} さん！</h1>
+      <p>ここはログイン後のホーム画面です。</p>
+      <a href="{{ url_for('home.logout') }}" >ログアウト</a>
+  </div>
+
+</main>
+
+
 
 <div>
 
