@@ -9,7 +9,8 @@ CREATE TABLE travel_plans (
   budget_food INT,
   budget_activities INT,
   budget_other INT,
-  rationale JSONB,     -- ["混雑回避のため朝活重視", ...]
-  raw_response JSONB,   -- GPTの元出力を保存
+  total_budget INT,
+  rationale JSONB,
+  raw_response JSONB,
   created_at TIMESTAMP DEFAULT NOW()
 );
