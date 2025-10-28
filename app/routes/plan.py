@@ -12,10 +12,12 @@ from flask import (
 import psycopg2
 from datetime import datetime
 from ..services.itinerary import generate_itinerary
+from psycopg2.extras import Json
 import os
 from dotenv import load_dotenv
 from app.user_icon import get_user_icon
 import json
+from typing import Dict, Any, Optional, List
 
 load_dotenv()
 
@@ -36,6 +38,144 @@ DB_CONFIG = {
 
 def get_conn():
     return psycopg2.connect(**DB_CONFIG)
+
+
+def fetch_mbti_info(conn, mbti_code: str) -> Optional[Dict[str, Any]]:
+    """mbti テーブルからタイプの説明などを取得"""
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT code, name, description FROM mbti WHERE code = %s LIMIT 1",
+            (mbti_code,),
+        )
+        row = cur.fetchone()
+    if not row:
+        return None
+    return {"code": row[0], "name": row[1], "description": row[2]}
+
+
+def insert_travel_request(conn, user_id: int, req: Dict[str, Any]) -> int:
+    """travel_requests に保存してIDを返す"""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO travel_requests
+              (user_id, trip_name, start_date, end_date, region, prefecture, city,
+               departure, transport_pref, budget, must_visit, notes)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            RETURNING id
+            """,
+            (
+                user_id,
+                req["trip_name"],
+                req["start_date"],
+                req["end_date"],
+                req["region"],
+                req.get("prefecture"),
+                req.get("city"),
+                req.get("departure"),
+                req.get("transport_pref"),
+                req.get("budget"),
+                req.get("must_visit"),
+                req.get("notes"),
+            ),
+        )
+        rid = cur.fetchone()[0]
+    conn.commit()
+    return rid
+
+
+def insert_travel_plan_hierarchy(conn, request_id: int, plan: Dict[str, Any]) -> int:
+    """受け取った plan(JSON相当) を travel_plans / day_plans / places / budget_items に正規化保存"""
+    bd = plan.get("budget_breakdown") or {}
+    total_budget = sum(
+        int(bd.get(k, 0) or 0)
+        for k in ["transport", "lodging", "food", "activities", "other"]
+    )
+    rationale_json = json.dumps(plan.get("rationale", []), ensure_ascii=False)
+    raw_json = json.dumps(plan.get("raw_response", {}), ensure_ascii=False)
+
+    with conn.cursor() as cur:
+        # travel_plans
+        cur.execute(
+            """
+            INSERT INTO travel_plans
+              (request_id, title, summary,
+               budget_transport, budget_lodging, budget_food, budget_activities, budget_other,
+               total_budget, rationale, raw_response)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s::jsonb)
+            RETURNING id
+            """,
+            (
+                request_id,
+                plan.get("title"),
+                plan.get("summary"),
+                int(bd.get("transport", 0) or 0),
+                int(bd.get("lodging", 0) or 0),
+                int(bd.get("food", 0) or 0),
+                int(bd.get("activities", 0) or 0),
+                int(bd.get("other", 0) or 0),
+                int(total_budget),
+                rationale_json,
+                raw_json,
+            ),
+        )
+        travel_plan_id = cur.fetchone()[0]
+
+        # budget_items（将来の明細拡張用）
+        for key, label in [
+            ("transport", "交通費"),
+            ("lodging", "宿泊費"),
+            ("food", "食費"),
+            ("activities", "アクティビティ"),
+            ("other", "その他"),
+        ]:
+            amt = int(bd.get(key, 0) or 0)
+            if amt > 0:
+                cur.execute(
+                    "INSERT INTO budget_items (travel_plan_id, category, amount, description) VALUES (%s,%s,%s,%s)",
+                    (travel_plan_id, label, amt, None),
+                )
+
+        # day_plans / places
+        for day in plan.get("daily_plan") or []:
+            cur.execute(
+                """
+                INSERT INTO day_plans (travel_plan_id, day_number, theme, route_summary, total_time, estimated_cost)
+                VALUES (%s,%s,%s,%s,%s,%s)
+                RETURNING id
+                """,
+                (
+                    travel_plan_id,
+                    int(day.get("day", 0) or 0),
+                    day.get("theme"),
+                    day.get("route_summary"),
+                    None,  # total_time: 後で集計更新
+                    None,  # estimated_cost: 後で集計更新
+                ),
+            )
+            day_id = cur.fetchone()[0]
+
+            for p in day.get("places") or []:
+                cur.execute(
+                    """
+                    INSERT INTO places
+                      (day_plan_id, time, name, description, stay_time, access, map_url, cost_estimate, type)
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                    """,
+                    (
+                        day_id,
+                        p.get("time"),
+                        p.get("name"),
+                        p.get("description"),
+                        p.get("stay_time"),
+                        p.get("access"),
+                        p.get("map_url"),
+                        p.get("cost_estimate"),
+                        p.get("type"),
+                    ),
+                )
+    conn.commit()
+    return travel_plan_id
 
 
 def get_latest_mbti(user_id: int) -> str | None:
@@ -154,7 +294,6 @@ def plan():
         budget = int(request.form.get("budget", "0"))
         notes = request.form.get("notes", "").strip()
         must_visit = request.form.get("must_visit", "").strip()
-        # ★ 新規：出発地・交通手段（DBなしの表面入力）
         departure = request.form.get("departure", "").strip() or None
         transport_pref = request.form.get("transport_pref", "auto").strip() or "auto"
 
@@ -209,9 +348,19 @@ def plan():
             "area": area_label,
         }
 
-        # ← 本番：LLM を叩いて dict を受け取る
-        plan_obj = generate_itinerary(user, req)
+        # DB接続開始
+        conn = get_conn()
+        # MBTI説明をプロンプトに添付
+        mbti_info = fetch_mbti_info(conn, mbti_type) if mbti_type else None
+        # 1) リクエスト保存
+        request_id = insert_travel_request(conn, session["user_id"], req)
+        # 2) LLM実行
+        plan_obj = generate_itinerary(user, req, mbti_info=mbti_info)
+        # 3) 正規化保存
+        _ = insert_travel_plan_hierarchy(conn, request_id, plan_obj)
+        # テンプレで生JSONを見せたい場合に使う
         plan_json = json.dumps(plan_obj, ensure_ascii=False, indent=2)
+        conn.close()
 
         # ←← ここで必ずレスポンスを返す
         return render_template(
