@@ -146,17 +146,19 @@ def mbti():
         # --- DB保存 ---
         conn = get_conn()
         cur = conn.cursor()
+        # id, user_id, mbti_id, created_at だけを挿入（id/created_atはDBに任せる場合）
         cur.execute("""
             INSERT INTO travel_survey (
-                id , user_id, mbti_id, created_at
+                user_id, mbti_id
+            ) VALUES (
+                %s, %s
             )
-            VALUES (%s, %s, %s, %s)
+            RETURNING id, user_id, mbti_id, created_at
         """, (
-            user_id, q_purpose, q_priority, q_theme, q_want, q_avoid,
-            q_rhythm, q_motion, q_distance,
-            result["mbti_result"], result["label"], result["description"],
-            result["code"], result["travel_name"], mbti_description
+            user_id,
+            result["mbti_result"]  # ← mbti_id に対応する値を入れてください（数値IDならそのID）
         ))
+        row = cur.fetchone()
         conn.commit()
         cur.close()
         conn.close()
@@ -189,10 +191,19 @@ def mbti_result():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT id , user_id, mbti_id, created_at
-        FROM travel_survey
-        WHERE user_id = %s
-        ORDER BY created_at DESC
+        SELECT
+            ts.id,
+            ts.user_id,
+            ts.mbti_id,
+            ts.created_at,
+            m.code,
+            m.name AS mbti_result,        -- 表示用（タイプ名）
+            m.description AS mbti_description
+        FROM travel_survey AS ts
+        JOIN mbti AS m
+            ON m.id = ts.mbti_id
+        WHERE ts.user_id = %s
+        ORDER BY ts.created_at DESC
         LIMIT 1
     """, (user_id,))
     row = cur.fetchone()
