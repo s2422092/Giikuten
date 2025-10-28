@@ -20,6 +20,8 @@ class Place(BaseModel):
     stay_time: str  # 滞在時間（例: "90分"）
     access: str  # 交通手段＋移動時間（例: "徒歩5分", "バス20分"）
     map_url: Optional[str]  # Google Mapsリンクなど（任意）
+    cost_estimate: Optional[int] = None
+    type: Optional[str] = None
 
 
 class DayPlan(BaseModel):
@@ -77,7 +79,7 @@ def generate_itinerary(user: dict, req: dict, mbti_info: dict | None = None) -> 
 user_profile:
   name: {user.get('name')}
   mbti: {user.get('mbti')}
-  mbti_summary: {mbti_info['tendency'] if mbti_info else ''}
+  mbti_summary: {(mbti_info or {}).get('description','')}
 trip_request:
   trip_name: {req.get('trip_name')}
   start_date: {req.get('start_date')}
@@ -99,7 +101,7 @@ must_visit: {req.get('must_visit','')}
         "次のJSONスキーマに厳密準拠。JSON以外は出力禁止。\n"
         "制約:\n"
         "- 各スポットは実在する日本の施設・観光地であること。\n"
-        "- 'must_visit' に指定された場所は、少なくとも1つは旅程（daily_plan.places）に含めること。\n"
+        "- 'must_visit' に指定された場所は旅程（daily_plan.places）に極力含めること。物理的・時間的に困難な場合は代替案を明示。\n"
         "- 各timeは24時間表記（例: '9:00', '13:30'）。\n"
         "- accessには具体的な交通手段（徒歩・バス・電車・新幹線など）と所要時間を含める。\n"
         "- stay_timeには目安時間を記載（例: '90分', '2時間'）。\n"
