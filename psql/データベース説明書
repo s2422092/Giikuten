@@ -18,27 +18,6 @@ psql --version
 
 
 
-2️⃣ PostgreSQL に接続
-
-インストールができたら、まずはターミナルから psql で接続します：
-
-psql postgres
-
-
-すると postgres=# というプロンプトが出てきます。
-ここからSQLを実行できます。
-
-
-3️⃣ データベース作成
-
-例えば「giikuten」というデータベースを作るなら：
-
-CREATE DATABASE giikuten;
-
-
-作ったデータベースに接続するには：
-
-\c giikuten
 
 
 4️⃣ ユーザー作成（必要に応じて）
