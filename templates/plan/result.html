@@ -47,6 +47,12 @@
               <span class="font-semibold">{{ place.name }}</span>
             </div>
             <p class="text-sm text-gray-700">{{ place.description }}</p>
+            {% if place.fun_fact %}
+              <p class="text-sm mt-1">
+                <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-800 border border-yellow-200">💡 豆知識</span>
+                <span class="text-gray-800">{{ place.fun_fact }}</span>
+              </p>
+            {% endif %}
             <p class="text-xs text-gray-500 mt-1">
               🚶 {{ place.access }} ｜ ⏱ {{ place.stay_time }}
             </p>
@@ -60,22 +66,9 @@
     </section>
   {% endfor %}
 
+  <h2 class="text-xl font-semibold mt-6 mb-2">📝 旅の概要</h2>
+  <p class="bg-white p-4 rounded-lg shadow-sm leading-7">{{ plan.overview }}</p>
 
-  <h2>根拠</h2>
-  <ul>
-    {% for r in plan.rationale %}
-      <li>{{ r }}</li>
-    {% endfor %}
-  </ul>
-
-  <!-- ★ 追加：デバッグ用・LLM生JSONを確認（そのまま出す） -->
-  <details class="mt-6">
-    <summary class="cursor-pointer text-sm text-gray-600">LLM 生JSONを表示（デバッグ用）</summary>
-    <pre class="mt-2 p-3 bg-gray-100 rounded text-xs overflow-x-auto">{{ plan | tojson(indent=2) }}</pre>
-  </details>
-
-  
-  
   <nav class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
 
   <!-- 診断の詳細について（Test） -->

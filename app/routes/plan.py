@@ -101,8 +101,8 @@ def insert_travel_plan_hierarchy(conn, request_id: int, plan: Dict[str, Any]) ->
             INSERT INTO travel_plans
               (request_id, title, summary,
                budget_transport, budget_lodging, budget_food, budget_activities, budget_other,
-               total_budget, rationale, raw_response)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s::jsonb)
+               total_budget, overview, rationale, raw_response)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s::jsonb)
             RETURNING id
             """,
             (
@@ -115,6 +115,7 @@ def insert_travel_plan_hierarchy(conn, request_id: int, plan: Dict[str, Any]) ->
                 int(bd.get("activities", 0) or 0),
                 int(bd.get("other", 0) or 0),
                 int(total_budget),
+                plan.get("overview"),
                 rationale_json,
                 raw_json,
             ),
@@ -159,8 +160,8 @@ def insert_travel_plan_hierarchy(conn, request_id: int, plan: Dict[str, Any]) ->
                 cur.execute(
                     """
                     INSERT INTO places
-                      (day_plan_id, time, name, description, stay_time, access, map_url, cost_estimate, type)
-                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                      (day_plan_id, time, name, description, stay_time, access, map_url, cost_estimate, type, fun_fact)
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                     """,
                     (
                         day_id,
@@ -172,6 +173,7 @@ def insert_travel_plan_hierarchy(conn, request_id: int, plan: Dict[str, Any]) ->
                         p.get("map_url"),
                         p.get("cost_estimate"),
                         p.get("type"),
+                        p.get("fun_fact"),
                     ),
                 )
     conn.commit()
