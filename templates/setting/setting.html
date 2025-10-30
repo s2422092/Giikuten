@@ -2,38 +2,87 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <title>マイページ | たびあい</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <title>個人情報画面</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #F6F5F3;
-      color: #2C3E50;
       font-family: "Noto Sans JP", sans-serif;
+      color: #f1f5f9;
+      background: url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80")
+        no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(5px);
+      z-index: -1;
+    }
+
+    header {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+    }
+
+    .profile-card {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .travel-card {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      color: #fff;
+    }
+
+    .travel-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(255, 255, 255, 0.15);
+    }
+
+    button {
+      transition: all 0.3s ease;
+    }
+
+    .dock {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      color: #fff;
     }
   </style>
 </head>
+
 <body class="pb-28">
 
-<!-- ★ 固定ヘッダー（右上に設定ボタン） -->
-<header class="w-full flex justify-end items-center px-6 py-4 bg-white shadow-md fixed top-0 left-0 z-50 border-b border-gray-200">
+<!-- 🌿 固定ヘッダー -->
+<header class="w-full flex justify-end items-center px-6 py-4 fixed top-0 left-0 z-50 border-b border-white/20 text-white shadow-md">
   <a href="{{ url_for('setting.personal_setting') }}"
-       class="text-gray-600 hover:text-teal-600 transition-colors"
+       class="hover:text-teal-200 transition-colors"
        title="設定">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
           d="M10.325 4.317a1 1 0 00-.948.684l-.56 1.68a8.001 8.001 0 00-2.56 1.48l-1.518-.506a1 1 0 00-1.21.45l-1 1.732a1 1 0 00.22 1.304l1.273.982a8.003 8.003 0 000 2.962l-1.273.982a1 1 0 00-.22 1.304l1 1.732a1 1 0 001.21.45l1.518-.506a8.001 8.001 0 002.56 1.48l.56 1.68a1 1 0 00.948.684h2.35a1 1 0 00.948-.684l.56-1.68a8.001 8.001 0 002.56-1.48l1.518.506a1 1 0 001.21-.45l1-1.732a1 1 0 00-.22-1.304l-1.273-.982a8.003 8.003 0 000-2.962l1.273-.982a1 1 0 00.22-1.304l-1-1.732a1 1 0 00-1.21-.45l-1.518.506a8.001 8.001 0 00-2.56-1.48l-.56-1.68a1 1 0 00-.948-.684h-2.35z" />
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
-    </a>
+  </a>
 </header>
 
-<!-- 🌿 幅いっぱいのユーザーヘッダー -->
-<section class="w-full bg-white shadow-md mt-16 py-8 border-b border-gray-200">
-  <div class="w-full flex flex-col sm:flex-row items-center sm:items-center sm:justify-between px-10">
-    <!-- アイコン＋名前（左側寄せ） -->
+<!-- 🌿 プロフィールエリア -->
+<section class="profile-card w-full mt-20 py-8 border-b border-white/20">
+  <div class="w-full flex flex-col sm:flex-row items-center justify-between px-10">
+
+    <!-- 左側：アイコンと名前 -->
     <div class="flex items-center space-x-6">
       <div id="iconContainer"
-           class="w-28 h-28 rounded-full bg-[#E6F3F3] flex items-center justify-center overflow-hidden shadow-inner">
+           class="w-28 h-28 rounded-full bg-white/20 flex items-center justify-center overflow-hidden border border-white/30 shadow-md">
         {% if user.icon_base64 %}
           <img id="userIconPreview" src="data:image/png;base64,{{ user.icon_base64 }}" alt="User Icon"
                class="w-full h-full object-cover" />
@@ -42,62 +91,62 @@
                class="w-full h-full object-cover" />
         {% endif %}
       </div>
-      <h1 class="text-3xl font-bold text-[#4F8C8C]">{{ user.name }}</h1>
+      <h1 class="text-3xl font-bold text-teal-100 tracking-wide">{{ user.name }}</h1>
     </div>
 
-    <!-- 右側：アイコン変更フォーム -->
+    <!-- 右側：アイコン変更 -->
     <form action="{{ url_for('setting.upload_icon') }}" method="POST" enctype="multipart/form-data"
           class="flex items-center mt-6 sm:mt-0 space-x-3">
       <input type="file" name="icon" id="iconUpload" accept="image/*" class="hidden" />
       <button type="button" id="addIconBtn"
-              class="bg-teal-600 hover:bg-teal-700 text-white rounded-md px-5 py-2 text-sm transition">
+              class="bg-teal-600 hover:bg-teal-700 text-white rounded-md px-5 py-2 text-sm shadow">
         アイコン変更
       </button>
       <button type="submit"
-              class="bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md px-5 py-2 text-sm transition">
+              class="bg-white/30 hover:bg-white/50 text-white rounded-md px-5 py-2 text-sm">
         保存
       </button>
     </form>
   </div>
 </section>
 
-<!-- === あなたの旅行プラン一覧 === -->
+<!-- 🌸 あなたの旅行プラン一覧 -->
 <main class="max-w-6xl mx-auto mt-10 mb-32 px-6">
-  <h2 class="text-2xl font-bold text-teal-700 mb-6 text-center">あなたの旅行プラン一覧</h2>
+  <h2 class="text-2xl font-bold text-teal-100 mb-6 text-center">あなたの旅行プラン一覧</h2>
 
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-    <!-- 以下は既存の旅行カード（削除せず保持） -->
+    <!-- 旅行カード -->
     <a href="{{url_for('my_travel.travel_details')}}" class="block">
-      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
-        <h2 class="text-xl font-bold text-teal-700">東京・京都グルメ旅</h2>
-        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 東京・京都</p>
-        <p class="text-gray-700"><span class="font-semibold">人数:</span> 3人</p>
-        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 50,000円</p>
-        <p class="text-gray-600 text-sm leading-relaxed">
-          観光スポットを巡りつつ、地元グルメを楽しむ旅です。宿泊は快適なホテルで、ゆったり回ります。
+      <div class="travel-card rounded-2xl p-6 space-y-3 h-72 overflow-hidden">
+        <h2 class="text-xl font-bold text-teal-200">東京・京都グルメ旅</h2>
+        <p><span class="font-semibold text-teal-100">旅行先:</span> 東京・京都</p>
+        <p><span class="font-semibold text-teal-100">人数:</span> 3人</p>
+        <p><span class="font-semibold text-teal-100">予算:</span> 50,000円</p>
+        <p class="text-gray-100 text-sm leading-relaxed">
+          観光スポットを巡りつつ、地元グルメを楽しむ旅。宿泊は快適なホテルでゆったり回ります。
         </p>
       </div>
     </a>
 
     <a href="{{url_for('my_travel.travel_details')}}" class="block">
-      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
-        <h2 class="text-xl font-bold text-teal-700">北海道自然満喫ツアー</h2>
-        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 北海道</p>
-        <p class="text-gray-700"><span class="font-semibold">人数:</span> 2人</p>
-        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 70,000円</p>
-        <p class="text-gray-600 text-sm leading-relaxed">
+      <div class="travel-card rounded-2xl p-6 space-y-3 h-72 overflow-hidden">
+        <h2 class="text-xl font-bold text-teal-200">北海道自然満喫ツアー</h2>
+        <p><span class="font-semibold text-teal-100">旅行先:</span> 北海道</p>
+        <p><span class="font-semibold text-teal-100">人数:</span> 2人</p>
+        <p><span class="font-semibold text-teal-100">予算:</span> 70,000円</p>
+        <p class="text-gray-100 text-sm leading-relaxed">
           大自然を満喫する旅。温泉や美味しい海鮮も楽しめます。
         </p>
       </div>
     </a>
 
     <a href="{{url_for('my_travel.travel_details')}}" class="block">
-      <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-3 h-72 overflow-hidden hover:shadow-2xl transition-shadow duration-200">
-        <h2 class="text-xl font-bold text-teal-700">沖縄ビーチリゾート</h2>
-        <p class="text-gray-700"><span class="font-semibold">旅行先:</span> 沖縄</p>
-        <p class="text-gray-700"><span class="font-semibold">人数:</span> 4人</p>
-        <p class="text-gray-700"><span class="font-semibold">予想予算:</span> 80,000円</p>
-        <p class="text-gray-600 text-sm leading-relaxed">
+      <div class="travel-card rounded-2xl p-6 space-y-3 h-72 overflow-hidden">
+        <h2 class="text-xl font-bold text-teal-200">沖縄ビーチリゾート</h2>
+        <p><span class="font-semibold text-teal-100">旅行先:</span> 沖縄</p>
+        <p><span class="font-semibold text-teal-100">人数:</span> 4人</p>
+        <p><span class="font-semibold text-teal-100">予算:</span> 80,000円</p>
+        <p class="text-gray-100 text-sm leading-relaxed">
           海を眺めながらのんびり過ごすリゾート旅。シュノーケリングやマリンスポーツも体験。
         </p>
       </div>
@@ -105,49 +154,28 @@
   </div>
 </main>
 
-<div class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
-  <!-- 旅のタイムライン（Time Line） -->
-  <a href="{{ url_for('my_travel.travel_details') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'my_travel.travel_details' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
-    <svg class="w-5 h-5 {% if request.endpoint == 'my_travel.travel_details' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
-      <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- 🌊 Dockナビ -->
+<div class="dock fixed bottom-0 left-0 w-full border-t border-white/20 shadow-inner flex justify-around py-2">
+  <a href="{{ url_for('my_travel.travel_details') }}" class="flex flex-col items-center hover:text-teal-300">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
     </svg>
     <span class="text-xs mt-1">Time Line</span>
   </a>
-
-  <!-- ホームボタン（Home） -->
-  <a href="{{ url_for('home.home') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'home.home' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
-    <svg class="w-5 h-5 {% if request.endpoint == 'home.home' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <g fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="3 12 12 3 21 12" />
-        <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
-      </g>
+  <a href="{{ url_for('home.home') }}" class="flex flex-col items-center hover:text-teal-300">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="3 12 12 3 21 12"/><path d="M5 10v10h14V10"/>
     </svg>
     <span class="text-xs mt-1">Home</span>
   </a>
-
-  <!-- マイトラベル（My Travel） -->
-  <a href="{{ url_for('plan.plan') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'plan.plan' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
-    <svg
-  class="w-5 h-5 {% if request.endpoint == 'plan.plan' %}text-teal-600{% endif %}"
-  xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 24 24"
-  fill="none"
-  stroke="currentColor"
-  stroke-width="2"
-  stroke-linecap="round"
-  stroke-linejoin="round">
-  <line x1="12" y1="5" x2="12" y2="19" />
-  <line x1="5" y1="12" x2="19" y2="12" />
-</svg>
+  <a href="{{ url_for('plan.plan') }}" class="flex flex-col items-center hover:text-teal-300">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
     <span class="text-xs mt-1">Travel Plan</span>
   </a>
 </div>
 
-<!-- ==== JS ==== -->
 <script>
   document.getElementById('addIconBtn').addEventListener('click', () => {
     document.getElementById('iconUpload').click();
