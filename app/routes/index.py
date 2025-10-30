@@ -42,6 +42,7 @@ def login():
         # ✅ 入力チェック
         if not username or not password:
             flash("ユーザー名とパスワードを入力してください。", "error")
+            print("DEBUG: 入力エラー → username or password が未入力")
             return render_template("index/login.html")
 
         try:
@@ -52,6 +53,7 @@ def login():
 
             if not user:
                 flash("そのユーザーは存在しません。", "error")
+                print(f"DEBUG: ユーザー {username} が存在しません")
                 cur.close()
                 conn.close()
                 return render_template("index/login.html")
@@ -62,25 +64,36 @@ def login():
             if isinstance(db_password, bytes):
                 db_password = db_password.decode("utf-8")
 
-            print(f"DEBUG: DB Password = {repr(db_password)}")
+            print(f"DEBUG: 入力された username={username}")
+            print(f"DEBUG: 入力された password={password}")
+            print(f"DEBUG: DBに登録されている password={db_password}")
 
             # ✅ ハッシュ・平文対応チェック
             login_success = False
 
             try:
                 # 1️⃣ ハッシュ化パスワード（scrypt または pbkdf2）対応
-                if ":" in db_password:  # ← どちらの形式にも対応
+                if ":" in db_password:
+                    print("DEBUG: ハッシュ化されたパスワードと判定")
                     if check_password_hash(db_password, password):
+                        print("DEBUG: ハッシュ認証 → 成功 ✅")
                         login_success = True
+                    else:
+                        print("DEBUG: ハッシュ認証 → 失敗 ❌")
                 # 2️⃣ 平文対応
                 elif db_password == password:
+                    print("DEBUG: 平文パスワード一致 ✅")
                     login_success = True
+                else:
+                    print("DEBUG: 平文パスワード不一致 ❌")
+
             except Exception as e:
-                print(f"DEBUG: check_password_hash error: {e}")
+                print(f"DEBUG: check_password_hash 実行中にエラー発生 → {e}")
 
             # ❌ ログイン失敗時
             if not login_success:
                 flash("パスワードが間違っています。", "error")
+                print(f"DEBUG: ログイン失敗 → username={username}, password認証NG")
                 cur.close()
                 conn.close()
                 return render_template("index/login.html")
@@ -88,6 +101,7 @@ def login():
             # ✅ ログイン成功
             session["user_id"] = user[0]
             session["username"] = user[1]
+            print(f"DEBUG: ログイン成功 → user_id={user[0]}, username={user[1]}")
 
             # 🔹 MBTI診断済みか確認
             cur.execute("SELECT 1 FROM user_mbti WHERE user_id = %s", (user[0],))
@@ -98,20 +112,23 @@ def login():
 
             if mbti_result:
                 flash("ログインに成功しました！", "success")
+                print("DEBUG: MBTI診断済み → home へリダイレクト")
                 return redirect(url_for("home.home"))
             else:
                 flash("まずMBTI診断を行ってください。", "info")
-                return redirect(url_for("mbti.mbti"))
+                print("DEBUG: MBTI未診断 → mbti ページへリダイレクト")
+                return redirect(url_for("mbti/mbti.html"))
 
         except Exception as e:
             if conn:
                 conn.close()
             flash(f"ログイン中にエラーが発生しました: {e}", "error")
+            print(f"DEBUG: ログイン中に例外発生 → {e}")
             return render_template("index/login.html")
 
     # GET時（フォーム表示）
+    print("DEBUG: GETリクエストでログインページ表示")
     return render_template("index/login.html")
-
 
 
 
