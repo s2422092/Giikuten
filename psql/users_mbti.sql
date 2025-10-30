@@ -1,23 +1,23 @@
 
-CREATE TABLE travel_survey (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    q_purpose TEXT,
-    q_priority TEXT,
-    q_theme TEXT,
-    q_want TEXT,
-    q_avoid TEXT,
-    q_rhythm TEXT,
-    q_motion TEXT,
-    q_distance TEXT,
-    mbti_result TEXT,
-    label TEXT,
-    description TEXT,
-    code TEXT,
-    travel_name TEXT,
-    mbti_description TEXT,  -- ← 追加
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- CREATE TABLE travel_survey (
+--     id SERIAL PRIMARY KEY,
+--     user_id INTEGER NOT NULL,
+--     q_purpose TEXT,
+--     q_priority TEXT,
+--     q_theme TEXT,
+--     q_want TEXT,
+--     q_avoid TEXT,
+--     q_rhythm TEXT,
+--     q_motion TEXT,
+--     q_distance TEXT,
+--     mbti_result TEXT,
+--     label TEXT,
+--     description TEXT,
+--     code TEXT,
+--     travel_name TEXT,
+--     mbti_description TEXT,  -- ← 追加
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 
 
 
@@ -100,21 +100,21 @@ INSERT INTO answers (user_id, question_id, option_id) VALUES
 -- 4️⃣ 旅行タイプテーブル
 CREATE TABLE travel_types (
     id SERIAL PRIMARY KEY,              -- 一意のID
-    type_code TEXT UNIQUE NOT NULL,     -- 診断コード（例：'S-EX-CU|M-NM'）
-    type_name TEXT NOT NULL,            -- タイプ名（例：'スポット制覇派（文化特化・朝型・中距離）'）
+    code TEXT UNIQUE NOT NULL,     -- 診断コード（例：'S-EX-CU|M-NM'）
+    name TEXT NOT NULL,            -- タイプ名（例：'スポット制覇派（文化特化・朝型・中距離）'）
     description TEXT NOT NULL           -- タイプの説明文（例："名所を効率よく回す。博物館・歴史建築が好き..."）
 );
 
 -- 旅行タイプデータの挿入の例
-INSERT INTO travel_types (type_code, type_name, description) VALUES
+INSERT INTO travel_types (code, name, description) VALUES
 ('S-EX-CU|M-NM', 'スポット制覇派（文化特化・朝型・中距離）', '名所を効率よく回す。博物館・歴史建築が好き。午前から動き、4~6時間の移動も許容。'),
 
 -- 5️⃣ 診断結果テーブル
-CREATE TABLE user_results (
-    result_id SERIAL PRIMARY KEY,                     -- 結果ID
+CREATE TABLE user_mbti (
+    mbti_id SERIAL PRIMARY KEY,                     -- 結果ID
     user_id INT REFERENCES users(u_id) ON DELETE CASCADE,  -- ユーザー（外部キー）
-    travel_type_id INT REFERENCES travel_types(id) ON DELETE SET NULL, -- 診断タイプ（外部キー）
-    result_code TEXT,                                 -- TYPE_DEFSのコード（例: 'S-EX-CU|M-NM'）
+    name INT REFERENCES travel_types(id) ON DELETE SET NULL, -- 診断タイプ（外部キー）
+    code TEXT,                                 -- TYPE_DEFSのコード（例: 'S-EX-CU|M-NM'）
     result_summary TEXT,                              -- 結果の要約（タイプ名など）
     diagnosed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 診断実施日時
 );

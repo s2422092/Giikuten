@@ -148,16 +148,21 @@ def mbti():
         cur = conn.cursor()
         # id, user_id, mbti_id, created_at だけを挿入（id/created_atはDBに任せる場合）
         cur.execute("""
-            INSERT INTO travel_survey (
-                user_id, mbti_id
+            INSERT INTO user_mbti (
+                user_id, mbti_id, code, name, description
             ) VALUES (
-                %s, %s
+                %s, %s, %s, %s, %s
             )
-            RETURNING id, user_id, mbti_id, created_at
+            RETURNING id, user_id, mbti_id, code, name, description, created_at
         """, (
             user_id,
-            result["mbti_result"]  # ← mbti_id に対応する値を入れてください（数値IDならそのID）
-        ))
+            result["mbti_id"],       # mbtiテーブルのid
+            result["code"],          # mbtiテーブルのcode
+            result["mbti_result"],   # mbtiテーブルのname（表示用名）
+            result["name"],   # mbtiテーブルのname（表示用名）
+            result["description"]    
+        ))# ← mbti_id に対応する値を入れてください（数値IDならそのID）
+        
         row = cur.fetchone()
         conn.commit()
         cur.close()
@@ -192,18 +197,16 @@ def mbti_result():
     cur = conn.cursor()
     cur.execute("""
         SELECT
-            ts.id,
-            ts.user_id,
-            ts.mbti_id,
-            ts.created_at,
-            m.code,
-            m.name AS mbti_result,        -- 表示用（タイプ名）
-            m.description AS mbti_description
-        FROM travel_survey AS ts
-        JOIN mbti AS m
-            ON m.id = ts.mbti_id
-        WHERE ts.user_id = %s
-        ORDER BY ts.created_at DESC
+            um.id,
+            um.user_id,
+            um.mbti_id,
+            um.created_at,
+            um.code,
+            um.name AS mbti_result, -- 表示用（タイプ名）
+            um.description AS mbti_description
+        FROM user_mbti AS um
+        WHERE um.user_id = %s
+        ORDER BY um.created_at DESC
         LIMIT 1
     """, (user_id,))
     row = cur.fetchone()
