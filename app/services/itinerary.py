@@ -22,6 +22,7 @@ class Place(BaseModel):
     map_url: Optional[str]  # Google Mapsリンクなど（任意）
     cost_estimate: Optional[int] = None
     type: Optional[str] = None
+    fun_fact: Optional[str] = None
 
 
 class DayPlan(BaseModel):
@@ -44,7 +45,8 @@ class Plan(BaseModel):
     summary: str
     budget_breakdown: Budget
     daily_plan: List[DayPlan]
-    rationale: List[str]
+    overview: str
+    rationale: List[str] = []
     raw_response: Dict[str, Any] | None = None
 
 
@@ -109,16 +111,24 @@ must_visit: {req.get('must_visit','')}
         "- 各themeは1文で当日の目的・雰囲気を表現。\n"
         "- 出発地（departure）や transport_pref がある場合は出来る限り尊重。\n"
         "- MBTIの傾向に基づき、活動量・時間配分を調整する。\n"
+        "- Day1 では、出発地から目的地の主要駅（例: 京都駅）への**到着を明示**し、\n"
+        "  その移動（例: 新幹線・飛行機）の情報を最初のスポットとして記載する。\n"
+        "  例: name: '東京駅→京都駅', access: '東海道新幹線で約2時間20分', stay_time: '移動', description: '京都到着後に観光開始'。\n"
+        "- 各スポットには 'fun_fact'（豆知識）を1文で付与（歴史・雑学・季節情報など）。\n"
         "- 出力例:\n"
         "{\n"
         '  "title": "京都3日間の癒し旅",\n'
         '  "summary": "INFJタイプ向けの静寂と文化体験を中心とした京都プラン。",\n'
         '  "budget_breakdown": {"transport":20000,"lodging":30000,"food":10000,"activities":8000,"other":2000},\n'
         '  "daily_plan": [\n'
-        '    {"day":1,"theme":"東山の古都情緒を巡る","route_summary":"京都駅→清水寺→祇園→八坂神社",\n'
-        '     "places":[{"time":"9:00","name":"清水寺","description":"舞台からの眺めが絶景。","stay_time":"90分","access":"京都駅からバスで20分"}]},\n'
+        '    {"day":1,"theme":"東山の古都情緒を巡る","route_summary":"東京駅→京都駅→清水寺→祇園→八坂神社",\n'
+        '     "places":[\n'
+        '       {"time":"8:00","name":"東京駅→京都駅","description":"京都到着後に観光開始。","stay_time":"移動","access":"東海道新幹線で約2時間20分"},\n'
+        '       {"time":"10:30","name":"清水寺","description":"舞台からの眺めが絶景。","stay_time":"90分","access":"京都駅からバスで20分","fun_fact":"清水の舞台は釘をほぼ使わない伝統工法で組まれている"}\n'
+        "     ]},\n"
         "    ...\n"
         "  ],\n"
+        '  "overview": "朝は新幹線で京都へ。混雑前に東山エリアを回り、午後は祇園でゆったり。翌日は嵐山で自然散策中心に配分。",\n'
         '  "rationale": ["混雑回避のため朝活重視","徒歩圏内で移動負担軽減"]\n'
         "}\n"
         f"スキーマ:\n{schema_str}"
