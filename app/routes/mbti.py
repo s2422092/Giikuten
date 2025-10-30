@@ -156,7 +156,7 @@ def mbti():
             RETURNING id, user_id, mbti_id, code, name, description, created_at
         """, (
             user_id,
-            result["mbti_id"],       # mbtiテーブルのid
+            # result["mbti_id"],       # mbtiテーブルのid
             result["code"],          # mbtiテーブルのcode
             result["mbti_result"],   # mbtiテーブルのname（表示用名）
             result["name"],   # mbtiテーブルのname（表示用名）
