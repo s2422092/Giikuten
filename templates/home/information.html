@@ -2,77 +2,124 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <script src="https://cdn.tailwindcss.com"></script>
   <title>アプリ説明 | たびあい</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
+
   <style>
     body {
-      background-color: #F6F5F3;
-      color: #2C3E50;
       font-family: "Noto Sans JP", sans-serif;
+      color: #f1f5f9;
+      background: url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80")
+        no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: -1;
+    }
+
+    h1, h2 {
+      font-family: "Noto Serif JP", serif;
+    }
+
+    .info-card {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .section-title {
+      color: #b2f5ea;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    a.back-btn {
+      background-color: #4F8C8C;
+    }
+    a.back-btn:hover {
+      background-color: #3E7676;
+      box-shadow: 0 4px 12px rgba(79, 140, 140, 0.4);
+      transform: translateY(-2px);
     }
   </style>
 </head>
 
 <body class="flex flex-col justify-center items-center min-h-screen px-4">
 
-  <div class="bg-white shadow-lg rounded-3xl px-10 pt-10 pb-12 w-full max-w-3xl border border-[#EFD8C0] text-center">
+  <div class="info-card rounded-3xl px-10 pt-10 pb-12 w-full max-w-3xl text-center border border-white/30">
+    
     <!-- タイトル -->
-    <h1 class="text-4xl font-extrabold text-[#4F8C8C] mb-8 tracking-wide">
+    <h1 class="text-4xl font-extrabold text-white mb-8 tracking-wide drop-shadow-lg">
       アプリ説明
     </h1>
 
     <!-- セクション -->
-    <section class="text-left space-y-8">
+    <section class="text-left space-y-8 leading-relaxed">
+
       <!-- たびあいとは？ -->
       <div>
-        <h2 class="text-xl font-bold text-[#4F8C8C] mb-2 border-b border-[#EFD8C0] inline-block pb-1">
-          たびあいとは？
-        </h2>
-        <p class="leading-relaxed text-gray-700">
-          <span>たびあいは、『旅をもっと気軽に自分らしく』をコンセプトに、性格診断xLLMで旅行計画の作成を簡単に行える
-          <span class="font-semibold">旅行提案管理アプリ</span>です。<br>
-          ユーザーは新規登録後に性格診断を行ってもらい、LLMに旅の条件を伝えることで自分に最適化した旅行プランを作成することができます。</span>
+        <h2 class="text-xl font-bold section-title mb-3 inline-block pb-1">たびあいとは？</h2>
+        <p class="text-gray-100">
+          『旅をもっと気軽に自分らしく』をコンセプトに、<br>
+          性格診断 × LLM で旅行計画を自動生成できる
+          <span class="font-semibold text-teal-200">旅行提案管理アプリ</span>です。<br>
+          新規登録後に性格診断を行い、条件を入力することで、<br>
+          あなたに最適化された旅プランが作成されます。
         </p>
       </div>
 
-      <!-- 旅行プラン作成画面 -->
+      <!-- 旅行プラン作成 -->
       <div>
-        <h2 class="text-xl font-bold text-[#4F8C8C] mb-2 border-b border-[#EFD8C0] inline-block pb-1">
-          旅行作成について
-        </h2>
-        <p class="leading-relaxed text-gray-700">
-          旅行作成では、ユーザーが希望する旅行の条件を入力し、LLMがそれに基づいて最適なプランを提案します。<br>
-          ユーザーは提案されたプランを確認・編集し、自分だけのオリジナルプランを作成することができます。
+        <h2 class="text-xl font-bold section-title mb-3 inline-block pb-1">旅行作成について</h2>
+        <p class="text-gray-100">
+          旅行条件（地域・期間・人数など）を入力し、<br>
+          LLM が最適な旅のスケジュールと観光地を提案します。<br>
+          提案されたプランは編集・保存が可能で、<br>
+          自分だけのオリジナル旅行に仕上げられます。
         </p>
       </div>
 
       <!-- タイムライン -->
       <div>
-        <h2 class="text-xl font-bold text-[#4F8C8C] mb-2 border-b border-[#EFD8C0] inline-block pb-1">
-          旅のタイムラインについて
-        </h2>
-        <p class="leading-relaxed text-gray-700">
-          旅のタイムラインでは、提案された旅行プランを確認することができます。旅行プランは基本情報や日程表、予算、宿泊地、参加者などを確認・編集できます。<br>
+        <h2 class="text-xl font-bold section-title mb-3 inline-block pb-1">旅のタイムラインについて</h2>
+        <p class="text-gray-100">
+          タイムラインでは、1日ごとのスケジュールや<br>
+          宿泊地・移動経路・滞在スポットを確認できます。<br>
+          日別予算やメモを追加して、自分の旅を記録できます。
         </p>
       </div>
 
       <!-- マイページ -->
       <div>
-        <h2 class="text-xl font-bold text-[#4F8C8C] mb-2 border-b border-[#EFD8C0] inline-block pb-1">
-          マイページについて
-        </h2>
-        <p class="leading-relaxed text-gray-700">
-          マイページでは、アカウント情報の変更や今まで行った旅行の履歴を見ることができます。<br>
+        <h2 class="text-xl font-bold section-title mb-3 inline-block pb-1">マイページについて</h2>
+        <p class="text-gray-100">
+          アカウント情報の変更や過去の旅行履歴の閲覧が可能です。<br>
+          これまでの旅のプランを振り返り、次の旅の参考にもできます。
         </p>
       </div>
     </section>
 
     <!-- ホームへ戻るボタン -->
-    <div class="mt-6">
+    <div class="mt-10">
       <a href="{{ url_for('home.home') }}"
-       class="inline-block mt-9 px-6 py-3 bg-[#4F8C8C] text-white no-underline rounded-[10px] font-bold transition hover:bg-[#3E7676] hover:-translate-y-[2px] hover:shadow-[0_4px_8px_rgba(79,140,140,0.3)]">
-      ← ホームに戻る
-    </a>
+         class="back-btn inline-block px-6 py-3 text-white no-underline rounded-lg font-semibold 
+                transition transform hover:-translate-y-[2px]">
+        ← ホームに戻る
+      </a>
     </div>
   </div>
 
