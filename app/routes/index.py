@@ -3,6 +3,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import psycopg2
 import os
 from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 load_dotenv()  # ← .envファイルの内容を読み込む
 
@@ -26,14 +28,17 @@ def index():
 
 
 # --- ログインページ ---
+from flask import render_template, request, session, flash, redirect, url_for
+from werkzeug.security import check_password_hash
+
 @index_bp.route("/login", methods=["GET", "POST"])
 def login():
     conn = None
-    
+
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        
+
         # ✅ 入力チェック
         if not username or not password:
             flash("ユーザー名とパスワードを入力してください。", "error")
@@ -42,8 +47,6 @@ def login():
         try:
             conn = get_conn()
             cur = conn.cursor()
-
-            # 🔹 まずユーザー情報を取得
             cur.execute("SELECT u_id, u_name, password FROM users WHERE u_name = %s", (username,))
             user = cur.fetchone()
 
@@ -53,25 +56,46 @@ def login():
                 conn.close()
                 return render_template("index/login.html")
 
-            # 🔹 パスワードチェック
-            if user[2] != password:
+            db_password = user[2]
+
+            # 🔹 PostgreSQLなどではbytes型の場合がある
+            if isinstance(db_password, bytes):
+                db_password = db_password.decode("utf-8")
+
+            print(f"DEBUG: DB Password = {repr(db_password)}")
+
+            # ✅ ハッシュ・平文対応チェック
+            login_success = False
+
+            try:
+                # 1️⃣ ハッシュ化パスワード（scrypt または pbkdf2）対応
+                if ":" in db_password:  # ← どちらの形式にも対応
+                    if check_password_hash(db_password, password):
+                        login_success = True
+                # 2️⃣ 平文対応
+                elif db_password == password:
+                    login_success = True
+            except Exception as e:
+                print(f"DEBUG: check_password_hash error: {e}")
+
+            # ❌ ログイン失敗時
+            if not login_success:
                 flash("パスワードが間違っています。", "error")
                 cur.close()
                 conn.close()
                 return render_template("index/login.html")
 
-            # ✅ ログイン成功時にセッションへ保存
+            # ✅ ログイン成功
             session["user_id"] = user[0]
             session["username"] = user[1]
 
-            # 🔹 MBTI診断済みかどうか確認
+            # 🔹 MBTI診断済みか確認
             cur.execute("SELECT 1 FROM user_mbti WHERE user_id = %s", (user[0],))
             mbti_result = cur.fetchone()
 
             cur.close()
             conn.close()
 
-            # ✅ 診断済みなら home へ / 未診断なら mbti ページへ
             if mbti_result:
                 flash("ログインに成功しました！", "success")
                 return redirect(url_for("home.home"))
@@ -80,10 +104,15 @@ def login():
                 return redirect(url_for("mbti.mbti"))
 
         except Exception as e:
+            if conn:
+                conn.close()
             flash(f"ログイン中にエラーが発生しました: {e}", "error")
             return render_template("index/login.html")
 
+    # GET時（フォーム表示）
     return render_template("index/login.html")
+
+
 
 
 # --- 新規登録ページ ---
@@ -138,14 +167,15 @@ def registration():
                 cur.close()
                 conn.close()
                 return render_template("index/registration.html")
-
+            # ハッシュ化
+            hashed_password = generate_password_hash(password)
             # --- 🔽 新規登録処理 ---
             cur.execute(
                 """
                 INSERT INTO users (u_name, gmail, password)
                 VALUES (%s, %s, %s)
                 """,
-                (username, email, password)
+                (username, email, hashed_password)
             )
             conn.commit()
 
@@ -166,3 +196,29 @@ def registration():
     # --- GETメソッド時（フォーム表示） ---
     return render_template("index/registration.html")
 
+@index_bp.route("/hash_passwords")
+def hash_passwords():
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+
+        # まだハッシュ化されていないユーザーを取得（仮にpasswordが平文と仮定）
+        cur.execute("SELECT u_id, password FROM users")
+        users = cur.fetchall()
+
+        updated = 0
+        for u_id, plain_pw in users:
+            # すでにハッシュ済みかどうか簡易判定（$pbkdf2が含まれているか）
+            if not plain_pw.startswith("pbkdf2:sha256"):
+                hashed_pw = generate_password_hash(plain_pw)
+                cur.execute("UPDATE users SET password = %s WHERE u_id = %s", (hashed_pw, u_id))
+                updated += 1
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return f"{updated}件のパスワードをハッシュ化しました。"
+
+    except Exception as e:
+        return f"エラー: {e}"
