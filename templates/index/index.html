@@ -134,106 +134,126 @@
     </main>
 
     <div x-show="modalOpen" 
-         x-transition:enter="ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-         style="display: none;">
+     x-transition:enter="ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md"
+     style="display: none;">
 
-        <div @click.away="modalOpen = ''" 
-             x-show="modalOpen"
-             x-transition:enter="ease-out duration-300"
-             x-transition:enter-start="opacity-0 scale-90"
-             x-transition:enter-end="opacity-100 scale-100"
-             x-transition:leave="ease-in duration-200"
-             x-transition:leave-start="opacity-100 scale-100"
-             x-transition:leave-end="opacity-0 scale-90"
-             class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md relative text-gray-800">
+  <!-- 🔽 モーダル本体（共通スタイル） -->
+  <div @click.away="modalOpen = ''" 
+       x-show="modalOpen"
+       x-transition:enter="ease-out duration-300"
+       x-transition:enter-start="opacity-0 scale-90"
+       x-transition:enter-end="opacity-100 scale-100"
+       x-transition:leave="ease-in duration-200"
+       x-transition:leave-start="opacity-100 scale-100"
+       x-transition:leave-end="opacity-0 scale-90"
+       class="relative w-full max-w-md p-8 rounded-2xl shadow-2xl border border-white/30 
+              bg-white/10 backdrop-blur-xl text-white">
 
-            <button @click="modalOpen = ''" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
+      <!-- ✖️ 閉じるボタン -->
+      <button @click="modalOpen = ''" 
+              class="absolute top-4 right-4 text-white hover:text-gray-200 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" 
+               viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+      </button>
 
-            <div x-show="modalOpen === 'register'">
-                <h2 class="text-2xl font-bold mb-6 text-center">新規登録</h2>
-                
-                <form action="{{ url_for('index.registration') }}" method="post">
-                  <div class="mb-5">
-                    <label for="username" class="block mb-2 text-sm font-medium text-[#31405F]">ユーザー名</label>
-                    <input type="text" name="username" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="ユーザー名" required maxlength="32">
-                  </div>
-                  <div class="mb-5">
-                    <label for="email" class="block mb-2 text-sm font-medium text-[#31405F]">メールアドレス</label>
-                    <input type="email" name="email" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="john.doe@company.com" required maxlength="64">
-                  </div>
-                  <div class="mb-5">
-                    <label for="password" class="block mb-2 text-sm font-medium text-[#31405F]">パスワード</label>
-                    <input type="password" name="password" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="パスワード" required maxlength="32">
-                  </div>
-                  <div class="mb-5">
-                    <label for="confirm_password" class="block mb-2 text-sm font-medium text-[#31405F]">パスワード（確認）</label>
-                    <input type="password" name="confirm_password" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="パスワード（確認）" required maxlength="32">
-                  </div>
-                  <button type="submit" id="submit-btn"
-                    class="w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200"
-                    style="background-color: #4F8C8C;"
-                    onmouseover="this.style.backgroundColor='#3E7676'"
-                    onmouseout="this.style.backgroundColor='#4F8C8C'">
-                    登録
-                  </button>
-                  <div class="mt-6 text-sm text-[#31405F] flex justify-between items-center">
-                    <a href="#" @click.prevent="modalOpen = ''" class="text-[#4F8C8C] font-medium hover:underline">
-                      &larr; 戻る
-                    </a>
-                    
-                    <span>
+      <!-- ✅ 新規登録 -->
+      <div x-show="modalOpen === 'register'">
+          <h2 class="text-2xl font-semibold mb-6 text-center tracking-widest">新規登録</h2>
+
+          <form action="{{ url_for('index.registration') }}" method="post" class="space-y-4">
+              <div>
+                  <label class="block mb-2 text-sm">ユーザー名</label>
+                  <input type="text" name="username"
+                         class="w-full bg-white/70 border border-white/40 text-gray-800 
+                                text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] 
+                                p-2.5 placeholder-gray-500"
+                         placeholder="ユーザー名" required maxlength="32">
+              </div>
+              <div>
+                  <label class="block mb-2 text-sm">メールアドレス</label>
+                  <input type="email" name="email"
+                         class="w-full bg-white/70 border border-white/40 text-gray-800 
+                                text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] 
+                                p-2.5 placeholder-gray-500"
+                         placeholder="john.doe@company.com" required maxlength="64">
+              </div>
+              <div>
+                  <label class="block mb-2 text-sm">パスワード</label>
+                  <input type="password" name="password"
+                         class="w-full bg-white/70 border border-white/40 text-gray-800 
+                                text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] 
+                                p-2.5" placeholder="パスワード" required maxlength="32">
+              </div>
+              <div>
+                  <label class="block mb-2 text-sm">パスワード（確認）</label>
+                  <input type="password" name="confirm_password"
+                         class="w-full bg-white/70 border border-white/40 text-gray-800 
+                                text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] 
+                                p-2.5" placeholder="パスワード（確認）" required maxlength="32">
+              </div>
+
+              <button type="submit"
+                      class="w-full bg-[#4F8C8C]/90 hover:bg-[#3E7676] text-white 
+                             font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                  登録
+              </button>
+
+              <div class="mt-6 text-sm flex justify-between items-center text-gray-100">
+                  <a href="#" @click.prevent="modalOpen = ''" class="hover:underline">&larr; 戻る</a>
+                  <span>
                       登録済みの方は
-                      <a href="#" @click.prevent="modalOpen = 'login'" class="text-[#4F8C8C] font-medium hover:underline">
-                        こちら
-                      </a>
-                    </span>
-                  </div>
-                </form>
+                      <a href="#" @click.prevent="modalOpen = 'login'" class="hover:underline">こちら</a>
+                  </span>
+              </div>
+          </form>
+      </div>
 
-            </div>
+      <!-- ✅ ログイン -->
+      <div x-show="modalOpen === 'login'">
+          <h2 class="text-2xl font-semibold mb-6 text-center tracking-widest">ログイン</h2>
 
-            <div x-show="modalOpen === 'login'">
-                <h2 class="text-2xl font-bold mb-6 text-center">ログイン</h2>
-                
-                <form action="{{ url_for('index.login') }}" method="post">
-                  <div class="mb-5">
-                    <label for="username" class="block mb-2 text-sm font-medium text-[#31405F]">ユーザー名</label>
-                    <input type="text" name="username" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="ユーザー名" required maxlength="32">
-                  </div>
-                  <div class="mb-5">
-                    <label for="password" class="block mb-2 text-sm font-medium text-[#31405F]">パスワード</label>
-                    <input type="password" name="password" class="bg-[#F6F5F3] border border-[#C7D8D3] text-[#2C3E50] text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] block w-full p-2.5" placeholder="パスワード" required maxlength="32">
-                  </div>
-                  <button type="submit" id="submit-btn" class="w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200" style="background-color: #4F8C8C;" onmouseover="this.style.backgroundColor='#3E7676'" onmouseout="this.style.backgroundColor='#4F8C8C'">
-                    ログイン </button>
-                  <div class="mt-6 text-sm text-[#31405F] flex justify-between items-center">
-                    
-                    <a href="#" @click.prevent="modalOpen = ''" class="text-[#4F8C8C] font-medium hover:underline">
-                      &larr; 戻る
-                    </a>
-                    
-                    <span>
+          <form action="{{ url_for('index.login') }}" method="post" class="space-y-4">
+              <div>
+                  <label class="block mb-2 text-sm">ユーザー名</label>
+                  <input type="text" name="username"
+                         class="w-full bg-white/70 border border-white/40 text-gray-800 
+                                text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] 
+                                p-2.5" placeholder="ユーザー名" required maxlength="32">
+              </div>
+              <div>
+                  <label class="block mb-2 text-sm">パスワード</label>
+                  <input type="password" name="password"
+                         class="w-full bg-white/70 border border-white/40 text-gray-800 
+                                text-sm rounded-lg focus:ring-[#4F8C8C] focus:border-[#4F8C8C] 
+                                p-2.5" placeholder="パスワード" required maxlength="32">
+              </div>
+
+              <button type="submit"
+                      class="w-full bg-[#4F8C8C]/90 hover:bg-[#3E7676] text-white 
+                             font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                  ログイン
+              </button>
+
+              <div class="mt-6 text-sm flex justify-between items-center text-gray-100">
+                  <a href="#" @click.prevent="modalOpen = ''" class="hover:underline">&larr; 戻る</a>
+                  <span>
                       アカウントをお持ちでない方は
-                      <a href="#" @click.prevent="modalOpen = 'register'" class="text-[#4F8C8C] font-medium hover:underline">
-                        こちら
-                      </a>
-                    </span>
-                  </div>
-                </form>
-            </div>
-
-        </div>
-    </div>
+                      <a href="#" @click.prevent="modalOpen = 'register'" class="hover:underline">こちら</a>
+                  </span>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
     <script>
         // メインビジュアルのスライダーを初期化
         var swiper = new Swiper(".mainVisualSwiper", {
