@@ -32,19 +32,20 @@ def setting():
 
     user_id = session["user_id"]
     conn = None
+
     try:
         conn = get_conn()
         cur = conn.cursor()
 
-        # --- usersテーブルから基本情報を取得 ---
-        cur.execute(
-            "SELECT u_id, u_name, gmail FROM users WHERE u_id = %s",
-            (user_id,)
-        )
+        # --- usersテーブルから基本情報 ---
+        cur.execute("""
+            SELECT u_id, u_name, gmail
+            FROM users
+            WHERE u_id = %s
+        """, (user_id,))
         user_data = cur.fetchone()
-        print("DEBUG: user_data =", user_data)
 
-        # --- user_mbtiテーブルから最新の診断結果を取得 ---
+        # --- user_mbtiテーブルから最新の診断結果 ---
         cur.execute("""
             SELECT code, name, description
             FROM user_mbti
@@ -53,9 +54,8 @@ def setting():
             LIMIT 1
         """, (user_id,))
         mbti_data = cur.fetchone()
-        print("DEBUG: mbti_data =", mbti_data)
 
-        # --- user_iconsテーブルから最新のアイコンを取得 ---
+        # --- user_iconsテーブルから最新のアイコン ---
         cur.execute("""
             SELECT icon_base64
             FROM user_icons
@@ -65,7 +65,7 @@ def setting():
         """, (user_id,))
         icon_data = cur.fetchone()
         icon_base64 = icon_data[0] if icon_data else None
-        print("DEBUG: icon_base64 =", icon_base64)
+
         # --- travel_requests と travel_plans を結合してユーザーの全プランを取得 ---
         cur.execute("""
             SELECT 
@@ -81,7 +81,7 @@ def setting():
                 tr.budget AS request_budget,
                 tr.must_visit,
                 tr.notes,
-                tp.id AS plan_id,
+                tp.id AS plan_id,                  -- ← travel_plans.id
                 tp.title,
                 tp.summary,
                 tp.budget_transport,
@@ -97,13 +97,15 @@ def setting():
             WHERE tr.user_id = %s
             ORDER BY tr.id DESC, tp.id DESC
         """, (user_id,))
+
         travel_rows = cur.fetchall()
 
-        # --- travel_plansをリスト形式に整形 ---
+        # --- travel_plans リスト整形 ---
         travel_plans = []
         for row in travel_rows:
-            if row[12]:  # plan_idが存在する場合のみ追加
+            if row[12]:  # plan_id が存在する場合のみ追加
                 travel_plans.append({
+                    "id": row[12],  # ← travel_plans.id
                     "request_id": row[0],
                     "trip_name": row[1],
                     "start_date": row[2],
@@ -116,7 +118,6 @@ def setting():
                     "request_budget": row[9],
                     "must_visit": row[10],
                     "notes": row[11],
-                    "id": row[12],
                     "title": row[13],
                     "summary": row[14],
                     "budget_transport": row[15],
@@ -127,17 +128,16 @@ def setting():
                     "total_budget": row[20],
                     "rationale": row[21],
                     "raw_response": row[22],
-                    # 表示用の簡易項目
-                    "destination": f"{row[4]} {row[5]} {row[6]}",  # region + prefecture + city
-                    "people_count": "未設定"  # 後で人数を追加可能
+                    "destination": f"{row[4]} {row[5]} {row[6]}",
                 })
 
-        print("DEBUG: travel_plans =", travel_plans)
+        # --- travel_plans が空でない場合、最初の1件を代表として渡す ---
+        plan = travel_plans[0] if travel_plans else None
 
         cur.close()
         conn.close()
 
-        # --- データまとめ ---
+        # --- テンプレートに渡すデータまとめ ---
         user_info = {
             "id": user_data[0],
             "name": user_data[1],
@@ -146,16 +146,15 @@ def setting():
             "mbti_name": mbti_data[1] if mbti_data else None,
             "mbti_description": mbti_data[2] if mbti_data else None,
             "icon_base64": icon_base64,
-            "travel_plans": travel_plans  # ←ここをループ用にリストで渡す
+            "travel_plans": travel_plans
         }
 
+        return render_template("setting/setting.html", user=user_info, plan=plan)
 
     except Exception as e:
         print("DEBUG: Exception =", e)
         flash(f"ユーザー情報の取得中にエラーが発生しました: {e}", "error")
         return redirect(url_for("home.home"))
-
-    return render_template("setting/setting.html", user=user_info)
 
 
 

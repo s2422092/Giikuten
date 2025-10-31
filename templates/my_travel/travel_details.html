@@ -110,7 +110,7 @@
 
 <header class="fixed top-0 left-0 w-full flex justify-between items-center p-4 shadow-md z-50 text-white border-b border-white/10"
         style="background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);">
-  <h1 class="text-2xl font-bold tracking-wide">旅行スケジュール</h1>
+  <h2 class="text-2xl font-semibold text-white">{{ plan.title }}</h2>
   <div class="flex items-center space-x-4">
     <a href="{{ url_for('home.information') }}"
       class="inline-flex items-center justify-center w-10 h-10 rounded-full
@@ -164,14 +164,11 @@
     <!-- 旅の概要 -->
     <div class="timeline-item page-card p-6">
       <h2 class="text-2xl font-semibold text-white">旅の概要</h2>
-      <p class="mt-2">
-        京都の伝統と四季を感じる3日間の癒し旅プラン。文化・自然・人との触れ合いを通じて「本物の京都」を体験します。
-      </p>
+      <p class="mt-2">{{ plan.summary }}</p>
       <ul class="list-disc list-inside mt-2 space-y-1 text-gray-100">
-        <li>期間：3日間（春・秋の観光シーズンに最適）</li>
-        <li>人数：2人（カップル・友人・親子旅行におすすめ）</li>
-        <li>予算：約65,000円 / 人（交通・宿泊・食事込み）</li>
-        <li>テーマ：癒し・文化体験・食の楽しみ</li>
+        <li><span class="font-semibold">地域:</span> {{ plan.region }} {{ plan.prefecture }} {{ plan.city }}</li>
+        <li>人数：{{ plan.people_count }}人</li>
+        <li>予算：{{ plan.total_budget }}円</li>
       </ul>
     </div>
 
