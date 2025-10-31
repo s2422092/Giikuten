@@ -118,11 +118,10 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
       {% for plan in user.travel_plans %}
-        <a href="{{ url_for('my_travel.travel_details', plan_id=plan.id) }}" class="block">
+        <a href="{{ url_for('my_travel.travel_details', plan_id=plan.id) }}" class="flex flex-col items-center hover:text-teal-300">
           <div class="travel-card rounded-2xl p-6 space-y-3 h-72 overflow-hidden">
             <h2 class="text-xl font-bold text-teal-200">{{ plan.title }}</h2>
-            <p><span class="font-semibold text-teal-100">旅行先:</span> {{ plan.destination }}</p>
-            <p><span class="font-semibold text-teal-100">人数:</span> {{ plan.people_count }}</p>
+            <p><span class="font-semibold text-teal-100">旅行先:</span> {{ plan.destination or '未設定' }}</p>
             <p><span class="font-semibold text-teal-100">予算:</span> {{ plan.total_budget }}円</p>
             <p class="text-gray-100 text-sm leading-relaxed">
               {{ plan.summary }}
@@ -133,6 +132,7 @@
         <p>旅行プランがまだ登録されていません。</p>
       {% endfor %}
     </div>
+
 
 
 </main>

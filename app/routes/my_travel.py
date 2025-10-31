@@ -56,20 +56,35 @@ def get_user_icon(user_id):
 
 
 
-@my_travel_bp.route("/travel_details")
-def travel_details():
-    if "user_id" not in session:
-        return redirect(url_for("index.login"))
 
-    user_id = session["user_id"]
-    username = session.get("username", "ゲスト")
-    user_icon = get_user_icon(user_id)  # ←ここでアイコン取得
+@my_travel_bp.route("/travel/<int:plan_id>")
+def travel_details(plan_id):
+    # DBから指定されたプランを取得
+    conn = get_conn()
+    cur = conn.cursor()
 
-    return render_template(
-        "my_travel/travel_details.html",
-        username=username,
-        user_icon=user_icon
-    )
+    cur.execute("""
+        SELECT id, title, destination, total_budget, summary
+        FROM travel_plans
+        WHERE id = %s AND user_id = %s
+    """, (plan_id, session["user_id"]))
+    plan = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if not plan:
+        return redirect(url_for("home.home"))
+
+    # plan を dict に変換（使いやすくするため）
+    plan_dict = {
+        "id": plan[0],
+        "title": plan[1],
+        "destination": plan[2],
+        "total_budget": plan[3],
+        "summary": plan[4],
+    }
+
+    return render_template("travel_details.html", plan=plan_dict)
 
 @my_travel_bp.route("/budget")
 def budget():
