@@ -83,60 +83,111 @@ def travel_schedule(plan_id):
     conn = get_conn()
     cur = conn.cursor()
 
-    # ✅ plan_id に該当する旅行プラン詳細を取得
+    # --- 旅行プラン情報 ---
     cur.execute("""
         SELECT 
-            tp.id,
-            tp.title,
-            tp.summary,
-            tp.total_budget,
-            tr.trip_name,
-            tr.start_date,
-            tr.end_date,
-            tr.region,
-            tr.prefecture,
-            tr.city,
-            tr.departure,
-            tr.transport_pref,
-            tr.budget,
-            tr.must_visit,
-            tr.notes
+            tp.id, tp.title, tp.summary, tp.total_budget,
+            tp.budget_transport, tp.budget_lodging, tp.budget_food, tp.budget_activities, tp.budget_other,
+            tr.trip_name, tr.start_date, tr.end_date, tr.region, tr.prefecture, tr.city, tr.departure, tr.transport_pref,
+            tr.must_visit, tr.notes
         FROM travel_plans tp
         JOIN travel_requests tr ON tp.request_id = tr.id
         WHERE tp.id = %s AND tr.user_id = %s
     """, (plan_id, user_id))
-
-    plan = cur.fetchone()
-    cur.close()
-    conn.close()
-
-    if not plan:
+    plan_row = cur.fetchone()
+    if not plan_row:
+        cur.close()
+        conn.close()
         return "指定された旅行プランが見つかりません。", 404
 
-    plan_data = {
-        "id": plan[0],
-        "title": plan[1],
-        "summary": plan[2],
-        "total_budget": plan[3],
-        "trip_name": plan[4],
-        "start_date": plan[5],
-        "end_date": plan[6],
-        "region": plan[7],
-        "prefecture": plan[8],
-        "city": plan[9],
-        "departure": plan[10],
-        "transport_pref": plan[11],
-        "budget": plan[12],
-        "must_visit": plan[13],
-        "notes": plan[14],
+    plan = {
+        "id": plan_row[0],
+        "title": plan_row[1],
+        "summary": plan_row[2],
+        "total_budget": plan_row[3],
+        "budget_transport": plan_row[4],
+        "budget_lodging": plan_row[5],
+        "budget_food": plan_row[6],
+        "budget_activities": plan_row[7],
+        "budget_other": plan_row[8],
+        "trip_name": plan_row[9],
+        "start_date": plan_row[10],
+        "end_date": plan_row[11],
+        "region": plan_row[12],
+        "prefecture": plan_row[13],
+        "city": plan_row[14],
+        "departure": plan_row[15],
+        "transport_pref": plan_row[16],
+        "must_visit": plan_row[17],
+        "notes": plan_row[18],
     }
+
+    # --- 1日ごとの行程 ---
+    cur.execute("""
+        SELECT id, day_number, theme, route_summary, total_time, estimated_cost
+        FROM day_plans
+        WHERE travel_plan_id = %s
+        ORDER BY day_number
+    """, (plan_id,))
+    day_plans_rows = cur.fetchall()
+
+    day_plans = []
+    for day in day_plans_rows:
+        day_id = day[0]
+        day_data = {
+            "id": day_id,
+            "day_number": day[1],
+            "theme": day[2],
+            "route_summary": day[3],
+            "total_time": day[4],
+            "estimated_cost": day[5],
+            "places": []
+        }
+
+        # --- その日の観光地・レストランなど ---
+        cur.execute("""
+            SELECT time, name, description, stay_time, access, map_url, cost_estimate, type
+            FROM places
+            WHERE day_plan_id = %s
+            ORDER BY time
+        """, (day_id,))
+        places_rows = cur.fetchall()
+        day_data["places"] = [
+            {
+                "time": p[0],
+                "name": p[1],
+                "description": p[2],
+                "stay_time": p[3],
+                "access": p[4],
+                "map_url": p[5],
+                "cost_estimate": p[6],
+                "type": p[7]
+            }
+            for p in places_rows
+        ]
+
+        day_plans.append(day_data)
+
+    # --- 予算情報 ---
+    cur.execute("""
+        SELECT category, amount, description
+        FROM budget_items
+        WHERE travel_plan_id = %s
+    """, (plan_id,))
+    budget_items = [{"category": b[0], "amount": b[1], "description": b[2]} for b in cur.fetchall()]
+
+    cur.close()
+    conn.close()
 
     return render_template(
         "my_travel/travel_schedule.html",
         username=username,
         user_icon=user_icon,
-        plan=plan_data
+        plan=plan,
+        day_plans=day_plans,
+        budget_items=budget_items
     )
+
 
 
 @my_travel_bp.route("/budget")
