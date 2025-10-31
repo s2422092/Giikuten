@@ -70,7 +70,6 @@ def travel_details():
         username=username,
         user_icon=user_icon
     )
-
 @my_travel_bp.route("/travel_schedule/<int:plan_id>")
 def travel_schedule(plan_id):
     if "user_id" not in session:
@@ -82,11 +81,12 @@ def travel_schedule(plan_id):
 
     conn = None
     cur = None
+
     try:
         conn = get_conn()
         cur = conn.cursor()
 
-        # --- 旅行プラン情報 ---
+        # --- 旅行プラン情報取得 ---
         cur.execute("""
             SELECT 
                 tp.id, tp.title, tp.summary, tp.total_budget,
@@ -97,6 +97,7 @@ def travel_schedule(plan_id):
             JOIN travel_requests tr ON tp.request_id = tr.id
             WHERE tp.id = %s AND tr.user_id = %s
         """, (plan_id, user_id))
+
         plan_row = cur.fetchone()
         if not plan_row:
             return "指定された旅行プランが見つかりません。", 404
@@ -123,7 +124,7 @@ def travel_schedule(plan_id):
             "notes": plan_row[18],
         }
 
-        # --- 1日ごとの行程 ---
+        # --- 日ごとの行程 ---
         cur.execute("""
             SELECT id, day_number, theme, route_summary, total_time, estimated_cost
             FROM day_plans
@@ -133,7 +134,6 @@ def travel_schedule(plan_id):
         day_plans_rows = cur.fetchall()
 
         day_plans = []
-        hotels = []  # places.type が hotel のものを格納
         for day_row in day_plans_rows:
             day_id = day_row[0]
             day_data = {
@@ -151,22 +151,17 @@ def travel_schedule(plan_id):
                 FROM places
                 WHERE day_plan_id = %s
                 ORDER BY 
-                    -- NULLや空文字のtimeを最後に送る
                     (CASE WHEN time IS NULL OR time = '' THEN 1 ELSE 0 END),
-                    -- "09:00"などの文字列を時刻として変換し、正しい時間順にソート
                     CASE 
                         WHEN time ~ '^[0-9]{1,2}:[0-9]{2}$' THEN to_timestamp(time, 'HH24:MI')
                         ELSE NULL
                     END ASC,
-                    -- それでも同じ時刻があればid順で安定ソート
                     id
             """, (day_id,))
-
             places_rows = cur.fetchall()
 
             for p in places_rows:
-                # p: (id, time, name, description, stay_time, access, map_url, cost_estimate, type)
-                place = {
+                day_data["places"].append({
                     "id": p[0],
                     "time": p[1] or "",
                     "name": p[2] or "",
@@ -174,25 +169,9 @@ def travel_schedule(plan_id):
                     "stay_time": p[4] or "",
                     "access": p[5] or "",
                     "map_url": p[6] or "",
-                    "cost_estimate": p[7] if p[7] is not None else None,
+                    "cost_estimate": p[7],
                     "type": p[8] or ""
-                }
-                day_data["places"].append(place)
-
-                # type が hotel 相当なら hotels に登録（小文字化して判定）
-                t = (p[8] or "").strip().lower()
-                if t in ("hotel", "宿泊", "ホテル", "lodging", "inn", "宿"):
-                    hotels.append({
-                        "id": p[0],
-                        "day_plan_id": day_id,
-                        "name": p[2] or "",
-                        "description": p[3] or "",
-                        "stay_time": p[4] or "",
-                        "access": p[5] or "",
-                        "map_url": p[6] or "",
-                        "cost_estimate": p[7] if p[7] is not None else None
-                    })
-
+                })
             day_plans.append(day_data)
 
         # --- 予算情報 ---
@@ -202,10 +181,65 @@ def travel_schedule(plan_id):
             WHERE travel_plan_id = %s
             ORDER BY id
         """, (plan_id,))
-        budget_items = [{"category": b[0], "amount": b[1], "description": b[2]} for b in cur.fetchall()]
+        budget_items = [
+            {"category": b[0], "amount": b[1], "description": b[2]}
+            for b in cur.fetchall()
+        ]
+
+        # ✅ 宿泊費に紐づくホテル情報を取得
+        cur.execute("""
+            SELECT p.name, p.cost_estimate
+            FROM places p
+            JOIN day_plans d ON p.day_plan_id = d.id
+            WHERE d.travel_plan_id = %s
+            AND LOWER(COALESCE(p.type, '')) IN ('hotel', '宿泊', 'lodging', 'inn', '旅館', '宿', 'ホテル')
+            ORDER BY p.id
+        """, (plan_id,))
+        hotel_rows = cur.fetchall()
+
+        # --- 宿泊費のカテゴリを探して統合 ---
+        lodging_info = []
+        if hotel_rows:
+            for name, cost in hotel_rows:
+                lodging_info.append({
+                    "hotel_name": name or "宿泊施設",
+                    "hotel_cost": cost if cost is not None else 0
+                })
+        else:
+            lodging_info.append({
+                "hotel_name": "宿泊施設情報なし",
+                "hotel_cost": 0
+            })
+
+        # --- 宿泊費カテゴリの統合 ---
+        new_budget_items = []
+        lodging_total = 0
+        for b in budget_items:
+            if b["category"] == "宿泊費":
+                b["lodging_details"] = lodging_info
+                lodging_total = sum(i["hotel_cost"] for i in lodging_info)
+                b["amount"] = lodging_total
+            new_budget_items.append(b)
+
+        # 宿泊費カテゴリが存在しなかった場合に追加
+        if not any(b["category"] == "宿泊費" for b in new_budget_items):
+            new_budget_items.append({
+                "category": "宿泊費",
+                "amount": sum(i["hotel_cost"] for i in lodging_info),
+                "description": "自動取得された宿泊費",
+                "lodging_details": lodging_info
+            })
+
+        # ✅ ターミナルに確認出力
+        print("===== 宿泊情報（travel_plan_id 経由） =====")
+        print(f"travel_plan_id = {plan_id}")
+        for b in new_budget_items:
+            if b["category"] == "宿泊費":
+                print(f"宿泊費合計: {b['amount']}円")
+                for l in b["lodging_details"]:
+                    print(f"  - {l['hotel_name']} ({l['hotel_cost']}円)")
 
     except Exception as e:
-        # デバッグ出力（開発時のみ）。本番ではログ出力に。
         print("ERROR in travel_schedule:", e)
         flash("旅行データの読み込み中にエラーが発生しました。", "error")
         return redirect(url_for("setting.setting"))
@@ -215,16 +249,15 @@ def travel_schedule(plan_id):
         if conn:
             conn.close()
 
-    # テンプレートに渡す。テンプレート側では day_plans, budget_items, hotels を期待している想定です。
     return render_template(
         "my_travel/travel_schedule.html",
         username=username,
         user_icon=user_icon,
         plan=plan,
         day_plans=day_plans,
-        budget_items=budget_items,
-        hotels=hotels
+        budget_items=new_budget_items
     )
+
 
 
 @my_travel_bp.route("/budget")
