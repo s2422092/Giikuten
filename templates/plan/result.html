@@ -166,9 +166,31 @@
 
 </nav>
 
- <p><a href="{{ url_for('plan.plan') }}">条件を変えて再提案</a></p>
-  <p><a href="{{ url_for('home.home') }}">ホームへ戻る</a></p>
+  <div class="flex gap-3 my-6 mb-28">
+    <!-- 保存ボタン -->
+    <form method="post" action="{{ url_for('plan.save_plan', plan_id=travel_plan_id) }}">
+      <button type="submit"
+        class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow">
+        この提案を保存
+      </button>
+    </form>
 
+    <!-- 同じ条件で再提案 -->
+    <a href="{{ url_for('plan.regenerate', request_id=request_id) }}"
+       class="px-4 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700 shadow">
+       同じ条件で再提案
+    </a>
+
+    <!-- 条件を変えて再提案 -->
+    <a href="{{ url_for('plan.plan') }}"
+       class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow">
+       条件を変えて再提案
+    </a>
+  </div>
+
+<nav class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
+  <p><a href="{{ url_for('home.home') }}">ホームへ戻る</a></p>
+</nav>
 
 </body>
 </html>

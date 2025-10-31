@@ -18,6 +18,7 @@ from dotenv import load_dotenv
 from app.user_icon import get_user_icon
 import json
 from typing import Dict, Any, Optional, List
+from flask import abort
 
 load_dotenv()
 
@@ -111,8 +112,8 @@ def insert_travel_plan_hierarchy(conn, request_id: int, plan: Dict[str, Any]) ->
             INSERT INTO travel_plans
               (request_id, title, summary,
                budget_transport, budget_lodging, budget_food, budget_activities, budget_other,
-               total_budget, overview, lodging_suggestions, return_trip, rationale, raw_response)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s::jsonb,%s::jsonb,%s::jsonb)
+               total_budget, overview, lodging_suggestions, return_trip, rationale, raw_response, saved)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s::jsonb,%s::jsonb,%s::jsonb,%s)
             RETURNING id
             """,
             (
@@ -130,6 +131,7 @@ def insert_travel_plan_hierarchy(conn, request_id: int, plan: Dict[str, Any]) ->
                 json.dumps(plan.get("return_trip", {}), ensure_ascii=False),
                 rationale_json,
                 raw_json,
+                False,
             ),
         )
         travel_plan_id = cur.fetchone()[0]
@@ -377,7 +379,7 @@ def plan():
         # 2) LLM実行
         plan_obj = generate_itinerary(user, req, mbti_info=mbti_info)
         # 3) 正規化保存
-        _ = insert_travel_plan_hierarchy(conn, request_id, plan_obj)
+        travel_plan_id = insert_travel_plan_hierarchy(conn, request_id, plan_obj)
         # テンプレで生JSONを見せたい場合に使う
         plan_json = json.dumps(plan_obj, ensure_ascii=False, indent=2)
         conn.close()
@@ -388,6 +390,8 @@ def plan():
             plan=plan_obj,
             plan_json=plan_json,  # テンプレで生JSONを見せたい場合に使用
             username=username,
+            travel_plan_id=travel_plan_id,
+            request_id=request_id,
         )
 
     except Exception as e:
@@ -400,3 +404,90 @@ def plan():
         print("=== /DEBUG ===")
         flash(f"提案生成に失敗しました: {type(e).__name__}: {e}", "error")
         return redirect(url_for("plan.plan"))
+
+
+@plan_bp.post("/save/<int:plan_id>")
+def save_plan(plan_id: int):
+    """提案を保存（saved=Trueに更新）"""
+    if "user_id" not in session:
+        flash("ログインしてください。", "warning")
+        return redirect(url_for("index.login"))
+
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE travel_plans SET saved = TRUE WHERE id = %s", (plan_id,)
+            )
+        conn.commit()
+        flash("この提案を保存しました。", "success")
+    finally:
+        conn.close()
+    return redirect(url_for("home.home"))
+
+
+def _fetch_travel_request(conn, request_id: int) -> Optional[Dict[str, Any]]:
+    """元のtravel_requestsを再取得して再提案に使う"""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT trip_name, start_date, end_date, region, prefecture, city,
+                   departure, transport_pref, budget, must_visit, notes
+            FROM travel_requests
+            WHERE id = %s
+            LIMIT 1
+            """,
+            (request_id,),
+        )
+        row = cur.fetchone()
+    if not row:
+        return None
+    keys = [
+        "trip_name",
+        "start_date",
+        "end_date",
+        "region",
+        "prefecture",
+        "city",
+        "departure",
+        "transport_pref",
+        "budget",
+        "must_visit",
+        "notes",
+    ]
+    return dict(zip(keys, row))
+
+
+@plan_bp.get("/regenerate/<int:request_id>")
+def regenerate(request_id: int):
+    """同じ条件で再提案"""
+    if "user_id" not in session:
+        flash("ログインしてください。", "warning")
+        return redirect(url_for("index.login"))
+
+    conn = get_conn()
+    try:
+        req = _fetch_travel_request(conn, request_id)
+        if not req:
+            flash("元のリクエストが見つかりません。", "error")
+            return redirect(url_for("home.home"))
+
+        mbti_info = fetch_user_mbti(conn, session["user_id"])
+        username = session.get("username", "ゲスト")
+        user = {"name": username, "mbti": (mbti_info or {}).get("code")}
+
+        plan_obj = generate_itinerary(user, req, mbti_info=mbti_info)
+        travel_plan_id = insert_travel_plan_hierarchy(conn, request_id, plan_obj)
+        plan_json = json.dumps(plan_obj, ensure_ascii=False, indent=2)
+        conn.commit()
+    finally:
+        conn.close()
+
+    return render_template(
+        "plan/result.html",
+        plan=plan_obj,
+        plan_json=plan_json,
+        username=session.get("username"),
+        travel_plan_id=travel_plan_id,
+        request_id=request_id,
+    )
