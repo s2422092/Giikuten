@@ -5,9 +5,76 @@
   <title>旅行タイプ診断（MBTI風）</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Tailwindにない最小限のカスタム（任意） */
-    body { font-family: "Noto Sans JP", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
-  </style>
+  body {
+    font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+    color: #f5f7fa !important;
+    background: url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80")
+      no-repeat center center fixed !important;
+    background-size: cover !important;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55) !important;
+    backdrop-filter: blur(6px) !important;
+    z-index: -1;
+  }
+
+  /* すべてのカード */
+  .bg-white, .border, .rounded-xl {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #f5f7fa !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(12px) !important;
+  }
+
+  /* 質問見出し */
+  h1, h2, p.font-semibold {
+    color: #b2f5ea !important;
+  }
+
+  /* label（選択肢） */
+  label {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #f5f7fa !important;
+    transition: background 0.25s, border 0.25s, transform 0.2s !important;
+  }
+
+  label:hover {
+    background: rgba(79, 140, 140, 0.25) !important;
+    border-color: rgba(79, 140, 140, 0.5) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  /* 選択されたラベル */
+  input[type="radio"]:checked + span {
+    color: #b2f5ea !important;
+    font-weight: 600 !important;
+  }
+
+  input[type="radio"] {
+    accent-color: #4F8C8C !important;
+  }
+
+  /* ボタン */
+  button {
+    background-color: #4F8C8C !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 10px !important;
+    transition: all 0.3s ease !important;
+  }
+
+  button:hover {
+    background-color: #3E7676 !important;
+    box-shadow: 0 4px 12px rgba(79, 140, 140, 0.4) !important;
+    transform: translateY(-2px) !important;
+  }
+</style>
 </head>
 <body class="bg-[#F6F5F3] text-[#2C3E50] leading-[1.7] m-0 p-0">
 
@@ -29,7 +96,7 @@
   </div>
 
   <div class="bg-white border border-[#E7DDD2] rounded-xl p-5 mt-4">
-    <h2 class="text-xl font-semibold">旅行タイプ診断（MBTI風・選択式）</h2>
+    <h2 class="text-xl font-semibold">旅行タイプ診断（選択式）</h2>
 
     <form method="POST" class="mt-4">
       <!-- 1. 旅行の目的 -->
