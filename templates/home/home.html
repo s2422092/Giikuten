@@ -3,16 +3,58 @@
 <head>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta charset="UTF-8">
-  <title>ホーム</title>
+  <title>ホーム | たびあい</title>
   <style>
     body {
-      background-color: #F6F5F3;
-      color: #2C3E50;
       font-family: "Noto Sans JP", sans-serif;
+      color: #f8fafc;
+      background: url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80")
+        no-repeat center center fixed;
+      background-size: cover;
     }
-    
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: -1;
+    }
+
+    h1, h2, h3 {
+      font-family: "Noto Serif JP", serif;
+    }
+    .dock {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
   </style>
 </head>
+<header class="fixed top-0 left-0 w-full flex justify-between items-center p-4 shadow-md z-50 text-white border-b border-white/10"
+        style="background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);">
+  <h1 class="text-2xl font-bold tracking-wide">ホーム</h1>
+  <div class="flex items-center space-x-4">
+    <a href="{{ url_for('home.information') }}"
+      class="inline-flex items-center justify-center w-10 h-10 rounded-full
+      bg-transparent hover:bg-white/30 text-white transition shadow-none"
+      aria-label="Information" title="Information">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"
+          class="w-6 h-6">
+          <circle cx="12" cy="12" r="9"/>
+          <line x1="12" y1="10" x2="12" y2="16"/>
+          <circle cx="12" cy="7" r="0.1"/>
+        </svg>
+    </a>
+    <a href="{{ url_for('setting.setting') }}">
+      <img src="{{ user_icon }}"
+           alt="User Icon"
+           class="w-8 h-8 rounded-full object-cover border-2 border-white cursor-pointer hover:scale-110 transition-transform duration-200" />
+    </a>
+  </div>
+</header>
 <body>
 
   <!-- エラー文の出力 -->
@@ -55,44 +97,23 @@
 
 </div>
 
-<div class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
-  <!-- 旅のタイムライン（Time Line） -->
-  <a href="{{ url_for('my_travel.travel_details') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'my_travel.travel_details' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
-    <svg class="w-5 h-5 {% if request.endpoint == 'my_travel.travel_details' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
-      <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<div class="dock fixed bottom-0 left-0 w-full border-t border-white/20 shadow-inner flex justify-around py-2 text-white">
+  <a href="{{ url_for('my_travel.travel_details') }}" class="flex flex-col items-center hover:text-teal-300">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
     </svg>
     <span class="text-xs mt-1">Time Line</span>
   </a>
-
-  <!-- ホームボタン（Home） -->
-  <a href="{{ url_for('home.home') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'home.home' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
-    <svg class="w-5 h-5 {% if request.endpoint == 'home.home' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <g fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="3 12 12 3 21 12" />
-        <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
-      </g>
+  <a href="{{ url_for('home.home') }}" class="flex flex-col items-center hover:text-teal-300">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="3 12 12 3 21 12"/><path d="M5 10v10h14V10"/>
     </svg>
     <span class="text-xs mt-1">Home</span>
   </a>
-
-  <!-- マイトラベル（My Travel） -->
-  <a href="{{ url_for('plan.plan') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'plan.plan' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 rounded-lg">
-    <svg
-  class="w-5 h-5 {% if request.endpoint == 'plan.plan' %}text-teal-600{% endif %}"
-  xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 24 24"
-  fill="none"
-  stroke="currentColor"
-  stroke-width="2"
-  stroke-linecap="round"
-  stroke-linejoin="round">
-  <line x1="12" y1="5" x2="12" y2="19" />
-  <line x1="5" y1="12" x2="19" y2="12" />
-</svg>
+  <a href="{{ url_for('plan.plan') }}" class="flex flex-col items-center hover:text-teal-300">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
     <span class="text-xs mt-1">Travel Plan</span>
   </a>
 </div>
