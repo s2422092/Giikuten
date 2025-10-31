@@ -90,7 +90,19 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
       </svg>
     </a>
-    <h1 class="text-lg font-bold text-teal-200">⚙️ 個人設定</h1>
+    <a href="{{ url_for('home.information') }}"
+      class="inline-flex items-center justify-center w-10 h-10 rounded-full
+      bg-transparent hover:bg-white/30 text-white transition shadow-none"
+      aria-label="Information" title="Information">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"
+          class="w-6 h-6">
+          <circle cx="12" cy="12" r="9"/>
+          <line x1="12" y1="10" x2="12" y2="16"/>
+          <circle cx="12" cy="7" r="0.1"/>
+        </svg>
+    </a>
   </header>
 
   <main class="max-w-lg mx-auto px-6 py-28">
@@ -126,7 +138,7 @@
     <form action="{{ url_for('setting.update_profile') }}" method="POST"
           class="glass-card rounded-2xl p-6 space-y-4">
 
-      <h3 class="text-lg font-bold text-teal-200 border-b border-white/30 pb-2">🔐 ユーザー情報</h3>
+      <h3 class="text-lg font-bold text-teal-200 border-b border-white/30 pb-2">ユーザー情報</h3>
 
       <div class="space-y-2">
         <label class="text-sm font-semibold">ユーザー名：</label>
@@ -157,23 +169,16 @@
 
       <div id="updateButtonContainer" class="pt-4 text-center hidden">
         <button type="submit" class="button-primary w-full text-white px-6 py-2 rounded-lg font-semibold">
-          💾 更新する
+          更新する
         </button>
       </div>
     </form>
 
-    <!-- 📄 リンクボタン -->
-    <div class="text-center mt-8 space-y-4">
-      <a href="{{ url_for('setting.setting') }}"
-         class="button-primary inline-block px-5 py-2 rounded-lg shadow">詳細設定を開く</a>
-      <a href="{{ url_for('home.information') }}"
-         class="button-gray inline-block px-5 py-2 rounded-lg">ℹ️ Information</a>
-    </div>
 
     <!-- 🚪 ログアウト -->
     <div class="text-center mt-10">
       <a href="{{ url_for('home.logout') }}"
-         class="button-red inline-block px-6 py-2 rounded-lg font-semibold">🚪 ログアウト</a>
+         class="button-red inline-block px-6 py-2 rounded-lg font-semibold">ログアウト</a>
     </div>
 
   </main>
