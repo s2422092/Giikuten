@@ -10,7 +10,7 @@
       plugins: [daisyui],
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=NotoSansJP:wght@400;600&family=NotoSerifJP:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: "Noto Sans JP", sans-serif;
@@ -238,6 +238,10 @@ textarea::placeholder {
           <option value="plane">飛行機優先</option>
           <option value="mixed">混在</option>
         </select>
+      </div>
+      <div class="mt-4 flex items-center gap-2">
+        <input id="suggest_final_lodging" type="checkbox" name="suggest_final_lodging" class="w-4 h-4">
+        <label for="suggest_final_lodging" class="text-sm">最終目的地周辺の<strong>具体的な宿</strong>も提案してほしい</label>
       </div>
     </fieldset>
 

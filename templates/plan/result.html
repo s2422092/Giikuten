@@ -35,7 +35,7 @@
         Day {{ day.day }}：{{ day.theme }}
       </h3>
       {% if day.route_summary %}
-        <p class="text-gray-600 text-sm mb-2">{{ day.route_summary }}</p>
+        <p class="text-gray-600 text-sm mb-2">🧭 ルート：{{ day.route_summary }}</p>
       {% endif %}
       <ul class="space-y-3">
         {% for place in day.places %}
@@ -45,17 +45,22 @@
                 {{ place.time }}
               </span>
               <span class="font-semibold">{{ place.name }}</span>
+              {% if place.type %}
+                <span class="ml-2 text-[11px] px-2 py-0.5 rounded-full border"
+                      title="カテゴリ">{{ place.type }}</span>
+              {% endif %}
             </div>
-            <p class="text-sm text-gray-700">{{ place.description }}</p>
+            <p class="text-sm text-gray-700 leading-6">{{ place.description }}</p>
             {% if place.fun_fact %}
               <p class="text-sm mt-1">
                 <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-800 border border-yellow-200">💡 豆知識</span>
                 <span class="text-gray-800">{{ place.fun_fact }}</span>
               </p>
             {% endif %}
-            <p class="text-xs text-gray-500 mt-1">
-              🚶 {{ place.access }} ｜ ⏱ {{ place.stay_time }}
-            </p>
+            <div class="text-xs text-gray-600 mt-2 space-y-1">
+              <p>🚶 移動：{{ place.access }}</p>
+              <p>⏱ 滞在目安：<span class="font-semibold">{{ place.stay_time }}</span></p>
+            </div>
             {% if place.map_url %}
               <a href="{{ place.map_url }}" target="_blank"
                  class="text-xs text-sky-600 hover:underline block mt-1">📍 地図を見る</a>
@@ -66,9 +71,25 @@
     </section>
   {% endfor %}
 
+  
+  {% if plan.lodging_suggestions and plan.lodging_suggestions|length > 0 %}
+    <h2 class="text-xl font-semibold mt-6 mb-2">🏨 宿の候補（エリア＋相場）</h2>
+    <ul class="bg-white p-4 rounded-lg shadow-sm list-disc ml-6 text-sm text-gray-800">
+      {% for s in plan.lodging_suggestions %}
+        <li>{{ s }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if plan.return_trip %}
+    <h2 class="text-xl font-semibold mt-6 mb-2">🚄 帰路</h2>
+    <p class="bg-white p-4 rounded-lg shadow-sm leading-7 text-sm text-gray-800">
+      {{ plan.return_trip.mode }} ｜ {{ plan.return_trip.from }} → {{ plan.return_trip.to }}（{{ plan.return_trip.duration }}）
+    </p>
+  {% endif %}
+
   <h2 class="text-xl font-semibold mt-6 mb-2">📝 旅の概要</h2>
   <p class="bg-white p-4 rounded-lg shadow-sm leading-7">{{ plan.overview }}</p>
-
   <nav class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
 
   <!-- 診断の詳細について（Test） -->
