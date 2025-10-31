@@ -33,7 +33,11 @@ def home():
     
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT mbti_type FROM user_mbti WHERE user_id = %s", (session["user_id"],))
+    cur.execute("""
+        SELECT code, name, description 
+        FROM user_mbti 
+        WHERE user_id = %s
+    """, (user_id,))
     mbti_result = cur.fetchone()
     cur.close()
     conn.close()
