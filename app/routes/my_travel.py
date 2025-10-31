@@ -56,8 +56,23 @@ def get_user_icon(user_id):
 
 
 
-@my_travel_bp.route("/travel_details/<int:plan_id>")
-def travel_details(plan_id):
+@my_travel_bp.route("/travel_details")
+def travel_details():
+    if "user_id" not in session:
+        return redirect(url_for("index.login"))
+
+    user_id = session["user_id"]
+    username = session.get("username", "ゲスト")
+    user_icon = get_user_icon(user_id)  # ←ここでアイコン取得
+
+    return render_template(
+        "my_travel/travel_details.html",
+        username=username,
+        user_icon=user_icon
+    )
+
+@my_travel_bp.route("/travel_schedule/<int:plan_id>")
+def travel_schedule(plan_id):
     if "user_id" not in session:
         return redirect(url_for("index.login"))
 
@@ -68,7 +83,7 @@ def travel_details(plan_id):
     conn = get_conn()
     cur = conn.cursor()
 
-    # ✅ travel_plans と travel_requests を結合して1件の詳細を取得
+    # ✅ plan_id に該当する旅行プラン詳細を取得
     cur.execute("""
         SELECT 
             tp.id,
@@ -98,7 +113,6 @@ def travel_details(plan_id):
     if not plan:
         return "指定された旅行プランが見つかりません。", 404
 
-    # ✅ データ整形
     plan_data = {
         "id": plan[0],
         "title": plan[1],
@@ -117,9 +131,8 @@ def travel_details(plan_id):
         "notes": plan[14],
     }
 
-    # ✅ テンプレートに渡す
     return render_template(
-        "my_travel/travel_details.html",
+        "my_travel/travel_schedule.html",
         username=username,
         user_icon=user_icon,
         plan=plan_data
