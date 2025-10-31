@@ -180,18 +180,21 @@ def travel_schedule(plan_id):
                 day_data["places"].append(place)
 
                 # type が hotel 相当なら hotels に登録（小文字化して判定）
+                # type が hotel 相当なら hotels に登録（小文字化して判定）
                 t = (p[8] or "").strip().lower()
                 if t in ("hotel", "宿泊", "ホテル", "lodging", "inn", "宿"):
                     hotels.append({
                         "id": p[0],
                         "day_plan_id": day_id,
-                        "name": p[2] or "",
+                        "name": p[2] or "",              # ← ホテル名
                         "description": p[3] or "",
                         "stay_time": p[4] or "",
                         "access": p[5] or "",
                         "map_url": p[6] or "",
-                        "cost_estimate": p[7] if p[7] is not None else None
+                        "cost_estimate": p[7] if p[7] is not None else None,
+                        "type": p[8] or ""               # ← type も含める（テンプレート側で条件分岐しやすくなる）
                     })
+
 
             day_plans.append(day_data)
 
