@@ -60,6 +60,9 @@
             <div class="text-xs text-gray-600 mt-2 space-y-1">
               <p>🚶 移動：{{ place.access }}</p>
               <p>⏱ 滞在目安：<span class="font-semibold">{{ place.stay_time }}</span></p>
+              {% if place.leave_time %}
+                <p>🏁 出発目安：<span class="font-semibold">{{ place.leave_time }}</span></p>
+              {% endif %}
             </div>
             {% if place.map_url %}
               <a href="{{ place.map_url }}" target="_blank"
@@ -71,14 +74,27 @@
     </section>
   {% endfor %}
 
-  
   {% if plan.lodging_suggestions and plan.lodging_suggestions|length > 0 %}
-    <h2 class="text-xl font-semibold mt-6 mb-2">🏨 宿の候補（エリア＋相場）</h2>
-    <ul class="bg-white p-4 rounded-lg shadow-sm list-disc ml-6 text-sm text-gray-800">
+    <h2 class="text-xl font-semibold mt-6 mb-2">🏨 宿の候補</h2>
+    <div class="bg-white p-4 rounded-lg shadow-sm text-sm text-gray-800 space-y-3">
       {% for s in plan.lodging_suggestions %}
-        <li>{{ s }}</li>
+        {% if s.name is defined %}
+          <div class="border rounded-md p-3">
+            <div class="font-semibold">{{ s.name }}</div>
+            <div class="text-gray-700">{{ s.address or '' }}</div>
+            <div class="text-gray-700">{{ s.area or '' }}</div>
+            <div class="text-gray-700">料金目安: {{ s.price_range or '—' }}</div>
+            <div class="text-gray-700">チェックイン: {{ s.checkin or '—' }} / チェックアウト: {{ s.checkout or '—' }}</div>
+            {% if s.phone %}<div class="text-gray-700">TEL: {{ s.phone }}</div>{% endif %}
+            {% if s.url %}
+              <a href="{{ s.url }}" target="_blank" class="text-xs text-sky-600 hover:underline">公式サイトを見る</a>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="border rounded-md p-3">{{ s }}</div>
+        {% endif %}
       {% endfor %}
-    </ul>
+    </div>
   {% endif %}
 
   {% if plan.return_trip %}

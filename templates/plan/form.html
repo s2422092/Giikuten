@@ -203,6 +203,18 @@ textarea::placeholder {
         </select>
         <span class="text-sm text-gray-500">未選択のままでOK（LLMが提案）</span>
       </div>
+
+      <div id="nearby-checkbox-wrapper" class="mt-4 hidden">
+        <label class="inline-flex items-center space-x-2">
+          <input type="checkbox" name="suggest_nearby" id="suggest_nearby"
+                 class="w-4 h-4 rounded border-gray-300 focus:ring-emerald-500">
+          <span class="text-sm text-white">選択地域の近隣観光地も提案してほしい</span>
+        </label>
+        <p class="text-xs text-gray-500 mt-1">
+          ※2日以上の旅行時のみ有効。<br>
+          例：嵐山を選択 → 2日目に東山など近隣エリアも含めて提案。
+        </p>
+      </div>
     </fieldset>
 
     <!-- 絶対に行きたい場所 -->
@@ -247,8 +259,7 @@ textarea::placeholder {
 
     <!-- 送信ボタン -->
     <button type="submit"
-      class="bg-emerald-600/70 hover:bg-emerald-700/80 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-all duration-200"
-          onclick="history.back()">
+      class="bg-emerald-600/70 hover:bg-emerald-700/80 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-all duration-200">
       決定
     </button>
   </form>
@@ -277,5 +288,31 @@ textarea::placeholder {
 </div>
 
 <script src="{{ url_for('static', filename='js/geo.js') }}"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const startInput = document.querySelector("input[name='start_date']");
+  const endInput = document.querySelector("input[name='end_date']");
+  const citySelect = document.getElementById("city-select");
+  const nearbyBox = document.getElementById("nearby-checkbox-wrapper");
+
+  function checkShowNearby() {
+    const start = new Date(startInput.value);
+    const end = new Date(endInput.value);
+    const days = (end - start) / (1000 * 60 * 60 * 24) + 1;
+    const cityChosen = citySelect.value.trim() !== "";
+
+    if (days >= 2 && cityChosen) {
+      nearbyBox.classList.remove("hidden");
+    } else {
+      nearbyBox.classList.add("hidden");
+    }
+  }
+
+  startInput.addEventListener("change", checkShowNearby);
+  endInput.addEventListener("change", checkShowNearby);
+  citySelect.addEventListener("change", checkShowNearby);
+});
+</script>
 </body>
 </html>

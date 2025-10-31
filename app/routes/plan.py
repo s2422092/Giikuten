@@ -40,12 +40,21 @@ def get_conn():
     return psycopg2.connect(**DB_CONFIG)
 
 
-def fetch_mbti_info(conn, mbti_code: str) -> Optional[Dict[str, Any]]:
-    """mbti テーブルからタイプの説明などを取得"""
+def fetch_user_mbti(conn, user_id: int) -> Optional[Dict[str, Any]]:
+    """
+    user_mbti テーブルから当該ユーザーの最新タイプを取得。
+    返却: {"code": str, "name": str, "description": str}
+    """
     with conn.cursor() as cur:
         cur.execute(
-            "SELECT code, name, description FROM mbti WHERE code = %s LIMIT 1",
-            (mbti_code,),
+            """
+            SELECT code, name, description
+            FROM user_mbti
+            WHERE user_id = %s
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (user_id,),
         )
         row = cur.fetchone()
     if not row:
@@ -59,7 +68,7 @@ def insert_travel_request(conn, user_id: int, req: Dict[str, Any]) -> int:
         cur.execute(
             """
             INSERT INTO travel_requests
-            　(user_id, trip_name, start_date, end_date, region, prefecture, city,
+              (user_id, trip_name, start_date, end_date, region, prefecture, city,
                departure, transport_pref, budget, must_visit, notes, suggest_final_lodging)
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             RETURNING id
@@ -163,8 +172,9 @@ def insert_travel_plan_hierarchy(conn, request_id: int, plan: Dict[str, Any]) ->
                 cur.execute(
                     """
                     INSERT INTO places
-                      (day_plan_id, time, name, description, stay_time, access, map_url, cost_estimate, type, fun_fact)
-                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                      (day_plan_id, time, name, description, stay_time, access, map_url,
+                       cost_estimate, type, fun_fact, leave_time)
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                     """,
                     (
                         day_id,
@@ -177,23 +187,21 @@ def insert_travel_plan_hierarchy(conn, request_id: int, plan: Dict[str, Any]) ->
                         p.get("cost_estimate"),
                         p.get("type"),
                         p.get("fun_fact"),
+                        p.get("leave_time"),
                     ),
                 )
     conn.commit()
     return travel_plan_id
 
 
-def get_latest_mbti(user_id: int) -> str | None:
+def get_latest_mbti_code(user_id: int) -> Optional[str]:
+    """互換用：最新のMBTIコードだけ欲しい場合に使用"""
     conn = get_conn()
-    cur = conn.cursor()
-    cur.execute(
-        "SELECT mbti_type FROM user_mbti WHERE user_id = %s ORDER BY id DESC LIMIT 1",
-        (user_id,),
-    )
-    row = cur.fetchone()
-    cur.close()
-    conn.close()
-    return row[0] if row else None
+    try:
+        info = fetch_user_mbti(conn, user_id)
+        return info["code"] if info else None
+    finally:
+        conn.close()
 
 
 # ---------- ここから 3階層セレクト用API ----------
@@ -278,15 +286,20 @@ def plan():
         return redirect(url_for("index.login"))
 
     username = session.get("username", "ゲスト")
-    mbti_type = session.get("mbti_type")
     user_icon = get_user_icon(session["user_id"])  # ←ここでアイコン取得
-    if not mbti_type:
-        mbti_type = get_latest_mbti(session["user_id"]) or "バランスタイプ"
-        session["mbti_type"] = mbti_type
+    # 最新のMBTI情報を取得（なければデフォルト）
+    conn_for_mbti = get_conn()
+    try:
+        mbti_info = fetch_user_mbti(conn_for_mbti, session["user_id"])
+    finally:
+        conn_for_mbti.close()
+    # 表示・後続のためにコード文字列をセッションへ
+    mbti_code = (mbti_info or {}).get("code") or "バランスタイプ"
+    session["mbti_type"] = mbti_code
 
     if request.method == "GET":
         return render_template(
-            "plan/form.html", username=username, mbti=mbti_type, user_icon=user_icon
+            "plan/form.html", username=username, mbti=mbti_code, user_icon=user_icon
         )
 
     # --- POST: 旅行条件  場所選択を受け取り LLM 提案 ---
@@ -302,6 +315,7 @@ def plan():
         departure = request.form.get("departure", "").strip() or None
         transport_pref = request.form.get("transport_pref", "auto").strip() or "auto"
         suggest_final_lodging = bool(request.form.get("suggest_final_lodging"))
+        suggest_nearby = bool(request.form.get("suggest_nearby"))
 
         # 場所（3階層）
         region = request.form.get("region", "").strip()
@@ -337,7 +351,7 @@ def plan():
         # 既存LLMサービスが "area" を見る想定があるため、見栄えのラベルも作る
         area_label = " / ".join([p for p in [region, prefecture, city] if p])
 
-        user = {"name": username, "mbti": mbti_type}
+        user = {"name": username, "mbti": mbti_code}
         req = {
             "trip_name": trip_name,
             "start_date": start_date,
@@ -353,12 +367,11 @@ def plan():
             "transport_pref": transport_pref,
             "area": area_label,
             "suggest_final_lodging": suggest_final_lodging,
+            "suggest_nearby": suggest_nearby,
         }
 
         # DB接続開始
         conn = get_conn()
-        # MBTI説明をプロンプトに添付
-        mbti_info = fetch_mbti_info(conn, mbti_type) if mbti_type else None
         # 1) リクエスト保存
         request_id = insert_travel_request(conn, session["user_id"], req)
         # 2) LLM実行
