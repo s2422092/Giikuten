@@ -117,21 +117,22 @@
   <h2 class="text-2xl font-bold text-teal-100 mb-6 text-center">あなたの旅行プラン一覧</h2>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-      {% for plan in user.travel_plans %}
-        <a href="{{ url_for('my_travel.travel_details', plan_id=plan.id) }}" class="block">
+    {% for plan in user.travel_plans %}
+      {% if plan.id %}
+        <a href="{{ url_for('my_travel.travel_schedule', plan_id=plan.id) }}" class="block">
           <div class="travel-card rounded-2xl p-6 space-y-3 h-72 overflow-hidden">
             <h2 class="text-xl font-bold text-teal-200">{{ plan.title }}</h2>
             <p><span class="font-semibold text-teal-100">旅行先:</span> {{ plan.destination }}</p>
             <p><span class="font-semibold text-teal-100">人数:</span> {{ plan.people_count }}</p>
             <p><span class="font-semibold text-teal-100">予算:</span> {{ plan.total_budget }}円</p>
-            <p class="text-gray-100 text-sm leading-relaxed">
-              {{ plan.summary }}
-            </p>
+            <p class="text-gray-100 text-sm leading-relaxed">{{ plan.summary }}</p>
           </div>
         </a>
-      {% else %}
-        <p>旅行プランがまだ登録されていません。</p>
-      {% endfor %}
+      {% endif %}
+    {% else %}
+      <p>旅行プランがまだ登録されていません。</p>
+    {% endfor %}
+
     </div>
 
 
@@ -139,7 +140,7 @@
 
 <!-- 🌊 Dockナビ -->
 <div class="dock fixed bottom-0 left-0 w-full border-t border-white/20 shadow-inner flex justify-around py-2">
-  <a href="{{ url_for('my_travel.travel_details') }}" class="flex flex-col items-center hover:text-teal-300">
+  <a  class="flex flex-col items-center hover:text-teal-300">
     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
     </svg>

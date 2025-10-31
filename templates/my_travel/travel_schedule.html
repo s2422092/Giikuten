@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>旅行スケジュール | たびあい</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: "Noto Sans JP", sans-serif;
+      color: #f8fafc;
+      background: url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80")
+        no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: -1;
+    }
+
+    h1, h2, h3 {
+      font-family: "Noto Serif JP", serif;
+    }
+
+    .page-card {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      border-radius: 20px;
+      margin: 20px 0;
+    }
+
+    .page-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .timeline {
+      border-left: none;
+    }
+
+    .timeline-item::before {
+      background: #4F8C8C;
+      box-shadow: 0 0 0 4px rgba(79, 140, 140, 0.3);
+    }
+
+    .detail {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-left: 3px solid #4F8C8C;
+      backdrop-filter: blur(5px);
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .place-toggle {
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .place-toggle:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .time-badge {
+      background-color: rgba(255, 255, 255, 0.3);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      margin-right: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .dock {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .tab-link {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .tab-link:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    header {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+
+<body class="pb-28">
+
+<header class="fixed top-0 left-0 w-full flex justify-between items-center p-4 shadow-md z-50 text-white border-b border-white/10"
+        style="background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);">
+    <a href="{{ url_for('setting.setting') }}"
+       class="hover:text-teal-200 transition"
+       title="ホームへ戻る">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+    </a>
+
+    <h1 class="text-2xl font-bold tracking-wide">{{ plan.trip_name }} スケジュール</h1>
+    <div class="flex items-center space-x-4">
+    <a href="{{ url_for('home.information') }}"
+      class="inline-flex items-center justify-center w-10 h-10 rounded-full
+      bg-transparent hover:bg-white/30 text-white transition shadow-none"
+      aria-label="Information" title="Information">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"
+          class="w-6 h-6">
+          <circle cx="12" cy="12" r="9"/>
+          <line x1="12" y1="10" x2="12" y2="16"/>
+          <circle cx="12" cy="7" r="0.1"/>
+        </svg>
+    </a>
+    <a href="{{ url_for('setting.setting') }}">
+      <img src="{{ user_icon }}"
+           alt="User Icon"
+           class="w-8 h-8 rounded-full object-cover border-2 border-white cursor-pointer hover:scale-110 transition-transform duration-200" />
+    </a>
+  </div>
+</header>
+
+<!-- ✅ ヘッダー直下タブ -->
+<div class="fixed top-[72px] left-0 w-full flex z-40 border-b border-white/10 bg-neutral-900">
+  <a href="{{ url_for('my_travel.travel_details') }}"
+     class="w-1/2 text-center py-2 text-base font-medium transition-all duration-200
+            {% if request.endpoint == 'my_travel.travel_details' %}
+              bg-white/20 text-white
+            {% else %}
+              bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:text-white
+            {% endif %}">
+    スケジュール
+  </a>
+
+  <a href="{{ url_for('my_travel.budget') }}"
+     class="w-1/2 text-center py-2 text-base font-medium transition-all duration-200
+            {% if request.endpoint == 'my_travel.budget' %}
+              bg-white/20 text-white
+            {% else %}
+              bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:text-white
+            {% endif %}">
+    予算詳細
+  </a>
+</div>
+
+
+  
+<!-- メイン -->
+<main class="max-w-4xl mx-auto pt-32 pb-28 px-6 grid md:grid-cols-3 gap-8 ">
+  <!-- タイムライン -->
+  <section class="md:col-span-2 timeline">
+        <!-- 旅の概要 -->
+    <div class="timeline-item page-card p-6">
+      <h2 class="text-2xl font-semibold text-white">{{ plan.title }}</h2>
+      <p class="mt-2 text-gray-100">{{ plan.summary }}</p>
+
+      <ul class="list-disc list-inside mt-2 space-y-1 text-gray-100">
+        <li><span class="font-semibold">旅行名：</span>{{ plan.trip_name }}</li>
+        <li><span class="font-semibold">期間：</span>{{ plan.start_date }} ～ {{ plan.end_date }}</li>
+        <li><span class="font-semibold">地域：</span>{{ plan.region }} {{ plan.prefecture }} {{ plan.city }}</li>
+        <li><span class="font-semibold">出発地：</span>{{ plan.departure }}</li>
+        <li><span class="font-semibold">交通手段：</span>{{ plan.transport_pref }}</li>
+        <li><span class="font-semibold">予算：</span>{{ plan.total_budget }}円</li>
+        <li><span class="font-semibold">絶対に行きたい場所：</span>{{ plan.must_visit }}</li>
+        <li><span class="font-semibold">メモ：</span>{{ plan.notes }}</li>
+      </ul>
+    </div>
+    
+    {% for day in day_plans %}
+      <div class="timeline-item page-card p-6">
+        <h2 class="text-2xl font-semibold mb-2 text-white">
+          {{ day.day_number }}日目: {{ day.theme }}
+        </h2>
+        <p class="text-sm mb-3 text-gray-100">{{ day.route_summary }}</p>
+
+        <ul class="space-y-3">
+          {% for place in day.places %}
+            <li class="place-toggle p-3 border rounded-lg">
+              <h3><span class="time-badge">{{ place.time }}</span>{{ place.name }}</h3>
+              <p class="text-sm text-gray-200">{{ place.description }}</p>
+              <div class="detail">
+                {% if place.stay_time %}<p><b>滞在時間：</b>{{ place.stay_time }}</p>{% endif %}
+                {% if place.access %}<p><b>アクセス：</b>{{ place.access }}</p>{% endif %}
+                {% if place.cost_estimate %}<p><b>料金目安：</b>{{ place.cost_estimate }}円</p>{% endif %}
+                {% if place.map_url %}<a href="{{ place.map_url }}" target="_blank" class="text-teal-300 hover:underline">地図を見る</a>{% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+
+  </section>
+
+  <aside class="hidden md:block sticky top-32 h-fit space-y-6">
+    <div class="page-card p-6">
+      <h3 class="text-lg font-semibold mb-4 text-white">宿泊情報</h3>
+      <p class="text-sm text-gray-100">
+        {% for item in budget_items if item.category == "宿泊費" %}
+          {{ item.description }}<br>
+          {{ item.amount }}円
+        {% endfor %}
+      </p>
+    </div>
+
+    <div class="page-card p-6">
+      <h3 class="text-lg font-semibold mb-3 text-white">予算概要</h3>
+      <ul class="text-sm text-gray-100 space-y-1">
+        {% for item in budget_items %}
+          <li>{{ item.category }}: {{ item.amount }}円</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+</main>
+
+
+
+
+<script>
+  document.querySelectorAll('.place-toggle').forEach(item => {
+    item.addEventListener('click', () => {
+      const detail = item.querySelector('.detail');
+      detail.style.display = (detail.style.display === 'block') ? 'none' : 'block';
+    });
+  });
+</script>
+
+</body>
+</html>
