@@ -23,6 +23,7 @@ class Place(BaseModel):
     cost_estimate: Optional[int] = None
     type: Optional[str] = None
     fun_fact: Optional[str] = None
+    leave_time: Optional[str] = None
 
 
 class DayPlan(BaseModel):
@@ -40,13 +41,33 @@ class Budget(BaseModel):
     other: int
 
 
+class LodgingSuggestion(BaseModel):
+    name: str  # 宿名（例: ホテル名・旅館名）
+    area: Optional[str] = None  # エリア（例: 京都駅周辺 / 嵐山）
+    address: Optional[str] = None  # 住所
+    nearest_station: Optional[str] = None  # 最寄駅（例: JR京都駅）
+    access: Optional[str] = None  # 最寄からのアクセス（徒歩●分／バス●分など）
+    price_per_night: Optional[str] = None  # 1泊あたりの目安（例: 8,000〜12,000円/室）
+    room_type: Optional[str] = None  # シングル/ツイン/和室など
+    capacity: Optional[int] = None  # 定員
+    breakfast_included: Optional[bool] = None
+    cancellation_policy: Optional[str] = None
+    checkin: Optional[str] = None
+    checkout: Optional[str] = None
+    phone: Optional[str] = None
+    url: Optional[str] = None
+    pros: Optional[List[str]] = None  # 良い点
+    cons: Optional[List[str]] = None  # 留意点
+    selection_reason: Optional[str] = None  # この宿を選んだ理由
+
+
 class Plan(BaseModel):
     title: str
     summary: str
     budget_breakdown: Budget
     daily_plan: List[DayPlan]
     overview: str
-    lodging_suggestions: Optional[List[str]] = None
+    lodging_suggestions: Optional[List[LodgingSuggestion]] = None
     return_trip: Optional[Dict[str, Any]] = None
     rationale: List[str] = []
     raw_response: Dict[str, Any] | None = None
@@ -98,6 +119,7 @@ trip_request:
   budget_jpy: {req.get('budget')}
   notes:      {req.get('notes','')}
 must_visit: {req.get('must_visit','')}
+suggest_nearby: {req.get('suggest_nearby', False)}
 """
 
     # --- FORMAT PROMPT（スキーマ＋制約） ---
@@ -109,6 +131,8 @@ must_visit: {req.get('must_visit','')}
         "- 各timeは24時間表記（例: '9:00', '13:30'）。\n"
         "- accessには具体的な交通手段（徒歩・バス・電車・新幹線など）と**移動所要時間**を必ず含める。\n"
         "- stay_timeには**滞在時間の目安**を必ず記載（例: '90分', '2時間'）。\n"
+        "- 各スポットには **leave_time**（出発目安時刻）を追加し、timestay_timeから算出する。\n"
+        "- 宿泊施設は、name・address・最寄駅・アクセス・1泊料金・チェックイン/アウトなどの具体情報を含むこと。\n"
         "- 各dayには3〜5スポットを含む。\n"
         "- 各themeは1文で当日の目的・雰囲気を表現。\n"
         "- 出発地（departure）や transport_pref がある場合は出来る限り尊重。\n"
@@ -119,7 +143,21 @@ must_visit: {req.get('must_visit','')}
         "- 各スポットには 'fun_fact'（豆知識）を1文で付与（歴史・雑学・季節情報など）。\n"
         "- **帰路は必ず含める**。往路と同一手段を優先するが、transport_prefや距離/所要時間を考慮して最適化してよい。\n"
         "- 帰路の概要は 'return_trip' に JSON で格納（例: {'mode':'新幹線','from':'京都駅','to':'東京駅','duration':'約2時間20分'}）。\n"
-        "- 宿について：req.suggest_final_lodging が true の場合は、最終日の目的地周辺に type:'lodging' のスポットを1つ含める。false の場合は lodging_suggestions にエリア＋相場の配列のみ出力し、日程には宿スポットを含めない。\n"
+        "- 宿について：\n"
+        "  - req.suggest_final_lodging が true の場合：最終日の目的地周辺に type:'lodging' のスポットを1つ含める。\n"
+        "  - lodging_suggestions には以下フィールドを持つオブジェクト配列を出力：\n"
+        "    [{\n"
+        "      name, area, address, nearest_station, access,\n"
+        "      price_per_night, room_type, capacity, breakfast_included,\n"
+        "      cancellation_policy, url, phone, checkin, checkout,\n"
+        "      pros, cons, selection_reason\n"
+        "    }]\n"
+        "  - 価格は日本円の範囲表記可（例: '8,000〜12,000円/室'）。\n"
+        "  - チェックイン/アウト時刻は日程（daily_plan）の最終/初回スポット時間と整合を取る。\n"
+        "  - req.suggest_final_lodging が false の場合も、概要として2〜3件は出力する。\n"
+        "- req.suggest_nearby が true の場合：\n"
+        "  選択地域（例: 京都市右京区嵐山など）を主軸としつつ、2日目以降は現実的に日帰り可能な**近隣エリア**（例: 東山・祇園など）も含める。\n"
+        "  ただし長距離移動は避け、滞在時間が十分確保できる距離に限定する。\n"
         "- 出力例:\n"
         "{\n"
         '  "title": "京都3日間の癒し旅",\n'
@@ -134,7 +172,19 @@ must_visit: {req.get('must_visit','')}
         "    ...\n"
         "  ],\n"
         '  "overview": "朝は新幹線で京都へ。混雑前に東山エリアを回り、午後は祇園でゆったり。翌日は嵐山で自然散策中心に配分。",\n'
-        '  "lodging_suggestions": ["京都駅周辺 / ビジネスホテル 7,000〜10,000円"],\n'
+        '  "lodging_suggestions": [\n'
+        "    {\n"
+        '      "name":"ホテル京の風", "area":"京都駅周辺", "address":"京都市下京区…",\n'
+        '      "nearest_station":"JR京都駅", "access":"京都駅から徒歩6分",\n'
+        '      "price_per_night":"8,000〜12,000円/室", "room_type":"ツイン", "capacity":2,\n'
+        '      "breakfast_included": true, "cancellation_policy":"前日まで無料/当日100%",\n'
+        '      "url":"https://example.com", "phone":"075-xxx-xxxx",\n'
+        '      "checkin":"15:00", "checkout":"10:00",\n'
+        '      "pros":["駅近で移動が楽","観光拠点に最適"],\n'
+        '      "cons":["繁華街に近く夜はやや騒がしい"],\n'
+        '      "selection_reason":"京都駅ベースで動く本プランと相性がよいため"\n'
+        "    }\n"
+        "  ],\n"
         '  "return_trip": {"mode": "新幹線", "from": "京都駅", "to": "東京駅", "duration": "約2時間20分"},\n'
         '  "rationale": ["混雑回避のため朝活重視","徒歩圏内で移動負担軽減"]\n'
         "}\n"
