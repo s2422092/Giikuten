@@ -59,9 +59,9 @@ def insert_travel_request(conn, user_id: int, req: Dict[str, Any]) -> int:
         cur.execute(
             """
             INSERT INTO travel_requests
-              (user_id, trip_name, start_date, end_date, region, prefecture, city,
-               departure, transport_pref, budget, must_visit, notes)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            　(user_id, trip_name, start_date, end_date, region, prefecture, city,
+               departure, transport_pref, budget, must_visit, notes, suggest_final_lodging)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             RETURNING id
             """,
             (
@@ -77,6 +77,7 @@ def insert_travel_request(conn, user_id: int, req: Dict[str, Any]) -> int:
                 req.get("budget"),
                 req.get("must_visit"),
                 req.get("notes"),
+                bool(req.get("suggest_final_lodging", False)),
             ),
         )
         rid = cur.fetchone()[0]
@@ -101,8 +102,8 @@ def insert_travel_plan_hierarchy(conn, request_id: int, plan: Dict[str, Any]) ->
             INSERT INTO travel_plans
               (request_id, title, summary,
                budget_transport, budget_lodging, budget_food, budget_activities, budget_other,
-               total_budget, overview, rationale, raw_response)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s::jsonb)
+               total_budget, overview, lodging_suggestions, return_trip, rationale, raw_response)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s::jsonb,%s::jsonb,%s::jsonb)
             RETURNING id
             """,
             (
@@ -116,6 +117,8 @@ def insert_travel_plan_hierarchy(conn, request_id: int, plan: Dict[str, Any]) ->
                 int(bd.get("other", 0) or 0),
                 int(total_budget),
                 plan.get("overview"),
+                json.dumps(plan.get("lodging_suggestions", []), ensure_ascii=False),
+                json.dumps(plan.get("return_trip", {}), ensure_ascii=False),
                 rationale_json,
                 raw_json,
             ),
@@ -298,6 +301,7 @@ def plan():
         must_visit = request.form.get("must_visit", "").strip()
         departure = request.form.get("departure", "").strip() or None
         transport_pref = request.form.get("transport_pref", "auto").strip() or "auto"
+        suggest_final_lodging = bool(request.form.get("suggest_final_lodging"))
 
         # 場所（3階層）
         region = request.form.get("region", "").strip()
@@ -348,6 +352,7 @@ def plan():
             "departure": departure,
             "transport_pref": transport_pref,
             "area": area_label,
+            "suggest_final_lodging": suggest_final_lodging,
         }
 
         # DB接続開始
