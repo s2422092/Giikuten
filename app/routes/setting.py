@@ -23,6 +23,7 @@ DB_CONFIG = {
 def get_conn():
     return psycopg2.connect(**DB_CONFIG)
 
+
 @setting_bp.route("/setting")
 def setting():
     # --- ログインチェック ---
@@ -41,40 +42,100 @@ def setting():
             (user_id,)
         )
         user_data = cur.fetchone()
+        print("DEBUG: user_data =", user_data)
 
         # --- user_mbtiテーブルから最新の診断結果を取得 ---
-        cur.execute(
-            """
-            SELECT mbti_type, created_at 
-            FROM user_mbti 
-            WHERE user_id = %s 
-            ORDER BY created_at DESC 
+        cur.execute("""
+            SELECT code, name, description
+            FROM user_mbti
+            WHERE user_id = %s
+            ORDER BY id DESC
             LIMIT 1
-            """,
-            (user_id,)
-        )
+        """, (user_id,))
         mbti_data = cur.fetchone()
+        print("DEBUG: mbti_data =", mbti_data)
 
         # --- user_iconsテーブルから最新のアイコンを取得 ---
-        cur.execute(
-            """
+        cur.execute("""
             SELECT icon_base64
             FROM user_icons
             WHERE user_id = %s
             ORDER BY uploaded_at DESC
             LIMIT 1
-            """,
-            (user_id,)
-        )
+        """, (user_id,))
         icon_data = cur.fetchone()
         icon_base64 = icon_data[0] if icon_data else None
+        print("DEBUG: icon_base64 =", icon_base64)
+        # --- travel_requests と travel_plans を結合してユーザーの全プランを取得 ---
+        cur.execute("""
+            SELECT 
+                tr.id AS request_id,
+                tr.trip_name,
+                tr.start_date,
+                tr.end_date,
+                tr.region,
+                tr.prefecture,
+                tr.city,
+                tr.departure,
+                tr.transport_pref,
+                tr.budget AS request_budget,
+                tr.must_visit,
+                tr.notes,
+                tp.id AS plan_id,
+                tp.title,
+                tp.summary,
+                tp.budget_transport,
+                tp.budget_lodging,
+                tp.budget_food,
+                tp.budget_activities,
+                tp.budget_other,
+                tp.total_budget,
+                tp.rationale,
+                tp.raw_response
+            FROM travel_requests tr
+            LEFT JOIN travel_plans tp ON tp.request_id = tr.id
+            WHERE tr.user_id = %s
+            ORDER BY tr.id DESC, tp.id DESC
+        """, (user_id,))
+        travel_rows = cur.fetchall()
+
+        # --- travel_plansをリスト形式に整形 ---
+        travel_plans = []
+        for row in travel_rows:
+            if row[12]:  # plan_idが存在する場合のみ追加
+                travel_plans.append({
+                    "request_id": row[0],
+                    "trip_name": row[1],
+                    "start_date": row[2],
+                    "end_date": row[3],
+                    "region": row[4],
+                    "prefecture": row[5],
+                    "city": row[6],
+                    "departure": row[7],
+                    "transport_pref": row[8],
+                    "request_budget": row[9],
+                    "must_visit": row[10],
+                    "notes": row[11],
+                    "id": row[12],
+                    "title": row[13],
+                    "summary": row[14],
+                    "budget_transport": row[15],
+                    "budget_lodging": row[16],
+                    "budget_food": row[17],
+                    "budget_activities": row[18],
+                    "budget_other": row[19],
+                    "total_budget": row[20],
+                    "rationale": row[21],
+                    "raw_response": row[22],
+                    # 表示用の簡易項目
+                    "destination": f"{row[4]} {row[5]} {row[6]}",  # region + prefecture + city
+                    "people_count": "未設定"  # 後で人数を追加可能
+                })
+
+        print("DEBUG: travel_plans =", travel_plans)
 
         cur.close()
         conn.close()
-
-        if not user_data:
-            flash("ユーザー情報が見つかりません。", "error")
-            return redirect(url_for("home.home"))
 
         # --- データまとめ ---
         user_info = {
@@ -82,15 +143,21 @@ def setting():
             "name": user_data[1],
             "email": user_data[2],
             "mbti_type": mbti_data[0] if mbti_data else "未診断",
-            "mbti_date": mbti_data[1].strftime("%Y-%m-%d %H:%M:%S") if mbti_data else None,
-            "icon_base64": icon_base64
+            "mbti_name": mbti_data[1] if mbti_data else None,
+            "mbti_description": mbti_data[2] if mbti_data else None,
+            "icon_base64": icon_base64,
+            "travel_plans": travel_plans  # ←ここをループ用にリストで渡す
         }
 
+
     except Exception as e:
+        print("DEBUG: Exception =", e)
         flash(f"ユーザー情報の取得中にエラーが発生しました: {e}", "error")
         return redirect(url_for("home.home"))
 
     return render_template("setting/setting.html", user=user_info)
+
+
 
 # =========================
 # 🔹 個人設定ページ（/personal_setting）
@@ -117,10 +184,10 @@ def personal_setting():
         # --- user_mbtiテーブルから最新の診断結果を取得 ---
         cur.execute(
             """
-            SELECT mbti_type, created_at 
-            FROM user_mbti 
-            WHERE user_id = %s 
-            ORDER BY created_at DESC 
+            SELECT code, name, description
+            FROM user_mbti
+            WHERE user_id = %s
+            ORDER BY id DESC
             LIMIT 1
             """,
             (user_id,)
@@ -154,7 +221,8 @@ def personal_setting():
             "name": user_data[1],
             "email": user_data[2],
             "mbti_type": mbti_data[0] if mbti_data else "未診断",
-            "mbti_date": mbti_data[1].strftime("%Y-%m-%d %H:%M:%S") if mbti_data else None,
+            "mbti_name": mbti_data[1] if mbti_data else None,
+            "mbti_description": mbti_data[2] if mbti_data else None,
             "icon_base64": icon_base64
         }
 
