@@ -58,7 +58,7 @@
   </style>
 </head>
 
-<body class="flex flex-col justify-center items-center min-h-screen px-4">
+<body class="flex flex-col justify-center items-center min-h-screen px-4 py-10">
 
   <div class="info-card rounded-3xl px-10 pt-10 pb-12 w-full max-w-3xl text-center border border-white/30">
     
@@ -116,10 +116,9 @@
     <!-- ホームへ戻るボタン -->
     <div class="mt-10">
       <a href="{{ url_for('home.home') }}"
-         class="back-btn inline-block px-6 py-3 text-white no-underline rounded-lg font-semibold 
-                transition transform hover:-translate-y-[2px]">
-        ← ホームに戻る
-      </a>
+   class="inline-flex items-center text-white hover:underline transition duration-200">
+  &larr; ホームに戻る
+</a>
     </div>
   </div>
 

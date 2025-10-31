@@ -2,44 +2,81 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>旅行MBTI診断結果</title>
+  <title>旅行タイプ診断結果 | たびあい</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* カスタムフォント指定（Tailwindのベースに追加） */
-    body { font-family: "Hiragino Kaku Gothic ProN", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
-    /* グラデ背景はインライン style で設定済みにするか、ここで補助 */
-    .bg-grad { background: linear-gradient(135deg, #F6F5F3, #EFD8C0); }
+    body {
+      font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+      color: #f5f7fa;
+      background: url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80")
+        no-repeat center center fixed;
+      background-size: cover;
+    }
 
-    /* フェードインの簡易アニメーション（Tailwind 標準に無いので最低限カスタム保持） */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(6px);
+      z-index: -1;
+    }
+
     @keyframes fadeInResult { to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeInDesc   { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInDesc { to { opacity: 1; transform: translateY(0); } }
 
-    .fade-result { opacity: 0; transform: translateY(10px); animation: fadeInResult 1.2s ease forwards; animation-delay: 1.5s; }
-    .fade-desc   { opacity: 0; transform: translateY(10px); animation: fadeInDesc 1.2s ease forwards; animation-delay: 3s; }
+    .fade-result {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInResult 1.2s ease forwards;
+      animation-delay: 1.2s;
+    }
+
+    .fade-desc {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInDesc 1.2s ease forwards;
+      animation-delay: 2.4s;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+      box-shadow: 0 8px 18px rgba(79, 140, 140, 0.3);
+      transform: translateY(-3px);
+    }
   </style>
 </head>
-<body class="bg-grad text-[#2C3E50] text-center m-0 p-0">
 
-  <div class="max-w-[600px] mx-auto mt-[50px] bg-white rounded-[20px] shadow-[0_4px_12px_rgba(79,140,140,0.2)] p-[40px] border-2 border-[#F2D3C2]">
-    <h1 class="text-[#4F8C8C] mb-[15px] text-2xl font-bold">旅行MBTI診断結果</h1>
-    <h2 class="text-[1.3em] text-[#31405F]">こんにちは、{{ username }} さん！</h2>
+<body class="text-center m-0 p-0">
 
-    <div class="bg-[rgba(79,140,140,0.2)] rounded-[12px] p-5 mt-[25px] text-[#31405F] shadow-[0_2px_6px_rgba(79,140,140,0.15)]">
-      <h2 class="text-[1.3em] text-[#31405F]">あなたの旅行タイプは...</h2>
-      <h1 class="mbti-result fade-result text-4xl font-extrabold text-[#4F8C8C] mt-5 tracking-wide">{{ name }}</h1>
+  <div class="max-w-[600px] mx-auto mt-[60px] glass-card rounded-2xl p-[40px] border border-white/20">
+    <h1 class="text-2xl font-bold text-white mb-5 tracking-wide">旅行タイプ診断結果</h1>
+    <h2 class="text-lg text-gray-200 font-medium">こんにちは、{{ username }} さん！</h2>
+
+    <div class="bg-white/10 rounded-xl p-6 mt-6 border border-white/20 shadow-inner">
+      <h2 class="text-base text-gray-100">あなたの旅行タイプは...</h2>
+      <h1 class="fade-result text-4xl font-extrabold text-teal-300 mt-4 tracking-widest">{{ name }}</h1>
     </div>
 
-    <div class="desc fade-desc text-left mt-5 leading-8 text-[#2C3E50]">
+    <div class="fade-desc text-left mt-6 leading-7 text-gray-100">
       {% if travel_name %}
-        <p class="hint text-sm text-[#51616A] mt-2 p-3 bg-[#F6F5F3] rounded-md mb-2">
-          タイプ詳細: {{ mbti_description }}
+        <p class="text-sm bg-white/10 border border-white/20 p-4 rounded-lg">
+          <span class="font-semibold text-teal-200">タイプ詳細：</span> {{ mbti_description }}
         </p>
       {% endif %}
     </div>
 
     <a href="{{ url_for('home.home') }}"
-       class="inline-block mt-9 px-6 py-3 bg-[#4F8C8C] text-white no-underline rounded-[10px] font-bold transition hover:bg-[#3E7676] hover:-translate-y-[2px] hover:shadow-[0_4px_8px_rgba(79,140,140,0.3)]">
-      ← ホームに戻る
+       class="inline-flex items-center gap-1 mt-8 text-white hover:text-teal-200 hover:underline transition duration-200">
+      &larr; ホームに戻る
     </a>
   </div>
 
