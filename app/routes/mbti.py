@@ -3,7 +3,7 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 from app.travel_mbti_logic import (
-    calculate_travel_mbti,
+    calculate_travel_mbti_safe,
 )  # ← 判定関数（別ファイル化推奨）
 
 load_dotenv()  # ← .envファイルの内容を読み込む
@@ -48,17 +48,17 @@ def mbti():
             return redirect(url_for("mbti.mbti"))
 
         # --- 診断結果を取得 ---
-        result = calculate_travel_mbti(request.form)
+        result = calculate_travel_mbti_safe(request.form)
         # result["code"], result["mbti_result"], result["label"], などが入っている想定
 
         conn = get_conn()
         cur = conn.cursor()
 
         # --- MBTIテーブルから一致する診断タイプを「名前」で検索 ---
-        print("DEBUG: 計算されたMBTIタイプ名 →", result["name"])
+        print("DEBUG: 計算されたMBTIタイプ名 →", result["code"])
 
         # DBに登録されているMBTI名一覧を確認
-        cur.execute("SELECT name FROM mbti")
+        cur.execute("SELECT code FROM mbti")
         all_names = [row[0] for row in cur.fetchall()]
         print("DEBUG: DBに登録されているMBTI名一覧 →", all_names)
 
@@ -66,8 +66,8 @@ def mbti():
         cur.execute("""
             SELECT id, code, description
             FROM mbti
-            WHERE name = %s OR name LIKE %s
-        """, (result["name"], f"%{result['name']}%"))
+            WHERE code = %s OR code LIKE %s
+        """, (result["code"], f"%{result['code']}%"))
 
         # 検索結果をすべて取得
         rows = cur.fetchall()
