@@ -80,114 +80,151 @@ def travel_schedule(plan_id):
     username = session.get("username", "ゲスト")
     user_icon = get_user_icon(user_id)
 
-    conn = get_conn()
-    cur = conn.cursor()
+    conn = None
+    cur = None
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
 
-    # --- 旅行プラン情報 ---
-    cur.execute("""
-        SELECT 
-            tp.id, tp.title, tp.summary, tp.total_budget,
-            tp.budget_transport, tp.budget_lodging, tp.budget_food, tp.budget_activities, tp.budget_other,
-            tr.trip_name, tr.start_date, tr.end_date, tr.region, tr.prefecture, tr.city, tr.departure, tr.transport_pref,
-            tr.must_visit, tr.notes
-        FROM travel_plans tp
-        JOIN travel_requests tr ON tp.request_id = tr.id
-        WHERE tp.id = %s AND tr.user_id = %s
-    """, (plan_id, user_id))
-    plan_row = cur.fetchone()
-    if not plan_row:
-        cur.close()
-        conn.close()
-        return "指定された旅行プランが見つかりません。", 404
+        # --- 旅行プラン情報 ---
+        cur.execute("""
+            SELECT 
+                tp.id, tp.title, tp.summary, tp.total_budget,
+                tp.budget_transport, tp.budget_lodging, tp.budget_food, tp.budget_activities, tp.budget_other,
+                tr.trip_name, tr.start_date, tr.end_date, tr.region, tr.prefecture, tr.city, tr.departure, tr.transport_pref,
+                tr.must_visit, tr.notes
+            FROM travel_plans tp
+            JOIN travel_requests tr ON tp.request_id = tr.id
+            WHERE tp.id = %s AND tr.user_id = %s
+        """, (plan_id, user_id))
+        plan_row = cur.fetchone()
+        if not plan_row:
+            return "指定された旅行プランが見つかりません。", 404
 
-    plan = {
-        "id": plan_row[0],
-        "title": plan_row[1],
-        "summary": plan_row[2],
-        "total_budget": plan_row[3],
-        "budget_transport": plan_row[4],
-        "budget_lodging": plan_row[5],
-        "budget_food": plan_row[6],
-        "budget_activities": plan_row[7],
-        "budget_other": plan_row[8],
-        "trip_name": plan_row[9],
-        "start_date": plan_row[10],
-        "end_date": plan_row[11],
-        "region": plan_row[12],
-        "prefecture": plan_row[13],
-        "city": plan_row[14],
-        "departure": plan_row[15],
-        "transport_pref": plan_row[16],
-        "must_visit": plan_row[17],
-        "notes": plan_row[18],
-    }
-
-    # --- 1日ごとの行程 ---
-    cur.execute("""
-        SELECT id, day_number, theme, route_summary, total_time, estimated_cost
-        FROM day_plans
-        WHERE travel_plan_id = %s
-        ORDER BY day_number
-    """, (plan_id,))
-    day_plans_rows = cur.fetchall()
-
-    day_plans = []
-    for day in day_plans_rows:
-        day_id = day[0]
-        day_data = {
-            "id": day_id,
-            "day_number": day[1],
-            "theme": day[2],
-            "route_summary": day[3],
-            "total_time": day[4],
-            "estimated_cost": day[5],
-            "places": []
+        plan = {
+            "id": plan_row[0],
+            "title": plan_row[1],
+            "summary": plan_row[2],
+            "total_budget": plan_row[3],
+            "budget_transport": plan_row[4],
+            "budget_lodging": plan_row[5],
+            "budget_food": plan_row[6],
+            "budget_activities": plan_row[7],
+            "budget_other": plan_row[8],
+            "trip_name": plan_row[9],
+            "start_date": plan_row[10],
+            "end_date": plan_row[11],
+            "region": plan_row[12],
+            "prefecture": plan_row[13],
+            "city": plan_row[14],
+            "departure": plan_row[15],
+            "transport_pref": plan_row[16],
+            "must_visit": plan_row[17],
+            "notes": plan_row[18],
         }
 
-        # --- その日の観光地・レストランなど ---
+        # --- 1日ごとの行程 ---
         cur.execute("""
-            SELECT time, name, description, stay_time, access, map_url, cost_estimate, type
-            FROM places
-            WHERE day_plan_id = %s
-            ORDER BY time
-        """, (day_id,))
-        places_rows = cur.fetchall()
-        day_data["places"] = [
-            {
-                "time": p[0],
-                "name": p[1],
-                "description": p[2],
-                "stay_time": p[3],
-                "access": p[4],
-                "map_url": p[5],
-                "cost_estimate": p[6],
-                "type": p[7]
+            SELECT id, day_number, theme, route_summary, total_time, estimated_cost
+            FROM day_plans
+            WHERE travel_plan_id = %s
+            ORDER BY day_number
+        """, (plan_id,))
+        day_plans_rows = cur.fetchall()
+
+        day_plans = []
+        hotels = []  # places.type が hotel のものを格納
+        for day_row in day_plans_rows:
+            day_id = day_row[0]
+            day_data = {
+                "id": day_id,
+                "day_number": day_row[1],
+                "theme": day_row[2],
+                "route_summary": day_row[3],
+                "total_time": day_row[4],
+                "estimated_cost": day_row[5],
+                "places": []
             }
-            for p in places_rows
-        ]
 
-        day_plans.append(day_data)
+            cur.execute("""
+                SELECT id, time, name, description, stay_time, access, map_url, cost_estimate, type
+                FROM places
+                WHERE day_plan_id = %s
+                ORDER BY 
+                    -- NULLや空文字のtimeを最後に送る
+                    (CASE WHEN time IS NULL OR time = '' THEN 1 ELSE 0 END),
+                    -- "09:00"などの文字列を時刻として変換し、正しい時間順にソート
+                    CASE 
+                        WHEN time ~ '^[0-9]{1,2}:[0-9]{2}$' THEN to_timestamp(time, 'HH24:MI')
+                        ELSE NULL
+                    END ASC,
+                    -- それでも同じ時刻があればid順で安定ソート
+                    id
+            """, (day_id,))
 
-    # --- 予算情報 ---
-    cur.execute("""
-        SELECT category, amount, description
-        FROM budget_items
-        WHERE travel_plan_id = %s
-    """, (plan_id,))
-    budget_items = [{"category": b[0], "amount": b[1], "description": b[2]} for b in cur.fetchall()]
+            places_rows = cur.fetchall()
 
-    cur.close()
-    conn.close()
+            for p in places_rows:
+                # p: (id, time, name, description, stay_time, access, map_url, cost_estimate, type)
+                place = {
+                    "id": p[0],
+                    "time": p[1] or "",
+                    "name": p[2] or "",
+                    "description": p[3] or "",
+                    "stay_time": p[4] or "",
+                    "access": p[5] or "",
+                    "map_url": p[6] or "",
+                    "cost_estimate": p[7] if p[7] is not None else None,
+                    "type": p[8] or ""
+                }
+                day_data["places"].append(place)
 
+                # type が hotel 相当なら hotels に登録（小文字化して判定）
+                t = (p[8] or "").strip().lower()
+                if t in ("hotel", "宿泊", "ホテル", "lodging", "inn", "宿"):
+                    hotels.append({
+                        "id": p[0],
+                        "day_plan_id": day_id,
+                        "name": p[2] or "",
+                        "description": p[3] or "",
+                        "stay_time": p[4] or "",
+                        "access": p[5] or "",
+                        "map_url": p[6] or "",
+                        "cost_estimate": p[7] if p[7] is not None else None
+                    })
+
+            day_plans.append(day_data)
+
+        # --- 予算情報 ---
+        cur.execute("""
+            SELECT category, amount, description
+            FROM budget_items
+            WHERE travel_plan_id = %s
+            ORDER BY id
+        """, (plan_id,))
+        budget_items = [{"category": b[0], "amount": b[1], "description": b[2]} for b in cur.fetchall()]
+
+    except Exception as e:
+        # デバッグ出力（開発時のみ）。本番ではログ出力に。
+        print("ERROR in travel_schedule:", e)
+        flash("旅行データの読み込み中にエラーが発生しました。", "error")
+        return redirect(url_for("setting.setting"))
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+    # テンプレートに渡す。テンプレート側では day_plans, budget_items, hotels を期待している想定です。
     return render_template(
         "my_travel/travel_schedule.html",
         username=username,
         user_icon=user_icon,
         plan=plan,
         day_plans=day_plans,
-        budget_items=budget_items
+        budget_items=budget_items,
+        hotels=hotels
     )
-
 
 
 @my_travel_bp.route("/budget")
