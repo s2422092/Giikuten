@@ -23,6 +23,7 @@ DB_CONFIG = {
 def get_conn():
     return psycopg2.connect(**DB_CONFIG)
 
+
 @setting_bp.route("/setting")
 def setting():
     # --- ログインチェック ---
@@ -41,19 +42,21 @@ def setting():
             (user_id,)
         )
         user_data = cur.fetchone()
+        print("DEBUG: user_data =", user_data)
 
         # --- user_mbtiテーブルから最新の診断結果を取得 ---
         cur.execute(
             """
-            SELECT mbti_type, created_at 
-            FROM user_mbti 
-            WHERE user_id = %s 
-            ORDER BY created_at DESC 
+            SELECT code, name, description
+            FROM user_mbti
+            WHERE user_id = %s
+            ORDER BY id DESC
             LIMIT 1
             """,
             (user_id,)
         )
         mbti_data = cur.fetchone()
+        print("DEBUG: mbti_data =", mbti_data)
 
         # --- user_iconsテーブルから最新のアイコンを取得 ---
         cur.execute(
@@ -68,6 +71,7 @@ def setting():
         )
         icon_data = cur.fetchone()
         icon_base64 = icon_data[0] if icon_data else None
+        print("DEBUG: icon_base64 =", icon_base64)
 
         cur.close()
         conn.close()
@@ -82,15 +86,18 @@ def setting():
             "name": user_data[1],
             "email": user_data[2],
             "mbti_type": mbti_data[0] if mbti_data else "未診断",
-            "mbti_date": mbti_data[1].strftime("%Y-%m-%d %H:%M:%S") if mbti_data else None,
+            "mbti_name": mbti_data[1] if mbti_data else None,
+            "mbti_description": mbti_data[2] if mbti_data else None,
             "icon_base64": icon_base64
         }
 
     except Exception as e:
+        print("DEBUG: Exception =", e)
         flash(f"ユーザー情報の取得中にエラーが発生しました: {e}", "error")
         return redirect(url_for("home.home"))
 
     return render_template("setting/setting.html", user=user_info)
+
 
 # =========================
 # 🔹 個人設定ページ（/personal_setting）
@@ -117,10 +124,10 @@ def personal_setting():
         # --- user_mbtiテーブルから最新の診断結果を取得 ---
         cur.execute(
             """
-            SELECT mbti_type, created_at 
-            FROM user_mbti 
-            WHERE user_id = %s 
-            ORDER BY created_at DESC 
+            SELECT code, name, description
+            FROM user_mbti
+            WHERE user_id = %s
+            ORDER BY id DESC
             LIMIT 1
             """,
             (user_id,)
@@ -154,7 +161,8 @@ def personal_setting():
             "name": user_data[1],
             "email": user_data[2],
             "mbti_type": mbti_data[0] if mbti_data else "未診断",
-            "mbti_date": mbti_data[1].strftime("%Y-%m-%d %H:%M:%S") if mbti_data else None,
+            "mbti_name": mbti_data[1] if mbti_data else None,
+            "mbti_description": mbti_data[2] if mbti_data else None,
             "icon_base64": icon_base64
         }
 
