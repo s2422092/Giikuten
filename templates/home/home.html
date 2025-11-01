@@ -33,7 +33,7 @@
 </head>
 <header class="fixed top-0 left-0 w-full flex justify-between items-center p-4 shadow-md z-50 text-white border-b border-white/10"
         style="background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);">
-  <h1 class="text-2xl font-bold tracking-wide">ホーム</h1>
+  <h1 class="text-3xl font-bold tracking-wide">ホーム</h1>
   <div class="flex items-center space-x-4">
     <a href="{{ url_for('home.information') }}"
       class="inline-flex items-center justify-center w-10 h-10 rounded-full
@@ -61,7 +61,7 @@
           <line x1="21" y1="12" x2="9" y2="12"></line>
         </svg>
     </a>
-    
+
     <a href="{{ url_for('setting.setting') }}">
       <img src="{{ user_icon }}"
            alt="User Icon"
@@ -84,11 +84,12 @@
 
 <main class="mt-20">
 
-  <div>
-      <h1>ようこそ、{{ username }} さん！</h1>
-      <p>ここはログイン後のホーム画面です。</p>
-      <a href="{{ url_for('home.logout') }}" >ログアウト</a>
-  </div>
+  <section class="text-center text-white mb-12 px-4">
+    <h2 class="text-3xl font-semibold">ようこそ、{{ username }} さん</h2>
+    <p class="text-lg mt-2">あなたの旅のタイプは...</p>
+    <h3 class="text-5xl font-bold text-teal-300 mt-2">{{ mbti_name }}</h3>
+    <p class="text-base text-white/80 mt-1">({{ mbti }})</p>
+  </section>
 
 
   <!-- 地図から探す -->
