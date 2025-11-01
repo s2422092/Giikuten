@@ -133,6 +133,17 @@
           <circle cx="12" cy="7" r="0.1"/>
         </svg>
     </a>
+    <button id="saveToggleBtn"
+          data-plan-id="{{ plan.id }}"
+          aria-pressed="{{ 'true' if plan.saved else 'false' }}"
+          class="px-3 py-1 rounded-md text-sm font-medium transition
+                 {{ 'bg-emerald-600 text-white' if plan.saved else 'bg-neutral-700 text-gray-100 hover:bg-neutral-600' }}">
+        {% if plan.saved %}
+        保存済み ✓
+        {% else %}
+        保存する ☆
+        {% endif %}
+    </button>
     <a href="{{ url_for('setting.setting') }}">
       <img src="{{ user_icon }}"
            alt="User Icon"
@@ -245,6 +256,73 @@
     });
   });
 </script>
+
+<script>
+  (function(){
+    const btn = document.getElementById('saveToggleBtn');
+    if (!btn) return;
+
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const planId = btn.dataset.planId;
+      if (!planId) return;
+
+      // ボタンをローディング状態にする（簡易）
+      const origText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '処理中...';
+
+      try {
+        const res = await fetch('{{ url_for("my_travel.toggle_saved", plan_id=0) }}'.replace('/0', '/' + planId), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          // もしCSRFが必要なら追加（例: X-CSRFToken）
+          body: JSON.stringify({ action: 'toggle' })
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(()=>({error:'unknown'}));
+          console.error('toggle_saved failed', err);
+          alert('保存状態の更新に失敗しました。');
+          btn.innerHTML = origText;
+          btn.disabled = false;
+          return;
+        }
+
+        const data = await res.json();
+
+        // 更新結果でUIを書き換え
+        if (data && data.ok) {
+          const saved = data.saved === true || data.saved === 'true';
+          if (saved) {
+            btn.innerHTML = '保存済み ✓';
+            btn.classList.remove('bg-neutral-700','text-gray-100','hover:bg-neutral-600');
+            btn.classList.add('bg-emerald-600','text-white');
+            btn.setAttribute('aria-pressed', 'true');
+          } else {
+            btn.innerHTML = '保存する ☆';
+            btn.classList.remove('bg-emerald-600','text-white');
+            btn.classList.add('bg-neutral-700','text-gray-100','hover:bg-neutral-600');
+            btn.setAttribute('aria-pressed', 'false');
+          }
+        } else {
+          alert('保存状態の更新に失敗しました（サーバーエラー）。');
+          btn.innerHTML = origText;
+        }
+      } catch (err) {
+        console.error(err);
+        alert('通信エラーが発生しました。');
+        btn.innerHTML = origText;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  })();
+</script>
+
 
 <!-- JSファイルを読み込む -->
 <script src="{{ url_for('static', filename='js/tab_disable_current.js') }}"></script>
