@@ -1,196 +1,306 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <title>旅行提案</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>旅行提案 | たびあい</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&family=Noto+Serif+JP:wght@500;700&display=swap"
+    rel="stylesheet"
+  />
+
   <style>
     body {
-      background-color: #F6F5F3;
-      color: #2C3E50;
       font-family: "Noto Sans JP", sans-serif;
+      color: #f8fafc;
+      background: url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80")
+        no-repeat center center fixed;
+      background-size: cover;
     }
-    
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: -1;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: "Noto Serif JP", serif;
+      color: #fff;
+    }
+
+    .page-card {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      border-radius: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .page-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .dock {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      color: #fff;
+    }
+
+    .btn {
+      display: inline-block;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 0.6rem 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-green {
+      background: rgba(16, 185, 129, 0.8);
+      color: white;
+    }
+
+    .btn-green:hover {
+      background: rgba(5, 150, 105, 0.9);
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-blue {
+      background: rgba(56, 189, 248, 0.8);
+      color: white;
+    }
+
+    .btn-blue:hover {
+      background: rgba(2, 132, 199, 0.9);
+      box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3);
+    }
+
+    .btn-gray {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-gray:hover {
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+    }
   </style>
 </head>
 
 <body>
-  <h1 class="text-2xl font-bold mb-2">{{ plan.title }}</h1>
-  <p>こんにちは、{{ username }} さん</p>
-  <p>{{ plan.summary }}</p>
+  <!-- ✅ ヘッダー -->
+  <header
+    class="fixed top-0 left-0 w-full flex justify-between items-center p-4 shadow-md z-50 text-white border-b border-white/10"
+    style="background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);"
+  >
+    <a href="{{ url_for('home.home') }}" class="hover:text-teal-200 transition" title="ホームへ戻る">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+    </a>
 
-  <h2>予算内訳</h2>
-  <ul>
-    <li>交通: {{ plan.budget_breakdown.transport | int }} 円</li>
-    <li>宿泊: {{ plan.budget_breakdown.lodging | int }} 円</li>
-    <li>食事: {{ plan.budget_breakdown.food | int }} 円</li>
-    <li>アクティビティ: {{ plan.budget_breakdown.activities | int }} 円</li>
-    <li>その他: {{ plan.budget_breakdown.other | int }} 円</li>
-  </ul>
+    <h1 class="text-2xl font-bold tracking-wide">{{ plan.title }} 提案</h1>
 
-  <h2 class="text-xl font-semibold mt-6 mb-2">🗓 日程</h2>
-  {% for day in plan.daily_plan %}
-    <section class="mb-6 p-4 bg-white rounded-lg shadow-sm">
-      <h3 class="text-lg font-bold text-teal-700 mb-1">
-        Day {{ day.day }}：{{ day.theme }}
-      </h3>
-      {% if day.route_summary %}
-        <p class="text-gray-600 text-sm mb-2">🧭 ルート：{{ day.route_summary }}</p>
-      {% endif %}
-      <ul class="space-y-3">
-        {% for place in day.places %}
-          <li class="p-3 bg-gray-50 border rounded-lg">
-            <div class="flex items-center mb-1">
-              <span class="bg-teal-100 text-teal-800 text-xs font-semibold px-2 py-0.5 rounded-full mr-2">
-                {{ place.time }}
-              </span>
-              <span class="font-semibold">{{ place.name }}</span>
-              {% if place.type %}
-                <span class="ml-2 text-[11px] px-2 py-0.5 rounded-full border"
-                      title="カテゴリ">{{ place.type }}</span>
-              {% endif %}
-            </div>
-            <p class="text-sm text-gray-700 leading-6">{{ place.description }}</p>
-            {% if place.fun_fact %}
-              <p class="text-sm mt-1">
-                <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-800 border border-yellow-200">💡 豆知識</span>
-                <span class="text-gray-800">{{ place.fun_fact }}</span>
-              </p>
-            {% endif %}
-            <div class="text-xs text-gray-600 mt-2 space-y-1">
-              <p>🚶 移動：{{ place.access }}</p>
-              <p>⏱ 滞在目安：<span class="font-semibold">{{ place.stay_time }}</span></p>
-              {% if place.leave_time %}
-                <p>🏁 出発目安：<span class="font-semibold">{{ place.leave_time }}</span></p>
-              {% endif %}
-            </div>
-            {% if place.map_url %}
-              <a href="{{ place.map_url }}" target="_blank"
-                 class="text-xs text-sky-600 hover:underline block mt-1">📍 地図を見る</a>
-            {% endif %}
-          </li>
-        {% endfor %}
-      </ul>
-    </section>
-  {% endfor %}
+    <div class="flex items-center space-x-4">
+      <a href="{{ url_for('home.information') }}"
+        class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-transparent hover:bg-white/30 text-white transition shadow-none"
+        aria-label="Information" title="Information">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+          <circle cx="12" cy="12" r="9" />
+          <line x1="12" y1="10" x2="12" y2="16" />
+          <circle cx="12" cy="7" r="0.1" />
+        </svg>
+      </a>
 
-  {% if plan.lodging_suggestions and plan.lodging_suggestions|length > 0 %}
-    <h2 class="text-xl font-semibold mt-6 mb-2">🏨 宿の候補</h2>
-    <div class="bg-white p-4 rounded-lg shadow-sm text-sm text-gray-800 space-y-3">
-      {% for s in plan.lodging_suggestions %}
-        {% if s.name is defined %}
-          <div class="border rounded-md p-3">
-            <div class="font-semibold">{{ s.name }}</div>
-            <div class="text-gray-700">{{ s.address or '' }}</div>
-            <div class="text-gray-700">{{ s.area or '' }}</div>
-            <div class="text-gray-700">料金目安: {{ s.price_range or '—' }}</div>
-            <div class="text-gray-700">チェックイン: {{ s.checkin or '—' }} / チェックアウト: {{ s.checkout or '—' }}</div>
-            {% if s.phone %}<div class="text-gray-700">TEL: {{ s.phone }}</div>{% endif %}
-            {% if s.url %}
-              <a href="{{ s.url }}" target="_blank" class="text-xs text-sky-600 hover:underline">公式サイトを見る</a>
-            {% endif %}
-          </div>
-        {% else %}
-          <div class="border rounded-md p-3">{{ s }}</div>
-        {% endif %}
-      {% endfor %}
+      <a href="{{ url_for('setting.setting') }}">
+        <img src="{{ user_icon }}" alt="User Icon"
+          class="w-8 h-8 rounded-full object-cover border-2 border-white cursor-pointer hover:scale-110 transition-transform duration-200" />
+      </a>
     </div>
-  {% endif %}
-
-  {% if plan.return_trip %}
-    <h2 class="text-xl font-semibold mt-6 mb-2">🚄 帰路</h2>
-    <p class="bg-white p-4 rounded-lg shadow-sm leading-7 text-sm text-gray-800">
-      {{ plan.return_trip.mode }} ｜ {{ plan.return_trip.from }} → {{ plan.return_trip.to }}（{{ plan.return_trip.duration }}）
-    </p>
-  {% endif %}
-
-  <h2 class="text-xl font-semibold mt-6 mb-2">📝 旅の概要</h2>
-  <p class="bg-white p-4 rounded-lg shadow-sm leading-7">{{ plan.overview }}</p>
-  <nav class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
-
-  <!-- 診断の詳細について（Test） -->
-  <a href="{{ url_for('mbti.mbti_result') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <path d="M4 6h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="8" cy="6" r="1.5" fill="currentColor"/>
-      <circle cx="8" cy="12" r="1.5" fill="currentColor"/>
-      <circle cx="8" cy="18" r="1.5" fill="currentColor"/>
-    </svg>
-    <span class="text-xs mt-1">Test</span>
-  </a>
-
-  <!-- 旅のタイムライン（Time Line） -->
-  <a href="{{ url_for('my_travel.travel_details') }}" 
-     class="flex flex-col items-center {% if request.endpoint == 'my_travel.travel_details' %}text-teal-600 font-semibold{% else %}text-gray-700{% endif %} hover:text-teal-600 focus:outline-none">
-    <svg class="w-5 h-5 {% if request.endpoint == 'my_travel.travel_details' %}text-teal-600{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
-      <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span class="text-xs mt-1">Time Line</span>
-  </a>
-
-  <!-- ホーム画面（Home） -->
-  <a href="{{ url_for('home.home') }}"
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <g fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="3 12 12 3 21 12" />
-        <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
-      </g>
-    </svg>
-    <span class="text-xs mt-1">Home</span>
-  </a>
-
-  <!-- 今までの旅行一覧（My Travel） -->
-  <a href="{{ url_for('my_travel.travel_details') }}"
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <rect x="6" y="7" width="12" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-      <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
-    </svg>
-    <span class="text-xs mt-1">My Travel</span>
-  </a>
-
-  <!-- マイページ（My Page） -->
-  <a href="{{ url_for('setting.setting') }}" 
-     class="flex flex-col items-center text-gray-700 hover:text-teal-600">
-    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
-      <path d="M4 21v-1a7 7 0 0 1 14 0v1" fill="none" stroke="currentColor" stroke-width="2"/>
-    </svg>
-    <span class="text-xs mt-1">My Page</span>
-  </a>
-
-</nav>
-
-  <div class="flex gap-3 my-6 mb-28">
-    <!-- 保存ボタン -->
-    <form method="post" action="{{ url_for('plan.save_plan', plan_id=travel_plan_id) }}">
-      <button type="submit"
-        class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow">
-        この提案を保存
-      </button>
-    </form>
-
-    <!-- 同じ条件で再提案 -->
-    <a href="{{ url_for('plan.regenerate', request_id=request_id) }}"
-       class="px-4 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700 shadow">
-       同じ条件で再提案
-    </a>
-
-    <!-- 条件を変えて再提案 -->
-    <a href="{{ url_for('plan.plan') }}"
-       class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 shadow">
-       条件を変えて再提案
-    </a>
+  </header>
+<main class="max-w-3xl mx-auto pt-32 pb-28 px-6">
+  <!-- 旅の概要 -->
+  <div class="page-card p-6 mb-8 text-center">
+    <h1 class="text-3xl font-bold mb-2 text-teal-300">{{ plan.title }}</h1>
+    <p class="text-gray-200 mt-2">{{ plan.summary }}</p>
   </div>
 
-<nav class="dock fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 shadow-inner flex justify-around py-2">
-  <p><a href="{{ url_for('home.home') }}">ホームへ戻る</a></p>
-</nav>
+  <section class="page-card p-6 mb-8">
+    <h2 class="text-xl font-semibold mb-3">旅の概要</h2>
+    <p class="leading-7 text-gray-100">{{ plan.overview }}</p>
+  </section>
+  <!-- 日程 -->
+  {% for day in plan.daily_plan %}
+  <section class="page-card p-5 mb-6">
+    <h3 class="text-lg font-bold text-teal-300 mb-2">
+      Day {{ day.day }}：{{ day.theme }}
+    </h3>
+    {% if day.route_summary %}
+    <p class="text-gray-200 text-sm mb-2">ルート：{{ day.route_summary }}</p>
+    {% endif %}
+    <ul class="space-y-3">
+      {% for place in day.places %}
+      <li class="border border-white/20 bg-white/5 rounded-lg p-3">
+        <div class="flex items-center mb-1">
+          <span class="bg-teal-700/40 text-teal-100 text-xs font-semibold px-2 py-0.5 rounded-full mr-2">
+            {{ place.time }}
+          </span>
+          <span class="font-semibold text-white">{{ place.name }}</span>
+          {% if place.type %}
+          <span class="ml-2 text-[11px] px-2 py-0.5 rounded-full border border-white/20 text-gray-200">
+            {{ place.type }}
+          </span>
+          {% endif %}
+        </div>
+        <p class="text-sm text-gray-200 leading-6">{{ place.description }}</p>
 
+        {% if place.fun_fact %}
+        <p class="text-sm mt-2 bg-yellow-100/20 border-l-4 border-yellow-400 px-2 py-1 rounded-md text-yellow-200">
+          💡 {{ place.fun_fact }}
+        </p>
+        {% endif %}
+
+        <div class="text-xs text-gray-300 mt-3 space-y-1">
+          <p>🚶 移動：{{ place.access }}</p>
+          <p>⏱ 滞在目安：<span class="font-semibold">{{ place.stay_time }}</span></p>
+          {% if place.leave_time %}
+          <p>🏁 出発目安：<span class="font-semibold">{{ place.leave_time }}</span></p>
+          {% endif %}
+        </div>
+        {% if place.map_url %}
+        <a href="{{ place.map_url }}" target="_blank" class="text-xs text-teal-300 hover:underline block mt-2">
+          📍 地図を見る
+        </a>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
+
+  <!-- 宿の候補 -->
+  {% if plan.lodging_suggestions and plan.lodging_suggestions|length > 0 %}
+  <section class="page-card p-6 mb-8">
+    <h2 class="text-xl font-semibold mb-3 text-white">宿の候補</h2>
+    <div class="space-y-3 text-sm text-gray-100">
+      {% for s in plan.lodging_suggestions %}
+      <div class="border border-white/20 rounded-md p-3 bg-white/5">
+        <div class="font-semibold text-white">{{ s.name }}</div>
+        <div>{{ s.address or '' }}</div>
+        <div>{{ s.area or '' }}</div>
+        <div>料金目安: {{ s.price_range or '—' }}</div>
+        <div>チェックイン: {{ s.checkin or '—' }} / チェックアウト: {{ s.checkout or '—' }}</div>
+        {% if s.phone %}<div>TEL: {{ s.phone }}</div>{% endif %}
+        {% if s.url %}
+        <a href="{{ s.url }}" target="_blank" class="text-xs text-teal-300 hover:underline">公式サイトを見る</a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- 帰路 -->
+  {% if plan.return_trip %}
+  <section class="page-card p-6 mb-8">
+    <h2 class="text-xl font-semibold mb-3">帰路</h2>
+    <p class="leading-7 text-gray-100">
+      {{ plan.return_trip.mode }} ｜ {{ plan.return_trip.from }} → {{ plan.return_trip.to }}（{{ plan.return_trip.duration }}）
+    </p>
+  </section>
+  {% endif %}
+
+  <!-- 💰 予算内訳（円グラフ） -->
+  <section class="page-card p-6 mb-8 text-white">
+  <h2 class="text-xl font-semibold mb-5">費用構成グラフ</h2>
+  <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+    
+    <!-- ✅ 左側のグラフ -->
+    <div class="flex-1 flex justify-center">
+      <canvas id="budgetChart" width="220" height="220"></canvas>
+    </div>
+
+    <!-- ✅ 右側の内訳リスト -->
+    <div class="flex-1 w-full">
+      <h3 class="text-lg font-semibold mb-3">内訳</h3>
+      <ul class="divide-y divide-white/30 space-y-1">
+        <li class="flex justify-between py-1"><span>交通費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.transport) }}</span></li>
+        <li class="flex justify-between py-1"><span>宿泊費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.lodging) }}</span></li>
+        <li class="flex justify-between py-1"><span>食費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.food) }}</span></li>
+        <li class="flex justify-between py-1"><span>拝観料</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.activities) }}</span></li>
+        <li class="flex justify-between py-1"><span>お土産・雑費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.other) }}</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ✅ グラフ描画 -->
+  <script>
+    const ctx = document.getElementById('budgetChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['交通費', '宿泊費', '食費', '拝観料', 'お土産・雑費'],
+        datasets: [{
+          data: [
+            {{ plan.budget_breakdown.transport }},
+            {{ plan.budget_breakdown.lodging }},
+            {{ plan.budget_breakdown.food }},
+            {{ plan.budget_breakdown.activities }},
+            {{ plan.budget_breakdown.other }}
+          ],
+          backgroundColor: [
+            '#5FB3B3',  // ティールグリーン
+            '#F2D3C2',  // ピーチベージュ
+            '#4F8C8C',  // 深めティール
+            '#E9A7C6',  // ピンク（拝観料）
+            '#B6D7A8'   // 淡いグリーン（雑費）
+          ],
+          borderWidth: 2,
+          borderColor: 'rgba(255,255,255,0.3)'
+        }]
+      },
+      options: {
+        responsive: false,
+        plugins: {
+          legend: {
+            display: false // ✅ 凡例は右側リストで代替
+          },
+          title: {
+            display: false
+          }
+        },
+        layout: {
+          padding: 10
+        }
+      }
+    });
+  </script>
+</section>
+
+  <!-- ボタン群 -->
+  <div class="flex gap-3 my-8 mb-28 justify-end">
+    <form method="post" action="{{ url_for('plan.save_plan', plan_id=travel_plan_id) }}">
+      <button type="submit" class="btn btn-green">この提案を保存</button>
+    </form>
+    <a href="{{ url_for('plan.regenerate', request_id=request_id) }}" class="btn btn-blue">
+      同じ条件で再提案
+    </a>
+    <a href="{{ url_for('plan.plan') }}" class="btn btn-gray">
+      条件を変えて再提案
+    </a>
+  </div>
+</main>
 </body>
 </html>
