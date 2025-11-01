@@ -127,35 +127,6 @@
       </p>
     </section>
 
-    <!-- 日別カード（Jinja ループ）-->
-    <section class="grid md:grid-cols-3 gap-6">
-      {% if days %}
-        {% for d in days %}
-          <div class="page-card p-5">
-            <h3 class="text-lg font-semibold mb-2 text-white">{{ d.day_number }}日目
-              {% if d.theme %}（{{ d.theme }}）{% endif %}
-            </h3>
-            <ul class="text-sm text-gray-100 space-y-1">
-              {% for p in d.places %}
-                <li>
-                  {% if p.time %}<span class="text-xs text-gray-300">{{ p.time }} </span>{% endif %}
-                  {{ p.name }}{% if p.cost_estimate %}：{{ "{:,}".format(p.cost_estimate) }}円{% endif %}
-                </li>
-              {% endfor %}
-              {% if not d.places or d.places|length == 0 %}
-                <li class="text-gray-300">行程データがありません。</li>
-              {% endif %}
-            </ul>
-            <p class="mt-2 text-right text-sm font-semibold text-teal-300">合計：約{{ "{:,}".format(d.estimated_cost or 0) }}円</p>
-          </div>
-        {% endfor %}
-      {% else %}
-        <div class="page-card p-5">
-          <h3 class="text-lg font-semibold mb-2 text-white">日程データなし</h3>
-          <p class="text-sm text-gray-100">このプランにはまだ日別行程が登録されていません。</p>
-        </div>
-      {% endif %}
-    </section>
 
     <!-- 費用グラフ -->
     <section class="mt-10 page-card p-6 text-white">

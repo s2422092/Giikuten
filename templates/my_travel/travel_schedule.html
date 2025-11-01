@@ -181,21 +181,33 @@
   <!-- タイムライン -->
   <section class="md:col-span-2 timeline">
         <!-- 旅の概要 -->
-    <div class="timeline-item page-card p-6">
-      <h2 class="text-2xl font-semibold text-white">{{ plan.title }}</h2>
-      <p class="mt-2 text-gray-100">{{ plan.summary }}</p>
+<div class="timeline-item page-card p-6">
+  <h2 class="text-2xl font-semibold text-white">{{ plan.title }}</h2>
+  <p class="mt-2 text-gray-100">{{ plan.summary }}</p>
 
-      <ul class="list-disc list-inside mt-2 space-y-1 text-gray-100">
-        <li><span class="font-semibold">旅行名：</span>{{ plan.trip_name }}</li>
-        <li><span class="font-semibold">期間：</span>{{ plan.start_date }} ～ {{ plan.end_date }}</li>
-        <li><span class="font-semibold">地域：</span>{{ plan.region }} {{ plan.prefecture }} {{ plan.city }}</li>
-        <li><span class="font-semibold">出発地：</span>{{ plan.departure }}</li>
-        <li><span class="font-semibold">交通手段：</span>{{ plan.transport_pref }}</li>
-        <li><span class="font-semibold">予算：</span>{{ plan.total_budget }}円</li>
-        <li><span class="font-semibold">絶対に行きたい場所：</span>{{ plan.must_visit }}</li>
-        <li><span class="font-semibold">メモ：</span>{{ plan.notes }}</li>
-      </ul>
-    </div>
+  {% if plan.overview %}
+    <p class="mt-2 text-gray-100"><span class="font-semibold">概要：</span>{{ plan.overview }}</p>
+  {% endif %}
+
+  {% if plan.rationale_list %}
+    <ul class="list-disc list-inside mt-2 space-y-1 text-gray-100">
+      {% for reason in plan.rationale_list %}
+        <li>{{ reason }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <ul class="list-disc list-inside mt-2 space-y-1 text-gray-100">
+    <li><span class="font-semibold">期間：</span>{{ plan.start_date }} ～ {{ plan.end_date }}</li>
+    <li><span class="font-semibold">地域：</span>{{ plan.region }} {{ plan.prefecture }} {{ plan.city }}</li>
+    <li><span class="font-semibold">出発地：</span>{{ plan.departure }}</li>
+    <li><span class="font-semibold">交通手段：</span>{{ plan.transport_pref }}</li>
+    <li><span class="font-semibold">予算：</span>{{ plan.total_budget }}円</li>
+    <li><span class="font-semibold">絶対に行きたい場所：</span>{{ plan.must_visit }}</li>
+    <li><span class="font-semibold">メモ：</span>{{ plan.notes }}</li>
+  </ul>
+</div>
+
     
     {% for day in day_plans %}
       <div class="timeline-item page-card p-6">
@@ -225,14 +237,22 @@
 
   <aside class="hidden md:block sticky top-32 h-fit space-y-6">
     <div class="page-card p-6">
-      <h3 class="text-lg font-semibold mb-4 text-white">宿泊情報</h3>
-      <p class="text-sm text-gray-100">
-        {% for item in budget_items if item.category == "宿泊費" %}
-          {{ item.description }}<br>
-          {{ item.amount }}円
-        {% endfor %}
-      </p>
+        <h3 class="text-lg font-semibold mb-4 text-white">宿泊情報</h3>
+        <p class="text-sm text-gray-100">
+            {% for hotel in plan.lodging_suggestions %}
+                {{ hotel.name }}<br>
+                {{ hotel.price_per_night }}<br>
+                {% if hotel.address %}住所: {{ hotel.address }}<br>{% endif %}
+                {% if hotel.phone %}電話: {{ hotel.phone }}<br>{% endif %}
+                {% if hotel.checkin and hotel.checkout %}チェックイン: {{ hotel.checkin }} / チェックアウト: {{ hotel.checkout }}<br>{% endif %}
+                <br>
+            {% endfor %}
+        </p>
     </div>
+
+
+
+
 
     <div class="page-card p-6">
       <h3 class="text-lg font-semibold mb-3 text-white">予算概要</h3>
