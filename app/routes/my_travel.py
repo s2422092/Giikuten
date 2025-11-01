@@ -75,54 +75,50 @@ def travel_details():
         conn = get_conn()
         cur = conn.cursor()
 
-        # --- 1) 「保存済み（saved = TRUE）」の旅行の中で、最も近い開始日のプランを取得 ---
+        # --- 1) 直近の未来の旅行を取得 ---
         cur.execute("""
             SELECT tp.id
             FROM travel_plans tp
             JOIN travel_requests tr ON tp.request_id = tr.id
-            WHERE tr.user_id = %s
-              AND tp.saved = TRUE               -- ★ 追加部分
-              AND tr.start_date >= CURRENT_DATE
+            WHERE tr.user_id = %s AND tr.start_date >= CURRENT_DATE
             ORDER BY tr.start_date ASC
             LIMIT 1
         """, (user_id,))
         row = cur.fetchone()
 
-        # --- 2) 保存済みの中で未来旅行がなければ、過去の保存済み旅行の中で最も近いものを取得 ---
+        # --- 2) 未来の旅行がない場合、過去の旅行の中で直近を取得 ---
         if not row:
             cur.execute("""
                 SELECT tp.id
                 FROM travel_plans tp
                 JOIN travel_requests tr ON tp.request_id = tr.id
-                WHERE tr.user_id = %s
-                  AND tp.saved = TRUE            -- ★ 追加部分
-                  AND tr.start_date < CURRENT_DATE
+                WHERE tr.user_id = %s AND tr.start_date < CURRENT_DATE
                 ORDER BY tr.start_date DESC
                 LIMIT 1
             """, (user_id,))
             row = cur.fetchone()
 
-        # --- 3) 保存済み旅行が1件もない場合 ---
         if not row:
-            flash("保存された旅行プランがありません。", "info")
-            return render_template("my_travel/travel_details.html", username=username, user_icon=user_icon, plan=None)
+            flash("旅行プランが見つかりません。", "warning")
+            return redirect(url_for("setting.setting"))
 
         plan_id = row[0]
 
-        # --- 4) travel_schedule() と同じ情報を取得（saved は含めなくてもOK） ---
+        # --- 3) plan_id に基づき、プラン詳細を取得 ---
         cur.execute("""
             SELECT 
                 tp.id, tp.title, tp.summary, tp.total_budget,
                 tp.budget_transport, tp.budget_lodging, tp.budget_food, tp.budget_activities, tp.budget_other,
+                tp.raw_response,
                 tr.trip_name, tr.start_date, tr.end_date, tr.region, tr.prefecture, tr.city, tr.departure, tr.transport_pref,
                 tr.must_visit, tr.notes
             FROM travel_plans tp
             JOIN travel_requests tr ON tp.request_id = tr.id
-            WHERE tp.id = %s AND tr.user_id = %s
-        """, (plan_id, user_id))
+            WHERE tp.id = %s
+        """, (plan_id,))
         plan_row = cur.fetchone()
         if not plan_row:
-            flash("指定された旅行プランが見つかりません。", "warning")
+            flash("旅行プランが見つかりません。", "warning")
             return redirect(url_for("setting.setting"))
 
         plan = {
@@ -135,17 +131,33 @@ def travel_details():
             "budget_food": plan_row[6],
             "budget_activities": plan_row[7],
             "budget_other": plan_row[8],
-            "trip_name": plan_row[9],
-            "start_date": plan_row[10],
-            "end_date": plan_row[11],
-            "region": plan_row[12],
-            "prefecture": plan_row[13],
-            "city": plan_row[14],
-            "departure": plan_row[15],
-            "transport_pref": plan_row[16],
-            "must_visit": plan_row[17],
-            "notes": plan_row[18],
+            "raw_response": plan_row[9],
+            "trip_name": plan_row[10],
+            "start_date": plan_row[11],
+            "end_date": plan_row[12],
+            "region": plan_row[13],
+            "prefecture": plan_row[14],
+            "city": plan_row[15],
+            "departure": plan_row[16],
+            "transport_pref": plan_row[17],
+            "must_visit": plan_row[18],
+            "notes": plan_row[19],
         }
+
+        # --- JSONパース ---
+        raw_content = plan["raw_response"].get("content") if plan["raw_response"] else None
+        if isinstance(raw_content, (bytes, bytearray)):
+            raw_content = raw_content.decode("utf-8")
+        try:
+            raw_json = json.loads(raw_content) if raw_content else {}
+        except Exception as e:
+            print("JSON parse error:", e)
+            raw_json = {}
+
+        plan["overview"] = raw_json.get("overview", "")
+        plan["rationale_list"] = raw_json.get("rationale", [])
+        plan["daily_plan"] = raw_json.get("daily_plan", [])
+        plan["lodging_suggestions"] = raw_json.get("lodging_suggestions", [])
 
         # --- 日別プラン ---
         cur.execute("""
@@ -176,10 +188,7 @@ def travel_details():
                 WHERE day_plan_id = %s
                 ORDER BY 
                     (CASE WHEN time IS NULL OR time = '' THEN 1 ELSE 0 END),
-                    CASE 
-                        WHEN time ~ '^[0-9]{1,2}:[0-9]{2}$' THEN to_timestamp(time, 'HH24:MI')
-                        ELSE NULL
-                    END ASC,
+                    CASE WHEN time ~ '^[0-9]{1,2}:[0-9]{2}$' THEN to_timestamp(time, 'HH24:MI') ELSE NULL END ASC,
                     id
             """, (day_id,))
             places_rows = cur.fetchall()
@@ -232,7 +241,6 @@ def travel_details():
         if conn:
             conn.close()
 
-    # --- テンプレートに渡す ---
     return render_template(
         "my_travel/travel_details.html",
         username=username,
