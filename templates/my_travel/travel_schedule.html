@@ -143,17 +143,16 @@
 
 <!-- ✅ ヘッダー直下タブ -->
 <div class="fixed top-[72px] left-0 w-full flex z-40 border-b border-white/10 bg-neutral-900">
-  <a href="{{ url_for('my_travel.travel_details') }}"
-     class="w-1/2 text-center py-2 text-base font-medium transition-all duration-200
-            {% if request.endpoint == 'my_travel.travel_details' %}
-              bg-white/20 text-white
-            {% else %}
-              bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:text-white
+    <a href="{{ url_for('my_travel.travel_schedule', plan_id=plan.id) }}"
+    class="tab-link w-1/2 text-center py-2 text-base font-medium transition-all duration-200
+            {% if request.endpoint == 'my_travel.travel_schedule' %}
+                active
             {% endif %}">
     スケジュール
-  </a>
+    </a>
 
-  <a href="{{ url_for('my_travel.budget') }}"
+  <!-- ✅ 修正版：予算詳細タブ -->
+  <a href="{{ url_for('my_travel.travel_budget', plan_id=plan.id) }}"
      class="w-1/2 text-center py-2 text-base font-medium transition-all duration-200
             {% if request.endpoint == 'my_travel.budget' %}
               bg-white/20 text-white
@@ -247,5 +246,7 @@
   });
 </script>
 
+<!-- JSファイルを読み込む -->
+<script src="{{ url_for('static', filename='js/tab_disable_current.js') }}"></script>
 </body>
 </html>

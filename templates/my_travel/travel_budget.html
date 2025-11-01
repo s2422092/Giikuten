@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>予算詳細 | たびあい</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* （既存の style をそのまま） */
+    body {
+      font-family: "Noto Sans JP", sans-serif;
+      color: #f8fafc;
+      background: url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80")
+        no-repeat center center fixed;
+      background-size: cover;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: -1;
+    }
+    h1, h2, h3 { font-family: "Noto Serif JP", serif; }
+    .page-card {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      border-radius: 20px;
+    }
+    .page-card:hover { transform: translateY(-4px); box-shadow: 0 6px 15px rgba(255, 255, 255, 0.2); }
+    table { background: rgba(255, 255, 255, 0.1); color: #fff; }
+    th, td { border-color: rgba(255, 255, 255, 0.2); }
+    tfoot { background: rgba(79, 140, 140, 0.4); }
+    .dock { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); }
+  </style>
+</head>
+
+<header class="fixed top-0 left-0 w-full flex justify-between items-center p-4 shadow-md z-50 text-white border-b border-white/10"
+        style="background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);">
+    <a href="{{ url_for('setting.setting') }}"
+       class="hover:text-teal-200 transition"
+       title="ホームへ戻る">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+    </a>
+
+    <h1 class="text-2xl font-bold tracking-wide">{{ plan.trip_name }} スケジュール</h1>
+    <div class="flex items-center space-x-4">
+    <a href="{{ url_for('home.information') }}"
+      class="inline-flex items-center justify-center w-10 h-10 rounded-full
+      bg-transparent hover:bg-white/30 text-white transition shadow-none"
+      aria-label="Information" title="Information">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"
+          class="w-6 h-6">
+          <circle cx="12" cy="12" r="9"/>
+          <line x1="12" y1="10" x2="12" y2="16"/>
+          <circle cx="12" cy="7" r="0.1"/>
+        </svg>
+    </a>
+    <a href="{{ url_for('setting.setting') }}">
+      <img src="{{ user_icon }}"
+           alt="User Icon"
+           class="w-8 h-8 rounded-full object-cover border-2 border-white cursor-pointer hover:scale-110 transition-transform duration-200" />
+    </a>
+  </div>
+</header>
+
+<body class="pb-28">
+<div class="fixed top-[72px] left-0 w-full flex z-40 border-b border-white/10 bg-neutral-900">
+    <a href="{{ url_for('my_travel.travel_schedule', plan_id=plan.id) }}"
+    class="tab-link w-1/2 text-center py-2 text-base font-medium transition-all duration-200
+            {% if request.endpoint == 'my_travel.travel_schedule' %}
+                active
+            {% endif %}">
+    スケジュール
+    </a>
+
+  <!-- ✅ 修正版：予算詳細タブ -->
+  <a href="{{ url_for('my_travel.travel_budget', plan_id=plan.id) }}"
+     class="w-1/2 text-center py-2 text-base font-medium transition-all duration-200
+            {% if request.endpoint == 'my_travel.budget' %}
+              bg-white/20 text-white
+            {% else %}
+              bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:text-white
+            {% endif %}">
+    予算詳細
+  </a>
+</div>
+
+  <main class="max-w-4xl mx-auto pt-32 pb-28 px-6">
+
+    <!-- 概要 -->
+    <section class="mb-8 page-card p-6">
+      <h2 class="text-xl font-semibold text-white mb-3">予算概要</h2>
+      <p class="text-gray-100 text-sm leading-relaxed">
+        この旅行の総予算は
+        <span class="text-lg text-teal-300 font-bold">約{{ "{:,}".format(total_budget) }}円／人</span>
+        を想定しています。<br/>
+        期間: <strong>{{ plan.get('start_date') }} ～ {{ plan.get('end_date') }}</strong>
+        {% if plan.get('trip_name') %} ／ プラン名: <strong>{{ plan.get('trip_name') }}</strong>{% endif %}
+      </p>
+    </section>
+
+    <!-- 日別カード（Jinja ループ）-->
+    <section class="grid md:grid-cols-3 gap-6">
+      {% if days %}
+        {% for d in days %}
+          <div class="page-card p-5">
+            <h3 class="text-lg font-semibold mb-2 text-white">{{ d.day_number }}日目
+              {% if d.theme %}（{{ d.theme }}）{% endif %}
+            </h3>
+            <ul class="text-sm text-gray-100 space-y-1">
+              {% for p in d.places %}
+                <li>
+                  {% if p.time %}<span class="text-xs text-gray-300">{{ p.time }} </span>{% endif %}
+                  {{ p.name }}{% if p.cost_estimate %}：{{ "{:,}".format(p.cost_estimate) }}円{% endif %}
+                </li>
+              {% endfor %}
+              {% if not d.places or d.places|length == 0 %}
+                <li class="text-gray-300">行程データがありません。</li>
+              {% endif %}
+            </ul>
+            <p class="mt-2 text-right text-sm font-semibold text-teal-300">合計：約{{ "{:,}".format(d.estimated_cost or 0) }}円</p>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="page-card p-5">
+          <h3 class="text-lg font-semibold mb-2 text-white">日程データなし</h3>
+          <p class="text-sm text-gray-100">このプランにはまだ日別行程が登録されていません。</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- 費用グラフ -->
+    <section class="mt-10 page-card p-6 text-white">
+      <h2 class="text-xl font-semibold mb-6">費用構成グラフ</h2>
+      <div class="flex flex-col md:flex-row justify-between gap-6">
+        <div class="flex-1 flex justify-center">
+          <canvas id="budgetChart" width="300" height="300" class="max-w-[300px]"
+                  data-chart-labels='{{ chart.labels|tojson }}'
+                  data-chart-amounts='{{ chart.amounts|tojson }}'></canvas>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold mb-3">内訳</h3>
+          <ul id="budgetList" class="space-y-2 text-white">
+            {% for bi in budget_items %}
+              <li class="flex justify-between items-center" data-amount="{{ bi.amount }}">
+                <span>{{ bi.category }}</span>
+                <span class="font-semibold">{{ "{:,}".format(bi.amount) }}円</span>
+              </li>
+            {% endfor %}
+            {% if not budget_items %}
+              <li class="text-gray-300">予算内訳が登録されていません。</li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 費用表 -->
+    <section class="mt-10 page-card p-6 overflow-x-auto text-white">
+      <h2 class="text-xl font-semibold mb-4">費用内訳（全体）</h2>
+      <table class="min-w-full text-sm border border-white/20 rounded-lg overflow-hidden text-white">
+        <thead class="bg-white/10">
+          <tr class="text-white">
+            <th class="py-2 px-3 text-left border-b border-white/20">項目</th>
+            <th class="py-2 px-3 text-right border-b border-white/20">金額（円）</th>
+            <th class="py-2 px-3 text-left border-b border-white/20">備考</th>
+          </tr>
+        </thead>
+        <tbody class="text-white">
+          {% for bi in budget_items %}
+            <tr data-category="{{ bi.category }}" data-amount="{{ bi.amount }}">
+              <td class="py-2 px-3 border-b border-white/20">{{ bi.category }}</td>
+              <td class="py-2 px-3 text-right border-b border-white/20">{{ "{:,}".format(bi.amount) }}</td>
+              <td class="py-2 px-3 border-b border-white/20">
+                {% for d in bi.descriptions %}
+                  <div class="text-xs text-gray-200">{{ d }}</div>
+                {% endfor %}
+              </td>
+            </tr>
+          {% endfor %}
+
+          {# もし travel_plans の個別 budget_* カラムがあれば補助行を出す #}
+          {% if plan.get('budget_transport') or plan.get('budget_lodging') or plan.get('budget_food') %}
+            <tr class="text-sm text-gray-200">
+              <td class="py-2 px-3 border-b border-white/20">（詳細）</td>
+              <td class="py-2 px-3 text-right border-b border-white/20">
+                {{ "{:,}".format(plan.get('budget_transport') or 0) }} / {{ "{:,}".format(plan.get('budget_lodging') or 0) }} / {{ "{:,}".format(plan.get('budget_food') or 0) }}
+              </td>
+              <td class="py-2 px-3 border-b border-white/20">交通 / 宿泊 / 食費</td>
+            </tr>
+          {% endif %}
+        </tbody>
+        <tfoot class="bg-white/5 text-white">
+          <tr>
+            <td class="py-2 px-3 border-t border-white/20">合計</td>
+            <td class="py-2 px-3 text-right border-t border-white/20">{{ "{:,}".format(total_budget) }}</td>
+            <td class="py-2 px-3 border-t border-white/20">／人あたり</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <!-- ボタン -->
+    <div class="mt-8 flex justify-end space-x-3">
+      <button class="bg-emerald-600/70 hover:bg-emerald-700/80 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-all duration-200"
+              onclick="history.back()">← 戻る</button>
+
+      <button class="bg-amber-400/80 hover:bg-amber-500/90 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-all duration-200"
+              onclick="alert('予算データを更新しました！')">🔄 データ更新</button>
+    </div>
+  </main>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- 既存の budget_chart.js はそのまま読み込み -->
+  <script src="{{ url_for('static', filename='js/budget_chart.js') }}"></script>
+
+
+<script>
+  document.querySelectorAll('.place-toggle').forEach(item => {
+    item.addEventListener('click', () => {
+      const detail = item.querySelector('.detail');
+      detail.style.display = (detail.style.display === 'block') ? 'none' : 'block';
+    });
+  });
+</script>
+
+<!-- JSファイルを読み込む -->
+<script src="{{ url_for('static', filename='js/tab_disable_current.js') }}"></script>
+
+</body>
+</html>
