@@ -80,8 +80,11 @@ def travel_details():
             SELECT tp.id
             FROM travel_plans tp
             JOIN travel_requests tr ON tp.request_id = tr.id
-            WHERE tr.user_id = %s AND tr.start_date >= CURRENT_DATE
-            ORDER BY tr.start_date ASC
+            WHERE tr.user_id = %s
+            AND tp.saved = TRUE
+            ORDER BY 
+            CASE WHEN tr.start_date >= CURRENT_DATE THEN 0 ELSE 1 END, 
+            ABS(EXTRACT(EPOCH FROM (tr.start_date::timestamp - CURRENT_DATE::timestamp))) ASC
             LIMIT 1
         """, (user_id,))
         row = cur.fetchone()
