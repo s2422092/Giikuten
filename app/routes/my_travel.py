@@ -359,6 +359,19 @@ def travel_schedule(plan_id):
                         "cost_estimate": p[7] if p[7] is not None else None
                     })
 
+                    hotels.append(hotels)
+                    # --- 🔍 デバッグ出力 ---
+                    print("✅ [DEBUG] 宿泊情報を追加しました →", flush=True)
+                    print(f"  ID: {hotels['id']}", flush=True)
+                    print(f"  day_plan_id: {hotels['day_plan_id']}", flush=True)
+                    print(f"  name: {hotels['name']}", flush=True)
+                    print(f"  description: {hotels['description']}", flush=True)
+                    print(f"  stay_time: {hotels['stay_time']}", flush=True)
+                    print(f"  access: {hotels['access']}", flush=True)
+                    print(f"  map_url: {hotels['map_url']}")
+                    print(f"  cost_estimate: {hotels['cost_estimate']}")
+                    print("------------------------------------------------")
+
             day_plans.append(day_data)
 
         # --- 予算情報 ---
