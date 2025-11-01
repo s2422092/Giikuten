@@ -138,8 +138,11 @@
     <p class="text-gray-200 mt-2">{{ plan.summary }}</p>
   </div>
 
+  <section class="page-card p-6 mb-8">
+    <h2 class="text-xl font-semibold mb-3">📝 旅の概要</h2>
+    <p class="leading-7 text-gray-100">{{ plan.overview }}</p>
+  </section>
   <!-- 日程 -->
-  <h2 class="text-xl font-semibold mb-2">🗓 日程</h2>
   {% for day in plan.daily_plan %}
   <section class="page-card p-5 mb-6">
     <h3 class="text-lg font-bold text-teal-300 mb-2">
@@ -261,12 +264,6 @@
         }
       });
     </script>
-  </section>
-
-  <!-- 📝 旅の概要 -->
-  <section class="page-card p-6 mb-8">
-    <h2 class="text-xl font-semibold mb-3">📝 旅の概要</h2>
-    <p class="leading-7 text-gray-100">{{ plan.overview }}</p>
   </section>
 
   <!-- ボタン群 -->
