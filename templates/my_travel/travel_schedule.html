@@ -225,14 +225,33 @@
 
   <aside class="hidden md:block sticky top-32 h-fit space-y-6">
     <div class="page-card p-6">
-      <h3 class="text-lg font-semibold mb-4 text-white">宿泊情報</h3>
-      <p class="text-sm text-gray-100">
-        {% for item in budget_items if item.category == "宿泊費" %}
-          {{ item.description }}<br>
-          {{ item.amount }}円
-        {% endfor %}
-      </p>
+    <h3 class="text-lg font-semibold mb-4 text-white">宿泊情報</h3>
+
+    {% for item in budget_items if item.category == "宿泊費" %}
+        <p class="text-sm text-gray-100 mb-2">
+        宿泊費：{{ item.amount }}円
+        </p>
+        {% if item.hotels %}
+        <ul class="text-sm text-gray-200 space-y-3">
+            {% for h in item.hotels %}
+            <li>
+                <strong>{{ h.name }}</strong><br>
+                {{ h.description }}<br>
+                {% if h.stay_time %}滞在時間：{{ h.stay_time }}<br>{% endif %}
+                {% if h.access %}アクセス：{{ h.access }}<br>{% endif %}
+                {% if h.cost_estimate %}料金目安：{{ h.cost_estimate }}円<br>{% endif %}
+                {% if h.map_url %}
+                <a href="{{ h.map_url }}" target="_blank" class="text-teal-300 hover:underline">地図を見る</a>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-sm text-gray-400">宿泊施設情報はまだ登録されていません。</p>
+        {% endif %}
+    {% endfor %}
     </div>
+
 
     <div class="page-card p-6">
       <h3 class="text-lg font-semibold mb-3 text-white">予算概要</h3>

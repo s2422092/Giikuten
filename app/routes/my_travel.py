@@ -239,7 +239,6 @@ def travel_details():
         hotels=hotels
     )
 
-
 @my_travel_bp.route("/travel_schedule/<int:plan_id>")
 def travel_schedule(plan_id):
     if "user_id" not in session:
@@ -255,7 +254,7 @@ def travel_schedule(plan_id):
         conn = get_conn()
         cur = conn.cursor()
 
-        # --- 旅行プラン情報（tp.saved を追加） ---
+        # --- 旅行プラン情報 ---
         cur.execute("""
             SELECT 
                 tp.id, tp.title, tp.summary, tp.total_budget,
@@ -281,7 +280,7 @@ def travel_schedule(plan_id):
             "budget_food": plan_row[6],
             "budget_activities": plan_row[7],
             "budget_other": plan_row[8],
-            "saved": bool(plan_row[9]),                 # ← saved を追加
+            "saved": bool(plan_row[9]),
             "trip_name": plan_row[10],
             "start_date": plan_row[11],
             "end_date": plan_row[12],
@@ -294,7 +293,7 @@ def travel_schedule(plan_id):
             "notes": plan_row[19],
         }
 
-        # --- 1日ごとの行程（以降は既存ロジックと同じ） ---
+        # --- 各日程情報 ---
         cur.execute("""
             SELECT id, day_number, theme, route_summary, total_time, estimated_cost
             FROM day_plans
@@ -302,9 +301,7 @@ def travel_schedule(plan_id):
             ORDER BY day_number
         """, (plan_id,))
         day_plans_rows = cur.fetchall()
-
         day_plans = []
-        hotels = []
         for day_row in day_plans_rows:
             day_id = day_row[0]
             day_data = {
@@ -321,19 +318,11 @@ def travel_schedule(plan_id):
                 SELECT id, time, name, description, stay_time, access, map_url, cost_estimate, type
                 FROM places
                 WHERE day_plan_id = %s
-                ORDER BY 
-                    (CASE WHEN time IS NULL OR time = '' THEN 1 ELSE 0 END),
-                    CASE 
-                        WHEN time ~ '^[0-9]{1,2}:[0-9]{2}$' THEN to_timestamp(time, 'HH24:MI')
-                        ELSE NULL
-                    END ASC,
-                    id
+                ORDER BY id
             """, (day_id,))
-
             places_rows = cur.fetchall()
-
             for p in places_rows:
-                place = {
+                day_data["places"].append({
                     "id": p[0],
                     "time": p[1] or "",
                     "name": p[2] or "",
@@ -341,24 +330,9 @@ def travel_schedule(plan_id):
                     "stay_time": p[4] or "",
                     "access": p[5] or "",
                     "map_url": p[6] or "",
-                    "cost_estimate": p[7] if p[7] is not None else None,
+                    "cost_estimate": p[7],
                     "type": p[8] or ""
-                }
-                day_data["places"].append(place)
-
-                t = (p[8] or "").strip().lower()
-                if t in ("hotel", "宿泊", "ホテル", "lodging", "inn", "宿"):
-                    hotels.append({
-                        "id": p[0],
-                        "day_plan_id": day_id,
-                        "name": p[2] or "",
-                        "description": p[3] or "",
-                        "stay_time": p[4] or "",
-                        "access": p[5] or "",
-                        "map_url": p[6] or "",
-                        "cost_estimate": p[7] if p[7] is not None else None
-                    })
-
+                })
             day_plans.append(day_data)
 
         # --- 予算情報 ---
@@ -370,15 +344,39 @@ def travel_schedule(plan_id):
         """, (plan_id,))
         budget_items = [{"category": b[0], "amount": b[1], "description": b[2]} for b in cur.fetchall()]
 
+        # --- 宿泊情報（budget_itemsから遡る） ---
+        cur.execute("""
+            SELECT name, description, stay_time, access, map_url, cost_estimate
+            FROM places
+            WHERE type IN ('hotel', '宿泊', 'ホテル', 'lodging', 'inn', '宿')
+              AND day_plan_id IN (
+                  SELECT id FROM day_plans WHERE travel_plan_id = %s
+              )
+        """, (plan_id,))
+        hotels = [
+            {
+                "name": h[0] or "",
+                "description": h[1] or "",
+                "stay_time": h[2] or "",
+                "access": h[3] or "",
+                "map_url": h[4] or "",
+                "cost_estimate": h[5] or 0
+            }
+            for h in cur.fetchall()
+        ]
+
+        # 宿泊費をbudget_itemsから探して対応づけ
+        for b in budget_items:
+            if b["category"] == "宿泊費":
+                b["hotels"] = hotels
+
     except Exception as e:
         print("ERROR in travel_schedule:", e)
         flash("旅行データの読み込み中にエラーが発生しました。", "error")
         return redirect(url_for("setting.setting"))
     finally:
-        if cur:
-            cur.close()
-        if conn:
-            conn.close()
+        if cur: cur.close()
+        if conn: conn.close()
 
     return render_template(
         "my_travel/travel_schedule.html",
@@ -386,8 +384,7 @@ def travel_schedule(plan_id):
         user_icon=user_icon,
         plan=plan,
         day_plans=day_plans,
-        budget_items=budget_items,
-        hotels=hotels
+        budget_items=budget_items
     )
 
 from flask import jsonify, request
