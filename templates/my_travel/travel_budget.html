@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>予算詳細 | たびあい</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: "Noto Sans JP", sans-serif;
+      color: #f8fafc;
+      background: url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80")
+        no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: -1;
+    }
+
+    h1, h2, h3 {
+      font-family: "Noto Serif JP", serif;
+    }
+
+    .page-card {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      border-radius: 20px;
+    }
+
+    .page-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    table {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    th, td {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    tfoot {
+      background: rgba(79, 140, 140, 0.4);
+    }
+
+    .dock {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+
+  <!-- ✅ 固定ヘッダー -->
+  <header class="fixed top-0 left-0 w-full flex justify-between items-center p-4 shadow-md z-50 text-white border-b border-white/10"
+        style="background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);">
+  <h1 class="text-2xl font-bold tracking-wide">予算詳細</h1>
+  <div class="flex items-center space-x-4">
+    <a href="{{ url_for('home.information') }}"
+      class="inline-flex items-center justify-center w-10 h-10 rounded-full
+      bg-transparent hover:bg-white/30 text-white transition shadow-none"
+      aria-label="Information" title="Information">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"
+          class="w-6 h-6">
+          <circle cx="12" cy="12" r="9"/>
+          <line x1="12" y1="10" x2="12" y2="16"/>
+          <circle cx="12" cy="7" r="0.1"/>
+        </svg>
+    </a>
+    <a href="{{ url_for('setting.setting') }}">
+      <img src="{{ user_icon }}"
+           alt="User Icon"
+           class="w-8 h-8 rounded-full object-cover border-2 border-white cursor-pointer hover:scale-110 transition-transform duration-200" />
+    </a>
+  </div>
+</header>
+
+<body class="pb-28">
+  <!-- ✅ ヘッダー直下のタブ（スケジュール／予算詳細） -->
+  <div class="fixed top-[72px] left-0 w-full flex z-40 border-b border-white/10 bg-neutral-900">
+  <a href="{{ url_for('my_travel.travel_details') }}"
+     class="w-1/2 text-center py-2 text-base font-medium transition-all duration-200
+            {% if request.endpoint == 'my_travel.travel_details' %}
+              bg-white/20 text-white
+            {% else %}
+              bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:text-white
+            {% endif %}">
+    スケジュール
+  </a>
+
+  <a href="{{ url_for('my_travel.budget') }}"
+     class="w-1/2 text-center py-2 text-base font-medium transition-all duration-200
+            {% if request.endpoint == 'my_travel.budget' %}
+              bg-white/20 text-white
+            {% else %}
+              bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:text-white
+            {% endif %}">
+    予算詳細
+  </a>
+</div>
+
+  <!-- ✅ メイン -->
+  <main class="max-w-4xl mx-auto pt-32 pb-28 px-6">
+
+    <!-- 概要 -->
+    <section class="mb-8 page-card p-6">
+      <h2 class="text-xl font-semibold text-white mb-3">予算概要</h2>
+      <p class="text-gray-100 text-sm leading-relaxed">
+        この旅行の総予算は <span class="text-lg text-teal-300 font-bold">約65,000円／人</span> を想定しています。  
+        交通費・宿泊費・食費・拝観料・お土産などを含み、ゆったりとした3日間の旅を想定したプランです。
+      </p>
+    </section>
+
+    <!-- 日別カード -->
+    <section class="grid md:grid-cols-3 gap-6">
+      <div class="page-card p-5">
+        <h3 class="text-lg font-semibold mb-2 text-white">1日目（東山エリア）</h3>
+        <ul class="text-sm text-gray-100 space-y-1">
+          <li>交通費：1,000円</li>
+          <li>食費：3,500円</li>
+          <li>拝観料：800円</li>
+          <li>カフェ・おやつ：1,000円</li>
+        </ul>
+        <p class="mt-2 text-right text-sm font-semibold text-teal-300">合計：約6,300円</p>
+      </div>
+
+      <div class="page-card p-5">
+        <h3 class="text-lg font-semibold mb-2 text-white">2日目（嵐山・金閣寺）</h3>
+        <ul class="text-sm text-gray-100 space-y-1">
+          <li>交通費：1,500円</li>
+          <li>食費：4,000円</li>
+          <li>拝観料：1,000円</li>
+          <li>カフェ・おやつ：800円</li>
+        </ul>
+        <p class="mt-2 text-right text-sm font-semibold text-teal-300">合計：約7,300円</p>
+      </div>
+
+      <div class="page-card p-5">
+        <h3 class="text-lg font-semibold mb-2 text-white">3日目（京都駅周辺）</h3>
+        <ul class="text-sm text-gray-100 space-y-1">
+          <li>交通費：500円</li>
+          <li>食費：2,000円</li>
+          <li>お土産：5,000円</li>
+          <li>雑費：500円</li>
+        </ul>
+        <p class="mt-2 text-right text-sm font-semibold text-teal-300">合計：約8,000円</p>
+      </div>
+    </section>
+
+    <!-- 費用グラフ -->
+    <!-- 費用構成グラフ -->
+<section class="mt-10 page-card p-6 text-white">
+  <h2 class="text-xl font-semibold mb-6">費用構成グラフ</h2>
+  <div class="flex flex-col md:flex-row justify-between gap-6">
+    <div class="flex-1 flex justify-center">
+      <canvas id="budgetChart" width="300" height="300" class="max-w-[300px]"></canvas>
+    </div>
+    <div class="flex-1">
+      <h3 class="text-lg font-semibold mb-3">内訳</h3>
+      <ul id="budgetList" class="space-y-2 text-white"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- 費用表 -->
+<section class="mt-10 page-card p-6 overflow-x-auto text-white">
+  <h2 class="text-xl font-semibold mb-4">費用内訳（全体）</h2>
+  <table class="min-w-full text-sm border border-white/20 rounded-lg overflow-hidden text-white">
+    <thead class="bg-white/10">
+      <tr class="text-white">
+        <th class="py-2 px-3 text-left border-b border-white/20">項目</th>
+        <th class="py-2 px-3 text-right border-b border-white/20">金額（円）</th>
+        <th class="py-2 px-3 text-left border-b border-white/20">備考</th>
+      </tr>
+    </thead>
+    <tbody class="text-white">
+      <tr><td class="py-2 px-3 border-b border-white/20">交通費</td><td class="py-2 px-3 text-right border-b border-white/20">15,000</td><td class="py-2 px-3 border-b border-white/20">新幹線往復＋市内交通</td></tr>
+      <tr><td class="py-2 px-3 border-b border-white/20">宿泊費</td><td class="py-2 px-3 text-right border-b border-white/20">30,000</td><td class="py-2 px-3 border-b border-white/20">2泊（1泊15,000円）</td></tr>
+      <tr><td class="py-2 px-3 border-b border-white/20">食費</td><td class="py-2 px-3 text-right border-b border-white/20">12,000</td><td class="py-2 px-3 border-b border-white/20">3日分の朝昼夜</td></tr>
+      <tr><td class="py-2 px-3 border-b border-white/20">拝観料</td><td class="py-2 px-3 text-right border-b border-white/20">3,000</td><td class="py-2 px-3 border-b border-white/20">主要寺社の入場料</td></tr>
+      <tr><td class="py-2 px-3 border-b border-white/20">お土産・雑費</td><td class="py-2 px-3 text-right border-b border-white/20">5,000</td><td class="py-2 px-3 border-b border-white/20">スイーツ・雑貨など</td></tr>
+    </tbody>
+    <tfoot class="bg-white/5 text-white">
+      <tr>
+        <td class="py-2 px-3 border-t border-white/20">合計</td>
+        <td class="py-2 px-3 text-right border-t border-white/20">65,000</td>
+        <td class="py-2 px-3 border-t border-white/20">／人あたり</td>
+      </tr>
+    </tfoot>
+  </table>
+</section>
+
+    <!-- ボタン -->
+    <div class="mt-8 flex justify-end space-x-3">
+  <button class="bg-emerald-600/70 hover:bg-emerald-700/80 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-all duration-200"
+          onclick="history.back()">← 戻る</button>
+
+  <button class="bg-amber-400/80 hover:bg-amber-500/90 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-all duration-200"
+          onclick="alert('予算データを更新しました！')">🔄 データ更新</button>
+</div>
+  </main>
+
+  <!-- ✅ Dockナビ -->
+  <div class="dock fixed bottom-0 left-0 w-full border-t border-white/20 shadow-inner flex justify-around py-2 text-white">
+  <a href="{{ url_for('my_travel.travel_details') }}" class="flex flex-col items-center hover:text-teal-300">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+    </svg>
+    <span class="text-xs mt-1">Time Line</span>
+  </a>
+  <a href="{{ url_for('home.home') }}" class="flex flex-col items-center hover:text-teal-300">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="3 12 12 3 21 12"/><path d="M5 10v10h14V10"/>
+    </svg>
+    <span class="text-xs mt-1">Home</span>
+  </a>
+  <a href="{{ url_for('plan.plan') }}" class="flex flex-col items-center hover:text-teal-300">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+    <span class="text-xs mt-1">Travel Plan</span>
+  </a>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='js/budget_chart.js') }}"></script>
+</body>
+</html>
