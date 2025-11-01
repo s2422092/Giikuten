@@ -43,7 +43,7 @@ def login():
         if not username or not password:
             flash("ユーザー名とパスワードを入力してください。", "error")
             print("DEBUG: 入力エラー → username or password が未入力")
-            return render_template("index/login.html")
+            return render_template("index/index.html")
 
         try:
             conn = get_conn()
@@ -56,7 +56,7 @@ def login():
                 print(f"DEBUG: ユーザー {username} が存在しません")
                 cur.close()
                 conn.close()
-                return render_template("index/login.html")
+                return render_template("index/index.html")
 
             db_password = user[2]
 
@@ -96,7 +96,7 @@ def login():
                 print(f"DEBUG: ログイン失敗 → username={username}, password認証NG")
                 cur.close()
                 conn.close()
-                return render_template("index/login.html")
+                return render_template("index/index.html")
 
             # ✅ ログイン成功
             session["user_id"] = user[0]
@@ -117,18 +117,18 @@ def login():
             else:
                 flash("まずMBTI診断を行ってください。", "info")
                 print("DEBUG: MBTI未診断 → mbti ページへリダイレクト")
-                return redirect(url_for("mbti/mbti.html"))
+                return redirect(url_for("mbti.mbti"))
 
         except Exception as e:
             if conn:
                 conn.close()
             flash(f"ログイン中にエラーが発生しました: {e}", "error")
             print(f"DEBUG: ログイン中に例外発生 → {e}")
-            return render_template("index/login.html")
+            return render_template("index/index.html")
 
     # GET時（フォーム表示）
     print("DEBUG: GETリクエストでログインページ表示")
-    return render_template("index/login.html")
+    return render_template("index/index.html")
 
 
 
