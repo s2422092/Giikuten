@@ -145,9 +145,74 @@
       </div>
     </div>
 
-    <div class="w-full md:w-2/5 bg-white/10 backdrop-blur-md rounded-2xl p-6 flex items-center justify-center text-white/70 text-lg">ここに「目的から探す」が入ります（仮）</div>
+    <!-- 目的から探す -->
+      <div class="w-full md:w-2/5 bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-lg">
+      <h2 class="text-3xl font-bold text-white mb-6 text-center">
+        目的から探す
+      </h2>
+      
+      <div class="grid grid-cols-4 gap-x-4 gap-y-6 items-center">
+        
+        <div class="font-bold text-lg text-white/80 text-center">癒し</div>
+        <button onclick="goToPlanWithPurpose('温泉')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">♨️</span>
+          <span class="text-base mt-1 whitespace-nowrap">温泉</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('自然・絶景')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🌲</span>
+          <span class="text-base mt-1 whitespace-nowrap">自然・絶景</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('パワースポット')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🙏</span>
+          <span class="text-base mt-1 whitespace-nowrap">パワースポット</span>
+        </button>
+
+        <div class="font-bold text-lg text-white/80 text-center">体験</div>
+        <button onclick="goToPlanWithPurpose('アクティビティ')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🏃</span>
+          <span class="text-base mt-1 whitespace-nowrap">アクティビティ</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('テーマパーク')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🎢</span>
+          <span class="text-base mt-1 whitespace-nowrap">テーマパーク</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('動物園・水族館')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🐘</span>
+          <span class="text-base mt-1 whitespace-nowrap">動物園・水族館</span>
+        </button>
+
+        <div class="font-bold text-lg text-white/80 text-center">文化</div>
+        <button onclick="goToPlanWithPurpose('神社・お寺')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🏯</span>
+          <span class="text-base mt-1 whitespace-nowrap">神社・お寺</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('博物館・美術館')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🏛️</span>
+          <span class="text-base mt-1 whitespace-nowrap">博物館・美術館</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('世界遺産')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🌍</span>
+          <span class="text-base mt-1 whitespace-nowrap">世界遺産</span>
+        </button>
+
+        <div class="font-bold text-lg text-white/80 text-center">グルメ</div>
+        <button onclick="goToPlanWithPurpose('ご当地グルメ')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🍜</span>
+          <span class="text-base mt-1 whitespace-nowrap">ご当地グルメ</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('映えスポット')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">📸</span>
+          <span class="text-base mt-1 whitespace-nowrap">映えスポット</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('ショッピング')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🛍️</span>
+          <span class="text-base mt-1 whitespace-nowrap">ショッピング</span>
+        </button>
+      </div>
     </div>
   </section>
+
+
   <script>
       let hideTimer; // リストを隠すタイマー
 
@@ -203,8 +268,6 @@
         clearTimeout(hideTimer);
       }
   </script>
-
-
 
 
 </main>
@@ -344,6 +407,19 @@ scrollLeftBtn.addEventListener('click', () => {
 scrollRightBtn.addEventListener('click', () => {
   scrollContainer.scrollBy({ left: scrollStep, behavior: 'smooth' });
 });
+
+
+// ✅ [ここから追加] 目的（must_visit）をURLパラメータに付けて遷移する関数
+function goToPlanWithPurpose(purposeText) {
+  const params = new URLSearchParams();
+      
+  // "行きたいスポット" に追加するテキストとして渡す
+  params.append('must_visit', purposeText);
+
+  // plan/ ページに遷移
+  window.location.href = `{{ url_for('plan.plan') }}?${params.toString()}`;
+}
+// ✅ [ここまで追加]
 </script>
 
 

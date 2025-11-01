@@ -298,6 +298,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const nearbyBox = document.getElementById("nearby-checkbox-wrapper");
   const regionSelect = document.getElementById('region-select');
   const prefectureSelect = document.getElementById('prefecture-select');
+  
+  // ✅ [追加] "行きたいスポット" の textarea を取得
+  const mustVisitTextarea = document.querySelector('textarea[name="must_visit"]');
 
   // --- 既存の関数 ---
   function checkShowNearby() {
@@ -319,58 +322,54 @@ document.addEventListener("DOMContentLoaded", () => {
   citySelect.addEventListener("change", checkShowNearby);
 
   
-  // --- ✅ [ここからが最重要] URLパラメータから '行き先' を自動入力する処理 ---
-  
+  // --- URLパラメータ処理 ---
   const params = new URLSearchParams(window.location.search);
   const regionParam = params.get('region');
   const prefectureParam = params.get('prefecture');
+  
+  // ✅ [追加] "must_visit" パラメータを取得
+  const mustVisitParam = params.get('must_visit');
 
-  // [追加] 都道府県の読み込みを待つ関数
+
+  // [追加] 都道府県の読み込みを待つ関数 (変更なし)
   function waitForPrefectureLoad(prefValue) {
-    // prefecture-select が geo.js によって書き換わるのを監視
     const prefObserver = new MutationObserver((mutations, obs) => {
-      // <option> が 1つ ("自動提案に任せる") 以上になったら
       if (prefectureSelect.options.length > 1) {
-        
-        prefectureSelect.value = prefValue; // URLの県名をセット
-        
-        // 市区町村リストの読み込みや 'checkShowNearby' のために change イベントを発火
+        prefectureSelect.value = prefValue; 
         prefectureSelect.dispatchEvent(new Event('change'));
-        
-        obs.disconnect(); // 監視を終了
+        obs.disconnect(); 
       }
     });
-    // 監視を開始
     prefObserver.observe(prefectureSelect, { childList: true });
   }
 
-  // もし URL に 'region' が指定されていたら
+  // もし URL に 'region' が指定されていたら (変更なし)
   if (regionParam) {
-    
-    // region-select が geo.js によって書き換わるのを監視
     const regionObserver = new MutationObserver((mutations, obs) => {
-      
-      // <option> が 1つ ("読込中...") 以上になったら
       if (regionSelect.options.length > 1) {
-        
-        regionSelect.value = regionParam; // URLの地方名をセット
-        
-        // geo.js の「都道府県リスト読み込み」を起動するため、change イベントを強制的に発火
+        regionSelect.value = regionParam; 
         regionSelect.dispatchEvent(new Event('change')); 
-        
-        obs.disconnect(); // 監視を終了
-
-        // もし URL に 'prefecture' も指定されていたら
+        obs.disconnect(); 
         if (prefectureParam) {
-          // 次は都道府県リストの読み込み待ちを開始
           waitForPrefectureLoad(prefectureParam);
         }
       }
     });
-
-    // region-select の子要素（<option>）の変更監視を開始
     regionObserver.observe(regionSelect, { childList: true });
   } 
+
+  // --- ✅ [追加] "目的" を textarea に追加する処理 ---
+  if (mustVisitParam && mustVisitTextarea) {
+    const existingText = mustVisitTextarea.value.trim();
+    if (existingText === "") {
+      // まだ何も入力されていなければ、そのまま追加
+      mustVisitTextarea.value = mustVisitParam;
+    } else {
+      // 既に入力があれば、カンマ区切りで追加
+      // (重複チェックはしない。ユーザーが後で編集することを想定)
+      mustVisitTextarea.value = existingText + ", " + mustVisitParam;
+    }
+  }
   // --- ✅ [ここまで追加] ---
 
 });
