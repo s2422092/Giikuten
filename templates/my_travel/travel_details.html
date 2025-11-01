@@ -189,7 +189,7 @@
         <ul class="space-y-3">
           {% for place in day.places %}
             <li class="place-toggle p-3 border rounded-lg">
-              <h3><span class="time-badge">{{ place.time }}</span>{{ place.name }}</h3>
+              <h3><span class="time-badge bg-teal-700/40">{{ place.time }}</span>{{ place.name }}</h3>
               <p class="text-sm text-gray-200">{{ place.description }}</p>
               <div class="detail">
                 {% if place.stay_time %}<p><b>滞在時間：</b>{{ place.stay_time }}</p>{% endif %}

@@ -173,15 +173,15 @@
         {% endif %}
 
         <div class="text-xs text-gray-300 mt-3 space-y-1">
-          <p>🚶 移動：{{ place.access }}</p>
-          <p>⏱ 滞在目安：<span class="font-semibold">{{ place.stay_time }}</span></p>
+          <p>移動：{{ place.access }}</p>
+          <p>滞在目安：<span class="font-semibold">{{ place.stay_time }}</span></p>
           {% if place.leave_time %}
-          <p>🏁 出発目安：<span class="font-semibold">{{ place.leave_time }}</span></p>
+          <p>出発目安：<span class="font-semibold">{{ place.leave_time }}</span></p>
           {% endif %}
         </div>
         {% if place.map_url %}
         <a href="{{ place.map_url }}" target="_blank" class="text-xs text-teal-300 hover:underline block mt-2">
-          📍 地図を見る
+          地図を見る
         </a>
         {% endif %}
       </li>
@@ -227,20 +227,52 @@
   <h2 class="text-xl font-semibold mb-5">費用構成グラフ</h2>
   <div class="flex flex-col md:flex-row items-center justify-between gap-6">
     
-    <!-- ✅ 左側のグラフ -->
     <div class="flex-1 flex justify-center">
       <canvas id="budgetChart" width="220" height="220"></canvas>
     </div>
 
-    <!-- ✅ 右側の内訳リスト -->
     <div class="flex-1 w-full">
       <h3 class="text-lg font-semibold mb-3">内訳</h3>
-      <ul class="divide-y divide-white/30 space-y-1">
-        <li class="flex justify-between py-1"><span>交通費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.transport) }}</span></li>
-        <li class="flex justify-between py-1"><span>宿泊費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.lodging) }}</span></li>
-        <li class="flex justify-between py-1"><span>食費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.food) }}</span></li>
-        <li class="flex justify-between py-1"><span>拝観料</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.activities) }}</span></li>
-        <li class="flex justify-between py-1"><span>お土産・雑費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.other) }}</span></li>
+      <ul class="divide-y divide-white/30 space-y-1 text-sm">
+        <li class="flex justify-between py-1 items-center">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full inline-block" style="background-color:#2DD4BF;"></span>
+            <span>交通費</span>
+          </div>
+          <span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.transport) }}</span>
+        </li>
+
+        <li class="flex justify-between py-1 items-center">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full inline-block" style="background-color:#FACC15;"></span>
+            <span>宿泊費</span>
+          </div>
+          <span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.lodging) }}</span>
+        </li>
+
+        <li class="flex justify-between py-1 items-center">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full inline-block" style="background-color:#60A5FA;"></span>
+            <span>食費</span>
+          </div>
+          <span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.food) }}</span>
+        </li>
+
+        <li class="flex justify-between py-1 items-center">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full inline-block" style="background-color:#F472B6;"></span>
+            <span>拝観料</span>
+          </div>
+          <span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.activities) }}</span>
+        </li>
+
+        <li class="flex justify-between py-1 items-center">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full inline-block" style="background-color:#A3E635;"></span>
+            <span>お土産・雑費</span>
+          </div>
+          <span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.other) }}</span>
+        </li>
       </ul>
     </div>
   </div>
@@ -261,11 +293,11 @@
             {{ plan.budget_breakdown.other }}
           ],
           backgroundColor: [
-            '#5FB3B3',  // ティールグリーン
-            '#F2D3C2',  // ピーチベージュ
-            '#4F8C8C',  // 深めティール
-            '#E9A7C6',  // ピンク（拝観料）
-            '#B6D7A8'   // 淡いグリーン（雑費）
+            "#2DD4BF", // 交通費
+            "#FACC15", // 宿泊費
+            "#60A5FA", // 食費
+            "#F472B6", // 拝観料
+            "#A3E635"  // 雑費
           ],
           borderWidth: 2,
           borderColor: 'rgba(255,255,255,0.3)'
@@ -274,16 +306,10 @@
       options: {
         responsive: false,
         plugins: {
-          legend: {
-            display: false // ✅ 凡例は右側リストで代替
-          },
-          title: {
-            display: false
-          }
+          legend: { display: false },
+          title: { display: false }
         },
-        layout: {
-          padding: 10
-        }
+        layout: { padding: 10 }
       }
     });
   </script>
