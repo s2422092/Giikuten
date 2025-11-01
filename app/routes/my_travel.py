@@ -4,6 +4,8 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 from datetime import datetime
+from psycopg2.extras import RealDictCursor
+import json
 
 load_dotenv()  # ← .envファイルの内容を読み込む
 
@@ -251,18 +253,18 @@ def travel_schedule(plan_id):
 
     conn = None
     cur = None
+
     try:
         conn = get_conn()
-        cur = conn.cursor()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
 
-        # --- 旅行プラン情報（tp.saved を追加） ---
+        # --- 旅行プラン情報 ---
         cur.execute("""
-            SELECT 
-                tp.id, tp.title, tp.summary, tp.total_budget,
-                tp.budget_transport, tp.budget_lodging, tp.budget_food, tp.budget_activities, tp.budget_other,
-                tp.saved,
-                tr.trip_name, tr.start_date, tr.end_date, tr.region, tr.prefecture, tr.city, tr.departure, tr.transport_pref,
-                tr.must_visit, tr.notes
+            SELECT tp.id, tp.title, tp.summary, tp.total_budget,
+                   tp.budget_transport, tp.budget_lodging, tp.budget_food, tp.budget_activities, tp.budget_other,
+                   tr.trip_name, tr.start_date, tr.end_date, tr.region, tr.prefecture, tr.city, tr.departure,
+                   tr.transport_pref, tr.must_visit, tr.notes,
+                   tp.raw_response
             FROM travel_plans tp
             JOIN travel_requests tr ON tp.request_id = tr.id
             WHERE tp.id = %s AND tr.user_id = %s
@@ -271,95 +273,50 @@ def travel_schedule(plan_id):
         if not plan_row:
             return "指定された旅行プランが見つかりません。", 404
 
-        plan = {
-            "id": plan_row[0],
-            "title": plan_row[1],
-            "summary": plan_row[2],
-            "total_budget": plan_row[3],
-            "budget_transport": plan_row[4],
-            "budget_lodging": plan_row[5],
-            "budget_food": plan_row[6],
-            "budget_activities": plan_row[7],
-            "budget_other": plan_row[8],
-            "saved": bool(plan_row[9]),                 # ← saved を追加
-            "trip_name": plan_row[10],
-            "start_date": plan_row[11],
-            "end_date": plan_row[12],
-            "region": plan_row[13],
-            "prefecture": plan_row[14],
-            "city": plan_row[15],
-            "departure": plan_row[16],
-            "transport_pref": plan_row[17],
-            "must_visit": plan_row[18],
-            "notes": plan_row[19],
-        }
+        # raw_response の bytearray/bytes 対応
+        raw_response = plan_row.get("raw_response")
+        if raw_response:
+            content = raw_response.get("content")
+            if isinstance(content, (bytes, bytearray)):
+                content = content.decode("utf-8")
+            plan_json = json.loads(content)
+        else:
+            plan_json = {}
 
-        # --- 1日ごとの行程（以降は既存ロジックと同じ） ---
-        cur.execute("""
-            SELECT id, day_number, theme, route_summary, total_time, estimated_cost
-            FROM day_plans
-            WHERE travel_plan_id = %s
-            ORDER BY day_number
-        """, (plan_id,))
-        day_plans_rows = cur.fetchall()
-
+        # --- 必要情報抽出 ---
         day_plans = []
-        hotels = []
-        for day_row in day_plans_rows:
-            day_id = day_row[0]
+        for day in plan_json.get("daily_plan", []):
             day_data = {
-                "id": day_id,
-                "day_number": day_row[1],
-                "theme": day_row[2],
-                "route_summary": day_row[3],
-                "total_time": day_row[4],
-                "estimated_cost": day_row[5],
+                "day": day.get("day"),
+                "theme": day.get("theme"),
+                "route_summary": day.get("route_summary"),
                 "places": []
             }
-
-            cur.execute("""
-                SELECT id, time, name, description, stay_time, access, map_url, cost_estimate, type
-                FROM places
-                WHERE day_plan_id = %s
-                ORDER BY 
-                    (CASE WHEN time IS NULL OR time = '' THEN 1 ELSE 0 END),
-                    CASE 
-                        WHEN time ~ '^[0-9]{1,2}:[0-9]{2}$' THEN to_timestamp(time, 'HH24:MI')
-                        ELSE NULL
-                    END ASC,
-                    id
-            """, (day_id,))
-
-            places_rows = cur.fetchall()
-
-            for p in places_rows:
-                place = {
-                    "id": p[0],
-                    "time": p[1] or "",
-                    "name": p[2] or "",
-                    "description": p[3] or "",
-                    "stay_time": p[4] or "",
-                    "access": p[5] or "",
-                    "map_url": p[6] or "",
-                    "cost_estimate": p[7] if p[7] is not None else None,
-                    "type": p[8] or ""
-                }
-                day_data["places"].append(place)
-
-                t = (p[8] or "").strip().lower()
-                if t in ("hotel", "宿泊", "ホテル", "lodging", "inn", "宿"):
-                    hotels.append({
-                        "id": p[0],
-                        "day_plan_id": day_id,
-                        "name": p[2] or "",
-                        "description": p[3] or "",
-                        "stay_time": p[4] or "",
-                        "access": p[5] or "",
-                        "map_url": p[6] or "",
-                        "cost_estimate": p[7] if p[7] is not None else None
-                    })
-
+            for place in day.get("places", []):
+                day_data["places"].append({
+                    "time": place.get("time", ""),
+                    "name": place.get("name", ""),
+                    "description": place.get("description", ""),
+                    "stay_time": place.get("stay_time", ""),
+                    "access": place.get("access", "")
+                })
             day_plans.append(day_data)
+
+        hotels = []
+        for lodging in plan_json.get("lodging_suggestions", []):
+            hotels.append({
+                "name": lodging.get("name", ""),
+                "address": lodging.get("address", ""),
+                "nearest_station": lodging.get("nearest_station", ""),
+                "access": lodging.get("access", ""),
+                "price_per_night": lodging.get("price_per_night", ""),
+                "room_type": lodging.get("room_type", ""),
+                "capacity": lodging.get("capacity", ""),
+                "checkin": lodging.get("checkin", ""),
+                "checkout": lodging.get("checkout", ""),
+                "phone": lodging.get("phone", ""),
+                "url": lodging.get("url", "")
+            })
 
         # --- 予算情報 ---
         cur.execute("""
@@ -368,10 +325,34 @@ def travel_schedule(plan_id):
             WHERE travel_plan_id = %s
             ORDER BY id
         """, (plan_id,))
-        budget_items = [{"category": b[0], "amount": b[1], "description": b[2]} for b in cur.fetchall()]
+        budget_items = [{"category": b["category"], "amount": b["amount"], "description": b["description"]} for b in cur.fetchall()]
+
+        # --- 基本プラン情報 ---
+        plan = {
+            "id": plan_row["id"],
+            "title": plan_row["title"],
+            "summary": plan_row["summary"],
+            "total_budget": plan_row["total_budget"],
+            "budget_transport": plan_row["budget_transport"],
+            "budget_lodging": plan_row["budget_lodging"],
+            "budget_food": plan_row["budget_food"],
+            "budget_activities": plan_row["budget_activities"],
+            "budget_other": plan_row["budget_other"],
+            "trip_name": plan_row["trip_name"],
+            "start_date": plan_row["start_date"],
+            "end_date": plan_row["end_date"],
+            "region": plan_row["region"],
+            "prefecture": plan_row["prefecture"],
+            "city": plan_row["city"],
+            "departure": plan_row["departure"],
+            "transport_pref": plan_row["transport_pref"],
+            "must_visit": plan_row["must_visit"],
+            "notes": plan_row["notes"]
+        }
 
     except Exception as e:
-        print("ERROR in travel_schedule:", e)
+        import traceback
+        print("ERROR in travel_schedule:", traceback.format_exc())
         flash("旅行データの読み込み中にエラーが発生しました。", "error")
         return redirect(url_for("setting.setting"))
     finally:
@@ -389,7 +370,6 @@ def travel_schedule(plan_id):
         budget_items=budget_items,
         hotels=hotels
     )
-
 from flask import jsonify, request
 
 @my_travel_bp.route("/travel_plans/<int:plan_id>/toggle_saved", methods=["POST"])
