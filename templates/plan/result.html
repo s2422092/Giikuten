@@ -224,47 +224,69 @@
   {% endif %}
 
   <!-- 💰 予算内訳（円グラフ） -->
-  <section class="page-card p-6 mb-8">
-    <h2 class="text-xl font-semibold mb-3 text-white">💰 予算内訳</h2>
-    <canvas id="budgetChart" width="300" height="300"></canvas>
-    <script>
-      const ctx = document.getElementById('budgetChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: ['交通', '宿泊', '食事', 'アクティビティ', 'その他'],
-          datasets: [{
-            data: [
-              {{ plan.budget_breakdown.transport }},
-              {{ plan.budget_breakdown.lodging }},
-              {{ plan.budget_breakdown.food }},
-              {{ plan.budget_breakdown.activities }},
-              {{ plan.budget_breakdown.other }}
-            ],
-            backgroundColor: [
-              '#4F8C8C',
-              '#F2D3C2',
-              '#EFD8C0',
-              '#5FB3B3',
-              '#C7D8D3'
-            ],
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.3)'
-          }]
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: 'white',
-                font: { size: 14 }
-              }
+  <section class="page-card p-6 mb-8 text-white">
+  <h2 class="text-xl font-semibold mb-5">💰 予算内訳</h2>
+  <div class="flex flex-col md:flex-row justify-center items-center gap-6">
+    <div class="flex-1 flex justify-center">
+      <canvas id="budgetChart"
+              width="220" height="220"
+              class="max-w-[220px] max-h-[220px]"></canvas>
+    </div>
+    <div class="flex-1">
+      <ul class="space-y-2 text-white text-sm">
+        <li><span class="font-semibold text-teal-300">交通：</span>{{ plan.budget_breakdown.transport }} 円</li>
+        <li><span class="font-semibold text-teal-300">宿泊：</span>{{ plan.budget_breakdown.lodging }} 円</li>
+        <li><span class="font-semibold text-teal-300">食事：</span>{{ plan.budget_breakdown.food }} 円</li>
+        <li><span class="font-semibold text-teal-300">アクティビティ：</span>{{ plan.budget_breakdown.activities }} 円</li>
+        <li><span class="font-semibold text-teal-300">その他：</span>{{ plan.budget_breakdown.other }} 円</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('budgetChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['交通', '宿泊', '食事', 'アクティビティ', 'その他'],
+        datasets: [{
+          data: [
+            {{ plan.budget_breakdown.transport }},
+            {{ plan.budget_breakdown.lodging }},
+            {{ plan.budget_breakdown.food }},
+            {{ plan.budget_breakdown.activities }},
+            {{ plan.budget_breakdown.other }}
+          ],
+          backgroundColor: [
+            '#4F8C8C', // ティール
+            '#F2D3C2', // ピーチ
+            '#EFD8C0', // ベージュ
+            '#5FB3B3', // アクア
+            '#C7D8D3'  // グレイッシュブルー
+          ],
+          borderWidth: 1.5,
+          borderColor: 'rgba(255,255,255,0.3)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: 'white',
+              font: { size: 13 }
             }
           }
+        },
+        layout: {
+          padding: 10
         }
-      });
-    </script>
-  </section>
+      }
+    });
+  </script>
+</section>
 
   <!-- ボタン群 -->
   <div class="flex gap-3 my-8 mb-28 justify-end">
