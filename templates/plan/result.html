@@ -181,7 +181,7 @@
         </div>
         {% if place.map_url %}
         <a href="{{ place.map_url }}" target="_blank" class="text-xs text-teal-300 hover:underline block mt-2">
-          📍 地図を見る
+          地図を見る
         </a>
         {% endif %}
       </li>
@@ -227,12 +227,10 @@
   <h2 class="text-xl font-semibold mb-5">費用構成グラフ</h2>
   <div class="flex flex-col md:flex-row items-center justify-between gap-6">
     
-    <!-- ✅ 左側のグラフ -->
     <div class="flex-1 flex justify-center">
       <canvas id="budgetChart" width="220" height="220"></canvas>
     </div>
 
-    <!-- ✅ 右側の内訳リスト -->
     <div class="flex-1 w-full">
       <h3 class="text-lg font-semibold mb-3">内訳</h3>
       <ul class="divide-y divide-white/30 space-y-1 text-sm">
