@@ -71,39 +71,41 @@ def travel_details():
         conn = get_conn()
         cur = conn.cursor()
 
-        # --- 1) 未来の旅行の中で最も近い開始日のプランを取得 ---
+        # --- 1) 「保存済み（saved = TRUE）」の旅行の中で、最も近い開始日のプランを取得 ---
         cur.execute("""
             SELECT tp.id
             FROM travel_plans tp
             JOIN travel_requests tr ON tp.request_id = tr.id
             WHERE tr.user_id = %s
+              AND tp.saved = TRUE               -- ★ 追加部分
               AND tr.start_date >= CURRENT_DATE
             ORDER BY tr.start_date ASC
             LIMIT 1
         """, (user_id,))
         row = cur.fetchone()
 
-        # --- 2) 未来の旅行がない場合、過去の旅行の中で最も近いものを取得 ---
+        # --- 2) 保存済みの中で未来旅行がなければ、過去の保存済み旅行の中で最も近いものを取得 ---
         if not row:
             cur.execute("""
                 SELECT tp.id
                 FROM travel_plans tp
                 JOIN travel_requests tr ON tp.request_id = tr.id
                 WHERE tr.user_id = %s
+                  AND tp.saved = TRUE            -- ★ 追加部分
                   AND tr.start_date < CURRENT_DATE
                 ORDER BY tr.start_date DESC
                 LIMIT 1
             """, (user_id,))
             row = cur.fetchone()
 
-        # --- 3) 該当旅行がない場合 ---
+        # --- 3) 保存済み旅行が1件もない場合 ---
         if not row:
-            flash("登録されている旅行プランがありません。", "info")
+            flash("保存された旅行プランがありません。", "info")
             return render_template("my_travel/travel_details.html", username=username, user_icon=user_icon, plan=None)
 
         plan_id = row[0]
 
-        # --- 4) travel_schedule() と同じ情報を取得 ---
+        # --- 4) travel_schedule() と同じ情報を取得（saved は含めなくてもOK） ---
         cur.execute("""
             SELECT 
                 tp.id, tp.title, tp.summary, tp.total_budget,
@@ -236,6 +238,7 @@ def travel_details():
         budget_items=budget_items,
         hotels=hotels
     )
+
 
 @my_travel_bp.route("/travel_schedule/<int:plan_id>")
 def travel_schedule(plan_id):
@@ -460,12 +463,12 @@ def budget():
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     # --- (1) まず最も近い旅行プランを取得（未来優先、なければ過去の最近） ---
-    # --- (1) まず最も近い旅行プランを取得（未来優先、なければ過去の最近） ---
     cur.execute("""
         SELECT tp.id AS plan_id, tr.start_date
         FROM travel_plans tp
         JOIN travel_requests tr ON tp.request_id = tr.id
         WHERE tr.user_id = %s
+        AND tp.saved = TRUE  -- ← ここを追加
         ORDER BY 
             CASE 
                 WHEN tr.start_date >= CURRENT_DATE THEN 0 ELSE 1 
@@ -473,6 +476,7 @@ def budget():
             ABS(EXTRACT(EPOCH FROM (tr.start_date::timestamp - CURRENT_DATE::timestamp))) ASC
         LIMIT 1
     """, (user_id,))
+
 
     nearest = cur.fetchone()
 
