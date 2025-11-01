@@ -151,7 +151,8 @@
     スケジュール
     </a>
 
-  <a href="{{ url_for('my_travel.budget') }}"
+  <!-- ✅ 修正版：予算詳細タブ -->
+  <a href="{{ url_for('my_travel.travel_budget', plan_id=plan.id) }}"
      class="w-1/2 text-center py-2 text-base font-medium transition-all duration-200
             {% if request.endpoint == 'my_travel.budget' %}
               bg-white/20 text-white

@@ -241,3 +241,111 @@ def budget():
         username=username,
         user_icon=user_icon
     )
+
+@my_travel_bp.route("/travel_budget/<int:plan_id>")
+def travel_budget(plan_id):
+    # ログインチェック
+    if "user_id" not in session:
+        return redirect(url_for("index.login"))
+
+    user_id = session["user_id"]
+    username = session.get("username", "ゲスト")
+    user_icon = None
+    try:
+        user_icon = get_user_icon(user_id)  # プロジェクト内の関数を利用
+    except Exception:
+        user_icon = url_for("static", filename="img/default_user.png")
+
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    # 1) travel_plans（大元）
+    cur.execute("""
+        SELECT tp.* , tr.trip_name, tr.start_date, tr.end_date
+        FROM travel_plans tp
+        JOIN travel_requests tr ON tp.request_id = tr.id
+        WHERE tp.id = %s
+    """, (plan_id,))
+    plan = cur.fetchone()
+    if plan is None:
+        # 404 代わりにトップへリダイレクト（要調整）
+        return redirect(url_for("home.home"))
+
+    # 2) day_plans（1日ごとの行程）
+    cur.execute("""
+        SELECT dp.*
+        FROM day_plans dp
+        WHERE dp.travel_plan_id = %s
+        ORDER BY dp.day_number ASC
+    """, (plan_id,))
+    day_rows = cur.fetchall()
+    days = []
+    for d in day_rows:
+        # その日の場所一覧を取得（任意）
+        cur.execute("""
+            SELECT p.id, p.time, p.name, p.description, p.stay_time, p.cost_estimate, p.type
+            FROM places p
+            WHERE p.day_plan_id = %s
+            ORDER BY p.time NULLS LAST
+        """, (d["id"],))
+        places = cur.fetchall()
+        # 辞書化してテンプレートで扱いやすくする
+        day_obj = {
+            "id": d["id"],
+            "day_number": d["day_number"],
+            "theme": d.get("theme"),
+            "route_summary": d.get("route_summary"),
+            "total_time": d.get("total_time"),
+            "estimated_cost": d.get("estimated_cost") or 0,
+            "places": [dict(p) for p in places]
+        }
+        days.append(day_obj)
+
+    # 3) budget_items（カテゴリ別）
+    cur.execute("""
+        SELECT category, SUM(amount) AS amount, array_agg(description) AS descriptions
+        FROM budget_items
+        WHERE travel_plan_id = %s
+        GROUP BY category
+        ORDER BY SUM(amount) DESC
+    """, (plan_id,))
+    budget_rows = cur.fetchall()
+    budget_items = []
+    total_budget_from_items = 0
+    for b in budget_rows:
+        amt = int(b["amount"] or 0)
+        total_budget_from_items += amt
+        budget_items.append({
+            "category": b["category"],
+            "amount": amt,
+            "descriptions": b["descriptions"] or []
+        })
+
+    # 4) 総合予算値（travel_plans.total_budget が優先。なければ合計から計算）
+    total_budget = plan.get("total_budget") or total_budget_from_items
+
+    # 5) チャート用データ（ラベルと金額配列）
+    chart_labels = [bi["category"] for bi in budget_items]
+    chart_amounts = [bi["amount"] for bi in budget_items]
+
+    # 6) 日別合計が無ければ day.estimated_cost の合計
+    day_total_sum = sum(d["estimated_cost"] for d in days)
+
+    # 7) prepare context
+    context = {
+        "username": username,
+        "user_icon": user_icon,
+        "plan": dict(plan),
+        "days": days,
+        "budget_items": budget_items,
+        "total_budget": int(total_budget or 0),
+        "budget_from_items_total": int(total_budget_from_items),
+        "day_total_sum": int(day_total_sum),
+        "chart": {
+            "labels": chart_labels,
+            "amounts": chart_amounts
+        }
+    }
+
+    cur.close()
+    return render_template("my_travel/travel_budget.html", **context)
