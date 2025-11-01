@@ -91,6 +91,44 @@
 
 </main>
 
+<!-- 同じMBTIタイプの旅人たち-->
+<section class="mt-12 relative">
+  <h3 class="text-3xl font-bold mb-4 text-white">🌏 あなたと同じタイプの旅人たち</h3>
+
+  {% if similar_travels %}
+    <!-- 横スクロールラッパー -->
+    <div class="flex items-center">
+      <!-- 左スクロールボタン -->
+      <button id="scroll-left" class="bg-white/20 text-white rounded-full p-2 hover:bg-white/40 transition mr-2">
+        ◀
+      </button>
+
+      <div id="scroll-container" class="flex gap-6 overflow-x-auto py-2 scroll-smooth">
+        {% for travel in similar_travels %}
+          <div class="min-w-[300px] bg-white/10 backdrop-blur-md rounded-xl p-5 flex-shrink-0 shadow-lg hover:scale-105 transition-transform">
+            <h4 class="text-xl font-semibold mb-2 text-white">{{ travel[2] }}</h4>
+            <p class="text-base text-white/80 mb-1">{{ travel[6] }} {{ travel[7] }}</p>
+            <p class="text-sm text-white/60 mb-2">{{ travel[3] }} 〜 {{ travel[4] }}</p>
+            <p class="text-base text-white/80">✈️ 出発地：{{ travel[8] }}</p>
+            <p class="text-base text-white/80">🚗 交通手段：{{ travel[9] }}</p>
+            <p class="text-base text-white/80">💰 予算：約{{ "{:,}".format(travel[10]) }}円</p>
+            {% if travel[11] %}
+              <p class="mt-2 text-teal-300 text-base">📍 行きたい場所：{{ travel[11] }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- 右スクロールボタン -->
+      <button id="scroll-right" class="bg-white/20 text-white rounded-full p-2 hover:bg-white/40 transition ml-2">
+        ▶
+      </button>
+    </div>
+  {% else %}
+    <p class="text-white/80 text-base">同じタイプの旅データはまだありません。</p>
+  {% endif %}
+</section>
+
 
 
 <div>
@@ -117,6 +155,52 @@
     <span class="text-xs mt-1">Travel Plan</span>
   </a>
 </div>
+<script>
+const scrollContainer = document.getElementById('scroll-container');
+const scrollLeftBtn = document.getElementById('scroll-left');
+const scrollRightBtn = document.getElementById('scroll-right');
+
+let autoScrollActive = true;
+const scrollStep = 320; // カード1枚分の幅（カード＋余白）
+const intervalTime = 2500; // スライド間隔（ミリ秒）
+
+// ---- 自動で1枚ずつ右へスクロール ----
+function autoSlide() {
+  if (!autoScrollActive) return;
+
+  const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+
+  if (scrollContainer.scrollLeft + scrollStep >= maxScroll) {
+    // 末尾に来たら最初に戻る
+    scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
+  } else {
+    // 1枚分右へ
+    scrollContainer.scrollBy({ left: scrollStep, behavior: 'smooth' });
+  }
+}
+
+// ---- 一定間隔で自動スライド ----
+let slideInterval = setInterval(autoSlide, intervalTime);
+
+// ---- マウス操作で一時停止 ----
+scrollContainer.addEventListener('mouseenter', () => {
+  autoScrollActive = false;
+});
+scrollContainer.addEventListener('mouseleave', () => {
+  autoScrollActive = true;
+});
+
+// ---- ボタン操作 ----
+scrollLeftBtn.addEventListener('click', () => {
+  scrollContainer.scrollBy({ left: -scrollStep, behavior: 'smooth' });
+});
+scrollRightBtn.addEventListener('click', () => {
+  scrollContainer.scrollBy({ left: scrollStep, behavior: 'smooth' });
+});
+</script>
+
+
+
 
 </body>
 </html>

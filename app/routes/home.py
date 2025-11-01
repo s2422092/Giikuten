@@ -25,30 +25,57 @@ def get_conn():
 
 @home_bp.route("/home")
 def home():
-    conn = None
     if "user_id" not in session:
         return redirect(url_for("index.login"))
+
     user_id = session["user_id"]
     username = session.get("username", "ゲスト")
-    
+    user_icon = get_user_icon(user_id)  # アイコン取得
+
+    # --- DB接続 ---
     conn = get_conn()
     cur = conn.cursor()
+
+    # 1. MBTI取得
     cur.execute("""
         SELECT code, name, description 
         FROM user_mbti 
         WHERE user_id = %s
     """, (user_id,))
     mbti_result = cur.fetchone()
-    cur.close()
-    conn.close()
-    user_icon = get_user_icon(user_id) # ←ここでアイコン取得
-    
+
     if not mbti_result:
-        # 未診断なら診断ページへリダイレクト
+        cur.close()
+        conn.close()
         return redirect(url_for("mbti.mbti"))
 
-    username = session.get("username", "ゲスト")
-    return render_template("home/home.html", username=username, mbti=mbti_result[0], user_icon=user_icon)
+    mbti_code = mbti_result[0]
+
+    # 2. 同MBTIユーザーの旅行情報取得
+    cur.execute("""
+        SELECT tr.id, tr.user_id, tr.trip_name, tr.start_date, tr.end_date,
+               tr.region, tr.prefecture, tr.city, tr.departure, tr.transport_pref,
+               tr.budget, tr.must_visit, tr.notes
+        FROM travel_requests tr
+        JOIN user_mbti um ON tr.user_id = um.user_id
+        WHERE um.code = %s
+        ORDER BY tr.created_at DESC
+        LIMIT 15
+    """, (mbti_code,))
+    similar_travels = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    # --- ホーム画面にレンダリング ---
+    return render_template(
+        "home/home.html",
+        username=username,
+        mbti=mbti_code,
+        user_icon=user_icon,
+        similar_travels=similar_travels  # ←ここでテンプレートに渡す
+    )
+
 
 @home_bp.route("/information")
 def information():
