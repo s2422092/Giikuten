@@ -97,7 +97,7 @@
   </style>
 </head>
 
-<body class="pb-28 pt-24 px-6">
+<body>
   <!-- ✅ ヘッダー -->
   <header
     class="fixed top-0 left-0 w-full flex justify-between items-center p-4 shadow-md z-50 text-white border-b border-white/10"
@@ -130,16 +130,15 @@
       </a>
     </div>
   </header>
-<main class="max-w-4xl mx-auto pt-32 pb-28 px-6">
+<main class="max-w-3xl mx-auto pt-32 pb-28 px-6">
   <!-- 旅の概要 -->
   <div class="page-card p-6 mb-8 text-center">
     <h1 class="text-3xl font-bold mb-2 text-teal-300">{{ plan.title }}</h1>
-    <p class="text-gray-100">こんにちは、{{ username }} さん</p>
     <p class="text-gray-200 mt-2">{{ plan.summary }}</p>
   </div>
 
   <section class="page-card p-6 mb-8">
-    <h2 class="text-xl font-semibold mb-3">📝 旅の概要</h2>
+    <h2 class="text-xl font-semibold mb-3">旅の概要</h2>
     <p class="leading-7 text-gray-100">{{ plan.overview }}</p>
   </section>
   <!-- 日程 -->
@@ -149,7 +148,7 @@
       Day {{ day.day }}：{{ day.theme }}
     </h3>
     {% if day.route_summary %}
-    <p class="text-gray-200 text-sm mb-2">🧭 ルート：{{ day.route_summary }}</p>
+    <p class="text-gray-200 text-sm mb-2">ルート：{{ day.route_summary }}</p>
     {% endif %}
     <ul class="space-y-3">
       {% for place in day.places %}
@@ -194,7 +193,7 @@
   <!-- 宿の候補 -->
   {% if plan.lodging_suggestions and plan.lodging_suggestions|length > 0 %}
   <section class="page-card p-6 mb-8">
-    <h2 class="text-xl font-semibold mb-3 text-white">🏨 宿の候補</h2>
+    <h2 class="text-xl font-semibold mb-3 text-white">宿の候補</h2>
     <div class="space-y-3 text-sm text-gray-100">
       {% for s in plan.lodging_suggestions %}
       <div class="border border-white/20 rounded-md p-3 bg-white/5">
@@ -216,7 +215,7 @@
   <!-- 帰路 -->
   {% if plan.return_trip %}
   <section class="page-card p-6 mb-8">
-    <h2 class="text-xl font-semibold mb-3">🚄 帰路</h2>
+    <h2 class="text-xl font-semibold mb-3">帰路</h2>
     <p class="leading-7 text-gray-100">
       {{ plan.return_trip.mode }} ｜ {{ plan.return_trip.from }} → {{ plan.return_trip.to }}（{{ plan.return_trip.duration }}）
     </p>
