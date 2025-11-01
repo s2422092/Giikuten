@@ -401,13 +401,124 @@ def budget():
 
     user_id = session["user_id"]
     username = session.get("username", "ゲスト")
-    user_icon = get_user_icon(user_id)  # ←ここでアイコン取得
 
-    return render_template(
-        "my_travel/budget.html",
-        username=username,
-        user_icon=user_icon
-    )
+    try:
+        user_icon = get_user_icon(user_id)
+    except Exception:
+        user_icon = url_for("static", filename="img/default_user.png")
+
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    # --- (1) まず最も近い旅行プランを取得（未来優先、なければ過去の最近） ---
+    # --- (1) まず最も近い旅行プランを取得（未来優先、なければ過去の最近） ---
+    cur.execute("""
+        SELECT tp.id AS plan_id, tr.start_date
+        FROM travel_plans tp
+        JOIN travel_requests tr ON tp.request_id = tr.id
+        WHERE tr.user_id = %s
+        ORDER BY 
+            CASE 
+                WHEN tr.start_date >= CURRENT_DATE THEN 0 ELSE 1 
+            END, 
+            ABS(EXTRACT(EPOCH FROM (tr.start_date::timestamp - CURRENT_DATE::timestamp))) ASC
+        LIMIT 1
+    """, (user_id,))
+
+    nearest = cur.fetchone()
+
+    if not nearest:
+        flash("表示できる旅行プランがありません。", "warning")
+        return redirect(url_for("home.home"))
+
+    plan_id = nearest["plan_id"]
+
+    # --- (2) 以下は travel_budget() と同様 ---
+    cur.execute("""
+        SELECT tp.*, tr.trip_name, tr.start_date, tr.end_date
+        FROM travel_plans tp
+        JOIN travel_requests tr ON tp.request_id = tr.id
+        WHERE tp.id = %s
+    """, (plan_id,))
+    plan = cur.fetchone()
+    if plan is None:
+        flash("旅行プランが見つかりません。", "error")
+        return redirect(url_for("home.home"))
+
+    # --- 日別行程 ---
+    cur.execute("""
+        SELECT dp.*
+        FROM day_plans dp
+        WHERE dp.travel_plan_id = %s
+        ORDER BY dp.day_number ASC
+    """, (plan_id,))
+    day_rows = cur.fetchall()
+    days = []
+    for d in day_rows:
+        cur.execute("""
+            SELECT p.id, p.time, p.name, p.description, p.stay_time, p.cost_estimate, p.type
+            FROM places p
+            WHERE p.day_plan_id = %s
+            ORDER BY p.time NULLS LAST
+        """, (d["id"],))
+        places = cur.fetchall()
+        day_obj = {
+            "id": d["id"],
+            "day_number": d["day_number"],
+            "theme": d.get("theme"),
+            "route_summary": d.get("route_summary"),
+            "total_time": d.get("total_time"),
+            "estimated_cost": d.get("estimated_cost") or 0,
+            "places": [dict(p) for p in places]
+        }
+        days.append(day_obj)
+
+    # --- 予算カテゴリ別 ---
+    cur.execute("""
+        SELECT category, SUM(amount) AS amount, array_agg(description) AS descriptions
+        FROM budget_items
+        WHERE travel_plan_id = %s
+        GROUP BY category
+        ORDER BY SUM(amount) DESC
+    """, (plan_id,))
+    budget_rows = cur.fetchall()
+    budget_items = []
+    total_budget_from_items = 0
+    for b in budget_rows:
+        amt = int(b["amount"] or 0)
+        total_budget_from_items += amt
+        budget_items.append({
+            "category": b["category"],
+            "amount": amt,
+            "descriptions": b["descriptions"] or []
+        })
+
+    total_budget = plan.get("total_budget") or total_budget_from_items
+    chart_labels = [bi["category"] for bi in budget_items]
+    chart_amounts = [bi["amount"] for bi in budget_items]
+    day_total_sum = sum(d["estimated_cost"] for d in days)
+
+    context = {
+        "username": username,
+        "user_icon": user_icon,
+        "plan": dict(plan),
+        "days": days,
+        "budget_items": budget_items,
+        "total_budget": int(total_budget or 0),
+        "budget_from_items_total": int(total_budget_from_items),
+        "day_total_sum": int(day_total_sum),
+        "chart": {
+            "labels": chart_labels,
+            "amounts": chart_amounts
+        }
+    }
+
+    cur.close()
+    conn.close()
+
+    # --- (3) 同じデータ構造で budget.html に渡す ---
+    return render_template("my_travel/budget.html", **context)
+
 
 @my_travel_bp.route("/travel_budget/<int:plan_id>")
 def travel_budget(plan_id):
