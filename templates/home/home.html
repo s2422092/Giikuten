@@ -33,7 +33,7 @@
 </head>
 <header class="fixed top-0 left-0 w-full flex justify-between items-center p-4 shadow-md z-50 text-white border-b border-white/10"
         style="background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);">
-  <h1 class="text-2xl font-bold tracking-wide">ホーム</h1>
+  <h1 class="text-3xl font-bold tracking-wide">ホーム</h1>
   <div class="flex items-center space-x-4">
     <a href="{{ url_for('home.information') }}"
       class="inline-flex items-center justify-center w-10 h-10 rounded-full
@@ -48,6 +48,20 @@
           <circle cx="12" cy="7" r="0.1"/>
         </svg>
     </a>
+
+    <a href="{{ url_for('home.logout') }}"
+      class="inline-flex items-center justify-center w-10 h-10 rounded-full
+      bg-transparent hover:bg-white/30 text-white transition shadow-none"
+      aria-label="Logout" title="ログアウト">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" 
+             fill="none" stroke="currentColor" stroke-width="2" 
+             stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+    </a>
+
     <a href="{{ url_for('setting.setting') }}">
       <img src="{{ user_icon }}"
            alt="User Icon"
@@ -55,7 +69,7 @@
     </a>
   </div>
 </header>
-<body>
+<body class="pb-32">
 
   <!-- エラー文の出力 -->
   {% with messages = get_flashed_messages(with_categories=true) %}
@@ -66,28 +80,16 @@
     {% endif %}
   {% endwith %} 
 
-<header class="w-full flex justify-end items-center p-4 bg-white shadow-md">
-  <div class="flex items-center space-x-4">
-    <a href="{{ url_for('home.information') }}" class="text-2xl hover:scale-110 transition-transform duration-200">💬</a>
 
-    <a href="{{ url_for('setting.setting') }}">
-      <img src="{{ user_icon }}"
-           alt="User Icon"
-           class="w-8 h-8 rounded-full object-cover border-2 border-teal-600 cursor-pointer hover:scale-110 transition-transform duration-200" />
-    </a>
-  </div>
-</header>
-
-
-<!--ここのclassでmt-20を入れることによって画面をスクロールしても動かないようにする-->
 
 <main class="mt-20">
 
-  <div>
-      <h1>ようこそ、{{ username }} さん！</h1>
-      <p>ここはログイン後のホーム画面です。</p>
-      <a href="{{ url_for('home.logout') }}" >ログアウト</a>
-  </div>
+  <section class="text-center text-white mb-12 px-4">
+    <h2 class="text-3xl font-semibold">ようこそ、{{ username }} さん</h2>
+    <p class="text-lg mt-2">あなたの旅のタイプは...</p>
+    <h3 class="text-5xl font-bold text-teal-300 mt-2">{{ mbti_name }}</h3>
+    <p class="text-base text-white/80 mt-1">({{ mbti }})</p>
+  </section>
 
 
   <!-- 地図から探す -->
@@ -145,9 +147,74 @@
       </div>
     </div>
 
-    <div class="w-full md:w-2/5 bg-white/10 backdrop-blur-md rounded-2xl p-6 flex items-center justify-center text-white/70 text-lg">ここに「目的から探す」が入ります（仮）</div>
+    <!-- 目的から探す -->
+      <div class="w-full md:w-2/5 bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-lg">
+      <h2 class="text-3xl font-bold text-white mb-6 text-center">
+        目的から探す
+      </h2>
+      
+      <div class="grid grid-cols-4 gap-x-4 gap-y-6 items-center">
+        
+        <div class="font-bold text-lg text-white/80 text-center">癒し</div>
+        <button onclick="goToPlanWithPurpose('温泉')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">♨️</span>
+          <span class="text-base mt-1 whitespace-nowrap">温泉</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('自然・絶景')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🌲</span>
+          <span class="text-base mt-1 whitespace-nowrap">自然・絶景</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('パワースポット')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🙏</span>
+          <span class="text-base mt-1 whitespace-nowrap">パワースポット</span>
+        </button>
+
+        <div class="font-bold text-lg text-white/80 text-center">体験</div>
+        <button onclick="goToPlanWithPurpose('アクティビティ')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🏃</span>
+          <span class="text-base mt-1 whitespace-nowrap">アクティビティ</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('テーマパーク')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🎢</span>
+          <span class="text-base mt-1 whitespace-nowrap">テーマパーク</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('動物園・水族館')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🐘</span>
+          <span class="text-base mt-1 whitespace-nowrap">動物園・水族館</span>
+        </button>
+
+        <div class="font-bold text-lg text-white/80 text-center">文化</div>
+        <button onclick="goToPlanWithPurpose('神社・お寺')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🏯</span>
+          <span class="text-base mt-1 whitespace-nowrap">神社・お寺</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('博物館・美術館')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🏛️</span>
+          <span class="text-base mt-1 whitespace-nowrap">博物館・美術館</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('世界遺産')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🌍</span>
+          <span class="text-base mt-1 whitespace-nowrap">世界遺産</span>
+        </button>
+
+        <div class="font-bold text-lg text-white/80 text-center">グルメ</div>
+        <button onclick="goToPlanWithPurpose('ご当地グルメ')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🍜</span>
+          <span class="text-base mt-1 whitespace-nowrap">ご当地グルメ</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('映えスポット')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">📸</span>
+          <span class="text-base mt-1 whitespace-nowrap">映えスポット</span>
+        </button>
+        <button onclick="goToPlanWithPurpose('ショッピング')" class="flex flex-col items-center p-2 rounded-lg hover:bg-white/20 transition">
+          <span class="text-6xl">🛍️</span>
+          <span class="text-base mt-1 whitespace-nowrap">ショッピング</span>
+        </button>
+      </div>
     </div>
   </section>
+
+
   <script>
       let hideTimer; // リストを隠すタイマー
 
@@ -203,8 +270,6 @@
         clearTimeout(hideTimer);
       }
   </script>
-
-
 
 
 </main>
@@ -344,6 +409,19 @@ scrollLeftBtn.addEventListener('click', () => {
 scrollRightBtn.addEventListener('click', () => {
   scrollContainer.scrollBy({ left: scrollStep, behavior: 'smooth' });
 });
+
+
+// ✅ [ここから追加] 目的（must_visit）をURLパラメータに付けて遷移する関数
+function goToPlanWithPurpose(purposeText) {
+  const params = new URLSearchParams();
+      
+  // "行きたいスポット" に追加するテキストとして渡す
+  params.append('must_visit', purposeText);
+
+  // plan/ ページに遷移
+  window.location.href = `{{ url_for('plan.plan') }}?${params.toString()}`;
+}
+// ✅ [ここまで追加]
 </script>
 
 

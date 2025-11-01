@@ -53,6 +53,7 @@ def home():
         return redirect(url_for("mbti.mbti"))
 
     mbti_code = mbti_result[0]
+    mbti_name = mbti_result[1]  # ✅ [追加] MBTIの名前を取得
 
     # 2. 同MBTIユーザーの旅行情報取得
     cur.execute("""
@@ -87,6 +88,7 @@ def home():
         "home/home.html",
         username=username,
         mbti=mbti_code,
+        mbti_name=mbti_name,  # ✅ [追加] MBTIの名前を渡す
         user_icon=user_icon,
         similar_travels=similar_travels,
         popular_destinations=popular_destinations
