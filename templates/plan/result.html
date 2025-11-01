@@ -173,10 +173,10 @@
         {% endif %}
 
         <div class="text-xs text-gray-300 mt-3 space-y-1">
-          <p>🚶 移動：{{ place.access }}</p>
-          <p>⏱ 滞在目安：<span class="font-semibold">{{ place.stay_time }}</span></p>
+          <p>移動：{{ place.access }}</p>
+          <p>滞在目安：<span class="font-semibold">{{ place.stay_time }}</span></p>
           {% if place.leave_time %}
-          <p>🏁 出発目安：<span class="font-semibold">{{ place.leave_time }}</span></p>
+          <p>出発目安：<span class="font-semibold">{{ place.leave_time }}</span></p>
           {% endif %}
         </div>
         {% if place.map_url %}
