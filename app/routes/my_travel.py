@@ -71,39 +71,41 @@ def travel_details():
         conn = get_conn()
         cur = conn.cursor()
 
-        # --- 1) 未来の旅行の中で最も近い開始日のプランを取得 ---
+        # --- 1) 「保存済み（saved = TRUE）」の旅行の中で、最も近い開始日のプランを取得 ---
         cur.execute("""
             SELECT tp.id
             FROM travel_plans tp
             JOIN travel_requests tr ON tp.request_id = tr.id
             WHERE tr.user_id = %s
+              AND tp.saved = TRUE               -- ★ 追加部分
               AND tr.start_date >= CURRENT_DATE
             ORDER BY tr.start_date ASC
             LIMIT 1
         """, (user_id,))
         row = cur.fetchone()
 
-        # --- 2) 未来の旅行がない場合、過去の旅行の中で最も近いものを取得 ---
+        # --- 2) 保存済みの中で未来旅行がなければ、過去の保存済み旅行の中で最も近いものを取得 ---
         if not row:
             cur.execute("""
                 SELECT tp.id
                 FROM travel_plans tp
                 JOIN travel_requests tr ON tp.request_id = tr.id
                 WHERE tr.user_id = %s
+                  AND tp.saved = TRUE            -- ★ 追加部分
                   AND tr.start_date < CURRENT_DATE
                 ORDER BY tr.start_date DESC
                 LIMIT 1
             """, (user_id,))
             row = cur.fetchone()
 
-        # --- 3) 該当旅行がない場合 ---
+        # --- 3) 保存済み旅行が1件もない場合 ---
         if not row:
-            flash("登録されている旅行プランがありません。", "info")
+            flash("保存された旅行プランがありません。", "info")
             return render_template("my_travel/travel_details.html", username=username, user_icon=user_icon, plan=None)
 
         plan_id = row[0]
 
-        # --- 4) travel_schedule() と同じ情報を取得 ---
+        # --- 4) travel_schedule() と同じ情報を取得（saved は含めなくてもOK） ---
         cur.execute("""
             SELECT 
                 tp.id, tp.title, tp.summary, tp.total_budget,
@@ -253,11 +255,12 @@ def travel_schedule(plan_id):
         conn = get_conn()
         cur = conn.cursor()
 
-        # --- 旅行プラン情報 ---
+        # --- 旅行プラン情報（tp.saved を追加） ---
         cur.execute("""
             SELECT 
                 tp.id, tp.title, tp.summary, tp.total_budget,
                 tp.budget_transport, tp.budget_lodging, tp.budget_food, tp.budget_activities, tp.budget_other,
+                tp.saved,
                 tr.trip_name, tr.start_date, tr.end_date, tr.region, tr.prefecture, tr.city, tr.departure, tr.transport_pref,
                 tr.must_visit, tr.notes
             FROM travel_plans tp
@@ -278,19 +281,20 @@ def travel_schedule(plan_id):
             "budget_food": plan_row[6],
             "budget_activities": plan_row[7],
             "budget_other": plan_row[8],
-            "trip_name": plan_row[9],
-            "start_date": plan_row[10],
-            "end_date": plan_row[11],
-            "region": plan_row[12],
-            "prefecture": plan_row[13],
-            "city": plan_row[14],
-            "departure": plan_row[15],
-            "transport_pref": plan_row[16],
-            "must_visit": plan_row[17],
-            "notes": plan_row[18],
+            "saved": bool(plan_row[9]),                 # ← saved を追加
+            "trip_name": plan_row[10],
+            "start_date": plan_row[11],
+            "end_date": plan_row[12],
+            "region": plan_row[13],
+            "prefecture": plan_row[14],
+            "city": plan_row[15],
+            "departure": plan_row[16],
+            "transport_pref": plan_row[17],
+            "must_visit": plan_row[18],
+            "notes": plan_row[19],
         }
 
-        # --- 1日ごとの行程 ---
+        # --- 1日ごとの行程（以降は既存ロジックと同じ） ---
         cur.execute("""
             SELECT id, day_number, theme, route_summary, total_time, estimated_cost
             FROM day_plans
@@ -300,7 +304,7 @@ def travel_schedule(plan_id):
         day_plans_rows = cur.fetchall()
 
         day_plans = []
-        hotels = []  # places.type が hotel のものを格納
+        hotels = []
         for day_row in day_plans_rows:
             day_id = day_row[0]
             day_data = {
@@ -318,21 +322,17 @@ def travel_schedule(plan_id):
                 FROM places
                 WHERE day_plan_id = %s
                 ORDER BY 
-                    -- NULLや空文字のtimeを最後に送る
                     (CASE WHEN time IS NULL OR time = '' THEN 1 ELSE 0 END),
-                    -- "09:00"などの文字列を時刻として変換し、正しい時間順にソート
                     CASE 
                         WHEN time ~ '^[0-9]{1,2}:[0-9]{2}$' THEN to_timestamp(time, 'HH24:MI')
                         ELSE NULL
                     END ASC,
-                    -- それでも同じ時刻があればid順で安定ソート
                     id
             """, (day_id,))
 
             places_rows = cur.fetchall()
 
             for p in places_rows:
-                # p: (id, time, name, description, stay_time, access, map_url, cost_estimate, type)
                 place = {
                     "id": p[0],
                     "time": p[1] or "",
@@ -346,7 +346,6 @@ def travel_schedule(plan_id):
                 }
                 day_data["places"].append(place)
 
-                # type が hotel 相当なら hotels に登録（小文字化して判定）
                 t = (p[8] or "").strip().lower()
                 if t in ("hotel", "宿泊", "ホテル", "lodging", "inn", "宿"):
                     hotels.append({
@@ -372,7 +371,6 @@ def travel_schedule(plan_id):
         budget_items = [{"category": b[0], "amount": b[1], "description": b[2]} for b in cur.fetchall()]
 
     except Exception as e:
-        # デバッグ出力（開発時のみ）。本番ではログ出力に。
         print("ERROR in travel_schedule:", e)
         flash("旅行データの読み込み中にエラーが発生しました。", "error")
         return redirect(url_for("setting.setting"))
@@ -382,7 +380,6 @@ def travel_schedule(plan_id):
         if conn:
             conn.close()
 
-    # テンプレートに渡す。テンプレート側では day_plans, budget_items, hotels を期待している想定です。
     return render_template(
         "my_travel/travel_schedule.html",
         username=username,
@@ -392,6 +389,61 @@ def travel_schedule(plan_id):
         budget_items=budget_items,
         hotels=hotels
     )
+
+from flask import jsonify, request
+
+@my_travel_bp.route("/travel_plans/<int:plan_id>/toggle_saved", methods=["POST"])
+def toggle_saved(plan_id):
+    # ログインチェック
+    if "user_id" not in session:
+        return jsonify({"error": "login_required"}), 401
+
+    user_id = session["user_id"]
+
+    conn = None
+    cur = None
+    try:
+        conn = get_conn()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # 所有者チェック：travel_requests.user_id と一致するか
+        cur.execute("""
+            SELECT tr.user_id, tp.saved
+            FROM travel_plans tp
+            JOIN travel_requests tr ON tp.request_id = tr.id
+            WHERE tp.id = %s
+        """, (plan_id,))
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": "not_found"}), 404
+
+        owner_id = row["user_id"]
+        current_saved = bool(row["saved"])
+
+        if owner_id != user_id:
+            return jsonify({"error": "forbidden"}), 403
+
+        # トグル（反転）
+        new_saved = not current_saved
+        cur.execute("""
+            UPDATE travel_plans
+            SET saved = %s
+            WHERE id = %s
+        """, (new_saved, plan_id))
+        conn.commit()
+
+        return jsonify({"ok": True, "plan_id": plan_id, "saved": new_saved}), 200
+
+    except Exception as e:
+        print("ERROR in toggle_saved:", e)
+        if conn:
+            conn.rollback()
+        return jsonify({"error": "internal_error", "detail": str(e)}), 500
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 @my_travel_bp.route("/budget")
@@ -411,12 +463,12 @@ def budget():
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     # --- (1) まず最も近い旅行プランを取得（未来優先、なければ過去の最近） ---
-    # --- (1) まず最も近い旅行プランを取得（未来優先、なければ過去の最近） ---
     cur.execute("""
         SELECT tp.id AS plan_id, tr.start_date
         FROM travel_plans tp
         JOIN travel_requests tr ON tp.request_id = tr.id
         WHERE tr.user_id = %s
+        AND tp.saved = TRUE  -- ← ここを追加
         ORDER BY 
             CASE 
                 WHEN tr.start_date >= CURRENT_DATE THEN 0 ELSE 1 
@@ -424,6 +476,7 @@ def budget():
             ABS(EXTRACT(EPOCH FROM (tr.start_date::timestamp - CURRENT_DATE::timestamp))) ASC
         LIMIT 1
     """, (user_id,))
+
 
     nearest = cur.fetchone()
 

@@ -67,6 +67,7 @@ def setting():
         icon_base64 = icon_data[0] if icon_data else None
         print("DEBUG: icon_base64 =", icon_base64)
         # --- travel_requests と travel_plans を結合してユーザーの全プランを取得 ---
+        # --- travel_requests と travel_plans を結合してユーザーの全プランを取得 ---
         cur.execute("""
             SELECT 
                 tr.id AS request_id,
@@ -95,9 +96,11 @@ def setting():
             FROM travel_requests tr
             LEFT JOIN travel_plans tp ON tp.request_id = tr.id
             WHERE tr.user_id = %s
+            AND tp.saved = TRUE              -- ←★ 追加部分（保存済みのみ表示）
             ORDER BY tr.id DESC, tp.id DESC
         """, (user_id,))
         travel_rows = cur.fetchall()
+
 
         # --- travel_plansをリスト形式に整形 ---
         travel_plans = []
