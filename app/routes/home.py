@@ -23,6 +23,9 @@ DB_CONFIG = {
 def get_conn():
     return psycopg2.connect(**DB_CONFIG)
 
+
+
+
 @home_bp.route("/home")
 def home():
     if "user_id" not in session:
@@ -64,6 +67,18 @@ def home():
     """, (mbti_code,))
     similar_travels = cur.fetchall()
 
+    # ✅ 3. 人気の旅行先を取得（city × prefecture）追加
+    cur.execute("""
+        SELECT prefecture, city, COUNT(*) AS count
+        FROM travel_requests
+        WHERE prefecture IS NOT NULL AND city IS NOT NULL
+        GROUP BY prefecture, city
+        ORDER BY count DESC
+        LIMIT 3
+    """)
+    popular_destinations = cur.fetchall()
+
+
     cur.close()
     conn.close()
 
@@ -73,7 +88,8 @@ def home():
         username=username,
         mbti=mbti_code,
         user_icon=user_icon,
-        similar_travels=similar_travels  # ←ここでテンプレートに渡す
+        similar_travels=similar_travels,
+        popular_destinations=popular_destinations  # ← ここ追加
     )
 
 
