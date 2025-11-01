@@ -110,7 +110,7 @@
 
 <header class="fixed top-0 left-0 w-full flex justify-between items-center p-4 shadow-md z-50 text-white border-b border-white/10"
         style="background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);">
-  <h1 class="text-2xl font-bold tracking-wide">旅行スケジュール</h1>
+  <h1 class="text-2xl font-bold tracking-wide">{{ plan.trip_name }} スケジュール</h1>
   <div class="flex items-center space-x-4">
     <a href="{{ url_for('home.information') }}"
       class="inline-flex items-center justify-center w-10 h-10 rounded-full
@@ -157,131 +157,71 @@
 </div>
 
 <!-- メイン -->
+
+<!-- メイン -->
 <main class="max-w-4xl mx-auto pt-32 pb-28 px-6 grid md:grid-cols-3 gap-8 ">
-  
   <!-- タイムライン -->
   <section class="md:col-span-2 timeline">
-    <!-- 旅の概要 -->
+        <!-- 旅の概要 -->
     <div class="timeline-item page-card p-6">
-      <h2 class="text-2xl font-semibold text-white">旅の概要</h2>
-      <p class="mt-2">
-        京都の伝統と四季を感じる3日間の癒し旅プラン。文化・自然・人との触れ合いを通じて「本物の京都」を体験します。
-      </p>
+      <h2 class="text-2xl font-semibold text-white">{{ plan.title }}</h2>
+      <p class="mt-2 text-gray-100">{{ plan.summary }}</p>
+
       <ul class="list-disc list-inside mt-2 space-y-1 text-gray-100">
-        <li>期間：3日間（春・秋の観光シーズンに最適）</li>
-        <li>人数：2人（カップル・友人・親子旅行におすすめ）</li>
-        <li>予算：約65,000円 / 人（交通・宿泊・食事込み）</li>
-        <li>テーマ：癒し・文化体験・食の楽しみ</li>
+        <li><span class="font-semibold">旅行名：</span>{{ plan.trip_name }}</li>
+        <li><span class="font-semibold">期間：</span>{{ plan.start_date }} ～ {{ plan.end_date }}</li>
+        <li><span class="font-semibold">地域：</span>{{ plan.region }} {{ plan.prefecture }} {{ plan.city }}</li>
+        <li><span class="font-semibold">出発地：</span>{{ plan.departure }}</li>
+        <li><span class="font-semibold">交通手段：</span>{{ plan.transport_pref }}</li>
+        <li><span class="font-semibold">予算：</span>{{ plan.total_budget }}円</li>
+        <li><span class="font-semibold">絶対に行きたい場所：</span>{{ plan.must_visit }}</li>
+        <li><span class="font-semibold">メモ：</span>{{ plan.notes }}</li>
       </ul>
     </div>
+    
+    {% for day in day_plans %}
+      <div class="timeline-item page-card p-6">
+        <h2 class="text-2xl font-semibold mb-2 text-white">
+          {{ day.day_number }}日目: {{ day.theme }}
+        </h2>
+        <p class="text-sm mb-3 text-gray-100">{{ day.route_summary }}</p>
 
-    <!-- 1日目 -->
-    <div class="timeline-item page-card p-6">
-      <h2 class="text-2xl font-semibold mb-2 text-white">1日目: 東山エリア観光</h2>
-      <p class="text-sm mb-3 text-gray-100">
-        京都駅から出発し、清水寺・二寧坂・祇園と王道ルートを散策。
-      </p>
-      <ul class="space-y-3">
-        <li class="place-toggle p-3 border rounded-lg">
-          <h3><span class="time-badge">9:00</span>清水寺</h3>
-          <p class="text-sm text-gray-200">京都の象徴とも言える名所。清水の舞台から眺める京都市街の景色は圧巻。</p>
-          <div class="detail">
-            <p><b>豆知識：</b> 舞台は釘を一本も使わずに組まれた構造。</p>
-            <a href="https://goo.gl/maps/RpckZ2bZNhF2" target="_blank" class="text-teal-300 hover:underline">地図を見る</a>
-          </div>
-        </li>
+        <ul class="space-y-3">
+          {% for place in day.places %}
+            <li class="place-toggle p-3 border rounded-lg">
+              <h3><span class="time-badge">{{ place.time }}</span>{{ place.name }}</h3>
+              <p class="text-sm text-gray-200">{{ place.description }}</p>
+              <div class="detail">
+                {% if place.stay_time %}<p><b>滞在時間：</b>{{ place.stay_time }}</p>{% endif %}
+                {% if place.access %}<p><b>アクセス：</b>{{ place.access }}</p>{% endif %}
+                {% if place.cost_estimate %}<p><b>料金目安：</b>{{ place.cost_estimate }}円</p>{% endif %}
+                {% if place.map_url %}<a href="{{ place.map_url }}" target="_blank" class="text-teal-300 hover:underline">地図を見る</a>{% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
 
-        <li class="place-toggle p-3 border rounded-lg">
-          <h3><span class="time-badge">10:45</span>二寧坂・三年坂</h3>
-          <p class="text-sm text-gray-200">石畳の坂道に伝統家屋が並ぶ、京都らしいエリア。</p>
-          <div class="detail">
-            <p>「八坂の塔」を背景にした坂道の風景が人気。</p>
-            <a href="https://goo.gl/maps/P5qj8zk2GkL2" target="_blank" class="text-teal-300 hover:underline">地図を見る</a>
-          </div>
-        </li>
-
-        <li class="place-toggle p-3 border rounded-lg">
-          <h3><span class="time-badge">12:00</span>祇園 花見小路</h3>
-          <p class="text-sm text-gray-200">舞妓さんが行き交う伝統的な通り。昼食や京スイーツも。</p>
-          <div class="detail">
-            <p>「ぎおん小森」の抹茶パフェが人気。</p>
-            <a href="https://goo.gl/maps/9M6aV2P8XMM2" target="_blank" class="text-teal-300 hover:underline">地図を見る</a>
-          </div>
-        </li>
-      </ul>
-    </div>
-
-    <!-- 2日目 -->
-    <div class="timeline-item page-card p-6">
-      <h2 class="text-2xl font-semibold mb-2 text-white">2日目: 嵐山と金閣寺</h2>
-      <p class="text-sm mb-3 text-gray-100">
-        自然豊かな嵐山と世界遺産・金閣寺をめぐる充実の一日。
-      </p>
-      <ul class="space-y-3">
-        <li class="place-toggle p-3 border rounded-lg">
-          <h3><span class="time-badge">9:00</span>嵐山竹林の小径</h3>
-          <p class="text-sm text-gray-200">京都でも屈指の癒しスポット。早朝の静けさの中で竹の音を楽しむ。</p>
-          <div class="detail">
-            <p>周辺には「天龍寺」や「渡月橋」なども。</p>
-            <a href="https://goo.gl/maps/4FZtpU8A2ER2" target="_blank" class="text-teal-300 hover:underline">📍 地図を見る</a>
-          </div>
-        </li>
-
-        <li class="place-toggle p-3 border rounded-lg">
-          <h3><span class="time-badge">11:00</span>金閣寺</h3>
-          <p class="text-sm text-gray-200">金箔に包まれた舎利殿が池に映る美しい姿。</p>
-          <div class="detail">
-            <p>室町時代の将軍・足利義満が建立した北山文化の象徴。</p>
-            <a href="https://goo.gl/maps/qWv6xYbKf7p" target="_blank" class="text-teal-300 hover:underline">地図を見る</a>
-          </div>
-        </li>
-      </ul>
-    </div>
-
-    <!-- 3日目 -->
-    <div class="timeline-item page-card p-6">
-      <h2 class="text-2xl font-semibold mb-2 text-white">3日目: 京都駅周辺 & お土産</h2>
-      <p class="text-sm mb-3 text-gray-100">最終日はショッピングやグルメを満喫。</p>
-      <ul class="space-y-3">
-        <li class="place-toggle p-3 border rounded-lg">
-          <h3><span class="time-badge">10:30</span>京都駅ビル専門店街</h3>
-          <p class="text-sm text-gray-200">伊勢丹やポルタなど、お土産に最適な大型施設。</p>
-          <div class="detail">
-            <p>「阿闍梨餅」「茶の菓」「よーじや あぶらとり紙」などが人気。</p>
-            <a href="https://goo.gl/maps/RHjCe2i4Zyt" target="_blank" class="text-teal-300 hover:underline">地図を見る</a>
-          </div>
-        </li>
-
-        <li class="place-toggle p-3 border rounded-lg">
-          <h3><span class="time-badge">12:00</span>京料理「はしたて」</h3>
-          <p class="text-sm text-gray-200">京都駅構内の人気和食店。旬の御膳が人気。</p>
-          <div class="detail">
-            <p>鯛の胡麻だれ丼やおばんざい定食が人気メニュー。</p>
-            <a href="https://goo.gl/maps/7gH6YFGBQVR2" target="_blank" class="text-teal-300 hover:underline">地図を見る</a>
-          </div>
-        </li>
-      </ul>
-    </div>
   </section>
 
-  <!-- 右側 -->
   <aside class="hidden md:block sticky top-32 h-fit space-y-6">
     <div class="page-card p-6">
       <h3 class="text-lg font-semibold mb-4 text-white">宿泊情報</h3>
       <p class="text-sm text-gray-100">
-        ホテルグランヴィア京都（JR京都駅直結）<br>
-        チェックイン 15:00 ／ チェックアウト 11:00
+        {% for item in budget_items if item.category == "宿泊費" %}
+          {{ item.description }}<br>
+          {{ item.amount }}円
+        {% endfor %}
       </p>
     </div>
 
     <div class="page-card p-6">
       <h3 class="text-lg font-semibold mb-3 text-white">予算概要</h3>
       <ul class="text-sm text-gray-100 space-y-1">
-        <li>交通費: 約15,000円</li>
-        <li>宿泊費: 約30,000円</li>
-        <li>食費: 約12,000円</li>
-        <li>拝観料: 約3,000円</li>
-        <li>お土産: 約5,000円</li>
+        {% for item in budget_items %}
+          <li>{{ item.category }}: {{ item.amount }}円</li>
+        {% endfor %}
       </ul>
     </div>
   </aside>

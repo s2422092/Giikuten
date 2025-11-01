@@ -65,7 +65,7 @@
   <!-- ✅ 固定ヘッダー -->
   <header class="fixed top-0 left-0 w-full flex justify-between items-center p-4 shadow-md z-50 text-white border-b border-white/10"
         style="background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);">
-  <h1 class="text-2xl font-bold tracking-wide">予算詳細</h1>
+  <h1 class="text-2xl font-bold tracking-wide">{{ plan.trip_name }} スケジュール</h1>
   <div class="flex items-center space-x-4">
     <a href="{{ url_for('home.information') }}"
       class="inline-flex items-center justify-center w-10 h-10 rounded-full
@@ -112,106 +112,132 @@
   </a>
 </div>
 
-  <!-- ✅ メイン -->
+  
   <main class="max-w-4xl mx-auto pt-32 pb-28 px-6">
 
     <!-- 概要 -->
     <section class="mb-8 page-card p-6">
       <h2 class="text-xl font-semibold text-white mb-3">予算概要</h2>
       <p class="text-gray-100 text-sm leading-relaxed">
-        この旅行の総予算は <span class="text-lg text-teal-300 font-bold">約65,000円／人</span> を想定しています。  
-        交通費・宿泊費・食費・拝観料・お土産などを含み、ゆったりとした3日間の旅を想定したプランです。
+        この旅行の総予算は
+        <span class="text-lg text-teal-300 font-bold">約{{ "{:,}".format(total_budget) }}円／人</span>
+        を想定しています。<br/>
+        期間: <strong>{{ plan.get('start_date') }} ～ {{ plan.get('end_date') }}</strong>
+        {% if plan.get('trip_name') %} ／ プラン名: <strong>{{ plan.get('trip_name') }}</strong>{% endif %}
       </p>
     </section>
 
-    <!-- 日別カード -->
+    <!-- 日別カード（Jinja ループ）-->
     <section class="grid md:grid-cols-3 gap-6">
-      <div class="page-card p-5">
-        <h3 class="text-lg font-semibold mb-2 text-white">1日目（東山エリア）</h3>
-        <ul class="text-sm text-gray-100 space-y-1">
-          <li>交通費：1,000円</li>
-          <li>食費：3,500円</li>
-          <li>拝観料：800円</li>
-          <li>カフェ・おやつ：1,000円</li>
-        </ul>
-        <p class="mt-2 text-right text-sm font-semibold text-teal-300">合計：約6,300円</p>
-      </div>
-
-      <div class="page-card p-5">
-        <h3 class="text-lg font-semibold mb-2 text-white">2日目（嵐山・金閣寺）</h3>
-        <ul class="text-sm text-gray-100 space-y-1">
-          <li>交通費：1,500円</li>
-          <li>食費：4,000円</li>
-          <li>拝観料：1,000円</li>
-          <li>カフェ・おやつ：800円</li>
-        </ul>
-        <p class="mt-2 text-right text-sm font-semibold text-teal-300">合計：約7,300円</p>
-      </div>
-
-      <div class="page-card p-5">
-        <h3 class="text-lg font-semibold mb-2 text-white">3日目（京都駅周辺）</h3>
-        <ul class="text-sm text-gray-100 space-y-1">
-          <li>交通費：500円</li>
-          <li>食費：2,000円</li>
-          <li>お土産：5,000円</li>
-          <li>雑費：500円</li>
-        </ul>
-        <p class="mt-2 text-right text-sm font-semibold text-teal-300">合計：約8,000円</p>
-      </div>
+      {% if days %}
+        {% for d in days %}
+          <div class="page-card p-5">
+            <h3 class="text-lg font-semibold mb-2 text-white">{{ d.day_number }}日目
+              {% if d.theme %}（{{ d.theme }}）{% endif %}
+            </h3>
+            <ul class="text-sm text-gray-100 space-y-1">
+              {% for p in d.places %}
+                <li>
+                  {% if p.time %}<span class="text-xs text-gray-300">{{ p.time }} </span>{% endif %}
+                  {{ p.name }}{% if p.cost_estimate %}：{{ "{:,}".format(p.cost_estimate) }}円{% endif %}
+                </li>
+              {% endfor %}
+              {% if not d.places or d.places|length == 0 %}
+                <li class="text-gray-300">行程データがありません。</li>
+              {% endif %}
+            </ul>
+            <p class="mt-2 text-right text-sm font-semibold text-teal-300">合計：約{{ "{:,}".format(d.estimated_cost or 0) }}円</p>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="page-card p-5">
+          <h3 class="text-lg font-semibold mb-2 text-white">日程データなし</h3>
+          <p class="text-sm text-gray-100">このプランにはまだ日別行程が登録されていません。</p>
+        </div>
+      {% endif %}
     </section>
 
     <!-- 費用グラフ -->
-    <!-- 費用構成グラフ -->
-<section class="mt-10 page-card p-6 text-white">
-  <h2 class="text-xl font-semibold mb-6">費用構成グラフ</h2>
-  <div class="flex flex-col md:flex-row justify-between gap-6">
-    <div class="flex-1 flex justify-center">
-      <canvas id="budgetChart" width="300" height="300" class="max-w-[300px]"></canvas>
-    </div>
-    <div class="flex-1">
-      <h3 class="text-lg font-semibold mb-3">内訳</h3>
-      <ul id="budgetList" class="space-y-2 text-white"></ul>
-    </div>
-  </div>
-</section>
+    <section class="mt-10 page-card p-6 text-white">
+      <h2 class="text-xl font-semibold mb-6">費用構成グラフ</h2>
+      <div class="flex flex-col md:flex-row justify-between gap-6">
+        <div class="flex-1 flex justify-center">
+          <canvas id="budgetChart" width="300" height="300" class="max-w-[300px]"
+                  data-chart-labels='{{ chart.labels|tojson }}'
+                  data-chart-amounts='{{ chart.amounts|tojson }}'></canvas>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold mb-3">内訳</h3>
+          <ul id="budgetList" class="space-y-2 text-white">
+            {% for bi in budget_items %}
+              <li class="flex justify-between items-center" data-amount="{{ bi.amount }}">
+                <span>{{ bi.category }}</span>
+                <span class="font-semibold">{{ "{:,}".format(bi.amount) }}円</span>
+              </li>
+            {% endfor %}
+            {% if not budget_items %}
+              <li class="text-gray-300">予算内訳が登録されていません。</li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </section>
 
-<!-- 費用表 -->
-<section class="mt-10 page-card p-6 overflow-x-auto text-white">
-  <h2 class="text-xl font-semibold mb-4">費用内訳（全体）</h2>
-  <table class="min-w-full text-sm border border-white/20 rounded-lg overflow-hidden text-white">
-    <thead class="bg-white/10">
-      <tr class="text-white">
-        <th class="py-2 px-3 text-left border-b border-white/20">項目</th>
-        <th class="py-2 px-3 text-right border-b border-white/20">金額（円）</th>
-        <th class="py-2 px-3 text-left border-b border-white/20">備考</th>
-      </tr>
-    </thead>
-    <tbody class="text-white">
-      <tr><td class="py-2 px-3 border-b border-white/20">交通費</td><td class="py-2 px-3 text-right border-b border-white/20">15,000</td><td class="py-2 px-3 border-b border-white/20">新幹線往復＋市内交通</td></tr>
-      <tr><td class="py-2 px-3 border-b border-white/20">宿泊費</td><td class="py-2 px-3 text-right border-b border-white/20">30,000</td><td class="py-2 px-3 border-b border-white/20">2泊（1泊15,000円）</td></tr>
-      <tr><td class="py-2 px-3 border-b border-white/20">食費</td><td class="py-2 px-3 text-right border-b border-white/20">12,000</td><td class="py-2 px-3 border-b border-white/20">3日分の朝昼夜</td></tr>
-      <tr><td class="py-2 px-3 border-b border-white/20">拝観料</td><td class="py-2 px-3 text-right border-b border-white/20">3,000</td><td class="py-2 px-3 border-b border-white/20">主要寺社の入場料</td></tr>
-      <tr><td class="py-2 px-3 border-b border-white/20">お土産・雑費</td><td class="py-2 px-3 text-right border-b border-white/20">5,000</td><td class="py-2 px-3 border-b border-white/20">スイーツ・雑貨など</td></tr>
-    </tbody>
-    <tfoot class="bg-white/5 text-white">
-      <tr>
-        <td class="py-2 px-3 border-t border-white/20">合計</td>
-        <td class="py-2 px-3 text-right border-t border-white/20">65,000</td>
-        <td class="py-2 px-3 border-t border-white/20">／人あたり</td>
-      </tr>
-    </tfoot>
-  </table>
-</section>
+    <!-- 費用表 -->
+    <section class="mt-10 page-card p-6 overflow-x-auto text-white">
+      <h2 class="text-xl font-semibold mb-4">費用内訳（全体）</h2>
+      <table class="min-w-full text-sm border border-white/20 rounded-lg overflow-hidden text-white">
+        <thead class="bg-white/10">
+          <tr class="text-white">
+            <th class="py-2 px-3 text-left border-b border-white/20">項目</th>
+            <th class="py-2 px-3 text-right border-b border-white/20">金額（円）</th>
+            <th class="py-2 px-3 text-left border-b border-white/20">備考</th>
+          </tr>
+        </thead>
+        <tbody class="text-white">
+          {% for bi in budget_items %}
+            <tr data-category="{{ bi.category }}" data-amount="{{ bi.amount }}">
+              <td class="py-2 px-3 border-b border-white/20">{{ bi.category }}</td>
+              <td class="py-2 px-3 text-right border-b border-white/20">{{ "{:,}".format(bi.amount) }}</td>
+              <td class="py-2 px-3 border-b border-white/20">
+                {% for d in bi.descriptions %}
+                  <div class="text-xs text-gray-200">{{ d }}</div>
+                {% endfor %}
+              </td>
+            </tr>
+          {% endfor %}
+
+          {# もし travel_plans の個別 budget_* カラムがあれば補助行を出す #}
+          {% if plan.get('budget_transport') or plan.get('budget_lodging') or plan.get('budget_food') %}
+            <tr class="text-sm text-gray-200">
+              <td class="py-2 px-3 border-b border-white/20">（詳細）</td>
+              <td class="py-2 px-3 text-right border-b border-white/20">
+                {{ "{:,}".format(plan.get('budget_transport') or 0) }} / {{ "{:,}".format(plan.get('budget_lodging') or 0) }} / {{ "{:,}".format(plan.get('budget_food') or 0) }}
+              </td>
+              <td class="py-2 px-3 border-b border-white/20">交通 / 宿泊 / 食費</td>
+            </tr>
+          {% endif %}
+        </tbody>
+        <tfoot class="bg-white/5 text-white">
+          <tr>
+            <td class="py-2 px-3 border-t border-white/20">合計</td>
+            <td class="py-2 px-3 text-right border-t border-white/20">{{ "{:,}".format(total_budget) }}</td>
+            <td class="py-2 px-3 border-t border-white/20">／人あたり</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
 
     <!-- ボタン -->
     <div class="mt-8 flex justify-end space-x-3">
-  <button class="bg-emerald-600/70 hover:bg-emerald-700/80 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-all duration-200"
-          onclick="history.back()">← 戻る</button>
+      <button class="bg-emerald-600/70 hover:bg-emerald-700/80 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-all duration-200"
+              onclick="history.back()">← 戻る</button>
 
-  <button class="bg-amber-400/80 hover:bg-amber-500/90 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-all duration-200"
-          onclick="alert('予算データを更新しました！')">🔄 データ更新</button>
-</div>
+      <button class="bg-amber-400/80 hover:bg-amber-500/90 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-all duration-200"
+              onclick="alert('予算データを更新しました！')">🔄 データ更新</button>
+    </div>
   </main>
+
 
   <!-- ✅ Dockナビ -->
   <div class="dock fixed bottom-0 left-0 w-full border-t border-white/20 shadow-inner flex justify-around py-2 text-white">

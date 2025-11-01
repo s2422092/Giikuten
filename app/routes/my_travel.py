@@ -63,13 +63,180 @@ def travel_details():
 
     user_id = session["user_id"]
     username = session.get("username", "ゲスト")
-    user_icon = get_user_icon(user_id)  # ←ここでアイコン取得
+    user_icon = get_user_icon(user_id)
 
+    conn = None
+    cur = None
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+
+        # --- 1) 未来の旅行の中で最も近い開始日のプランを取得 ---
+        cur.execute("""
+            SELECT tp.id
+            FROM travel_plans tp
+            JOIN travel_requests tr ON tp.request_id = tr.id
+            WHERE tr.user_id = %s
+              AND tr.start_date >= CURRENT_DATE
+            ORDER BY tr.start_date ASC
+            LIMIT 1
+        """, (user_id,))
+        row = cur.fetchone()
+
+        # --- 2) 未来の旅行がない場合、過去の旅行の中で最も近いものを取得 ---
+        if not row:
+            cur.execute("""
+                SELECT tp.id
+                FROM travel_plans tp
+                JOIN travel_requests tr ON tp.request_id = tr.id
+                WHERE tr.user_id = %s
+                  AND tr.start_date < CURRENT_DATE
+                ORDER BY tr.start_date DESC
+                LIMIT 1
+            """, (user_id,))
+            row = cur.fetchone()
+
+        # --- 3) 該当旅行がない場合 ---
+        if not row:
+            flash("登録されている旅行プランがありません。", "info")
+            return render_template("my_travel/travel_details.html", username=username, user_icon=user_icon, plan=None)
+
+        plan_id = row[0]
+
+        # --- 4) travel_schedule() と同じ情報を取得 ---
+        cur.execute("""
+            SELECT 
+                tp.id, tp.title, tp.summary, tp.total_budget,
+                tp.budget_transport, tp.budget_lodging, tp.budget_food, tp.budget_activities, tp.budget_other,
+                tr.trip_name, tr.start_date, tr.end_date, tr.region, tr.prefecture, tr.city, tr.departure, tr.transport_pref,
+                tr.must_visit, tr.notes
+            FROM travel_plans tp
+            JOIN travel_requests tr ON tp.request_id = tr.id
+            WHERE tp.id = %s AND tr.user_id = %s
+        """, (plan_id, user_id))
+        plan_row = cur.fetchone()
+        if not plan_row:
+            flash("指定された旅行プランが見つかりません。", "warning")
+            return redirect(url_for("setting.setting"))
+
+        plan = {
+            "id": plan_row[0],
+            "title": plan_row[1],
+            "summary": plan_row[2],
+            "total_budget": plan_row[3],
+            "budget_transport": plan_row[4],
+            "budget_lodging": plan_row[5],
+            "budget_food": plan_row[6],
+            "budget_activities": plan_row[7],
+            "budget_other": plan_row[8],
+            "trip_name": plan_row[9],
+            "start_date": plan_row[10],
+            "end_date": plan_row[11],
+            "region": plan_row[12],
+            "prefecture": plan_row[13],
+            "city": plan_row[14],
+            "departure": plan_row[15],
+            "transport_pref": plan_row[16],
+            "must_visit": plan_row[17],
+            "notes": plan_row[18],
+        }
+
+        # --- 日別プラン ---
+        cur.execute("""
+            SELECT id, day_number, theme, route_summary, total_time, estimated_cost
+            FROM day_plans
+            WHERE travel_plan_id = %s
+            ORDER BY day_number
+        """, (plan_id,))
+        day_plans_rows = cur.fetchall()
+
+        day_plans = []
+        hotels = []
+        for day_row in day_plans_rows:
+            day_id = day_row[0]
+            day_data = {
+                "id": day_id,
+                "day_number": day_row[1],
+                "theme": day_row[2],
+                "route_summary": day_row[3],
+                "total_time": day_row[4],
+                "estimated_cost": day_row[5],
+                "places": []
+            }
+
+            cur.execute("""
+                SELECT id, time, name, description, stay_time, access, map_url, cost_estimate, type
+                FROM places
+                WHERE day_plan_id = %s
+                ORDER BY 
+                    (CASE WHEN time IS NULL OR time = '' THEN 1 ELSE 0 END),
+                    CASE 
+                        WHEN time ~ '^[0-9]{1,2}:[0-9]{2}$' THEN to_timestamp(time, 'HH24:MI')
+                        ELSE NULL
+                    END ASC,
+                    id
+            """, (day_id,))
+            places_rows = cur.fetchall()
+
+            for p in places_rows:
+                place = {
+                    "id": p[0],
+                    "time": p[1] or "",
+                    "name": p[2] or "",
+                    "description": p[3] or "",
+                    "stay_time": p[4] or "",
+                    "access": p[5] or "",
+                    "map_url": p[6] or "",
+                    "cost_estimate": p[7] if p[7] is not None else None,
+                    "type": p[8] or ""
+                }
+                day_data["places"].append(place)
+
+                t = (p[8] or "").strip().lower()
+                if t in ("hotel", "宿泊", "ホテル", "lodging", "inn", "宿"):
+                    hotels.append({
+                        "id": p[0],
+                        "day_plan_id": day_id,
+                        "name": p[2] or "",
+                        "description": p[3] or "",
+                        "stay_time": p[4] or "",
+                        "access": p[5] or "",
+                        "map_url": p[6] or "",
+                        "cost_estimate": p[7] if p[7] is not None else None
+                    })
+
+            day_plans.append(day_data)
+
+        # --- 予算項目 ---
+        cur.execute("""
+            SELECT category, amount, description
+            FROM budget_items
+            WHERE travel_plan_id = %s
+            ORDER BY id
+        """, (plan_id,))
+        budget_items = [{"category": b[0], "amount": b[1], "description": b[2]} for b in cur.fetchall()]
+
+    except Exception as e:
+        print("ERROR in travel_details:", e)
+        flash("旅行データの読み込み中にエラーが発生しました。", "error")
+        return redirect(url_for("setting.setting"))
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+    # --- テンプレートに渡す ---
     return render_template(
         "my_travel/travel_details.html",
         username=username,
-        user_icon=user_icon
+        user_icon=user_icon,
+        plan=plan,
+        day_plans=day_plans,
+        budget_items=budget_items,
+        hotels=hotels
     )
+
 
 @my_travel_bp.route("/travel_schedule/<int:plan_id>")
 def travel_schedule(plan_id):
@@ -234,13 +401,124 @@ def budget():
 
     user_id = session["user_id"]
     username = session.get("username", "ゲスト")
-    user_icon = get_user_icon(user_id)  # ←ここでアイコン取得
 
-    return render_template(
-        "my_travel/budget.html",
-        username=username,
-        user_icon=user_icon
-    )
+    try:
+        user_icon = get_user_icon(user_id)
+    except Exception:
+        user_icon = url_for("static", filename="img/default_user.png")
+
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    # --- (1) まず最も近い旅行プランを取得（未来優先、なければ過去の最近） ---
+    # --- (1) まず最も近い旅行プランを取得（未来優先、なければ過去の最近） ---
+    cur.execute("""
+        SELECT tp.id AS plan_id, tr.start_date
+        FROM travel_plans tp
+        JOIN travel_requests tr ON tp.request_id = tr.id
+        WHERE tr.user_id = %s
+        ORDER BY 
+            CASE 
+                WHEN tr.start_date >= CURRENT_DATE THEN 0 ELSE 1 
+            END, 
+            ABS(EXTRACT(EPOCH FROM (tr.start_date::timestamp - CURRENT_DATE::timestamp))) ASC
+        LIMIT 1
+    """, (user_id,))
+
+    nearest = cur.fetchone()
+
+    if not nearest:
+        flash("表示できる旅行プランがありません。", "warning")
+        return redirect(url_for("home.home"))
+
+    plan_id = nearest["plan_id"]
+
+    # --- (2) 以下は travel_budget() と同様 ---
+    cur.execute("""
+        SELECT tp.*, tr.trip_name, tr.start_date, tr.end_date
+        FROM travel_plans tp
+        JOIN travel_requests tr ON tp.request_id = tr.id
+        WHERE tp.id = %s
+    """, (plan_id,))
+    plan = cur.fetchone()
+    if plan is None:
+        flash("旅行プランが見つかりません。", "error")
+        return redirect(url_for("home.home"))
+
+    # --- 日別行程 ---
+    cur.execute("""
+        SELECT dp.*
+        FROM day_plans dp
+        WHERE dp.travel_plan_id = %s
+        ORDER BY dp.day_number ASC
+    """, (plan_id,))
+    day_rows = cur.fetchall()
+    days = []
+    for d in day_rows:
+        cur.execute("""
+            SELECT p.id, p.time, p.name, p.description, p.stay_time, p.cost_estimate, p.type
+            FROM places p
+            WHERE p.day_plan_id = %s
+            ORDER BY p.time NULLS LAST
+        """, (d["id"],))
+        places = cur.fetchall()
+        day_obj = {
+            "id": d["id"],
+            "day_number": d["day_number"],
+            "theme": d.get("theme"),
+            "route_summary": d.get("route_summary"),
+            "total_time": d.get("total_time"),
+            "estimated_cost": d.get("estimated_cost") or 0,
+            "places": [dict(p) for p in places]
+        }
+        days.append(day_obj)
+
+    # --- 予算カテゴリ別 ---
+    cur.execute("""
+        SELECT category, SUM(amount) AS amount, array_agg(description) AS descriptions
+        FROM budget_items
+        WHERE travel_plan_id = %s
+        GROUP BY category
+        ORDER BY SUM(amount) DESC
+    """, (plan_id,))
+    budget_rows = cur.fetchall()
+    budget_items = []
+    total_budget_from_items = 0
+    for b in budget_rows:
+        amt = int(b["amount"] or 0)
+        total_budget_from_items += amt
+        budget_items.append({
+            "category": b["category"],
+            "amount": amt,
+            "descriptions": b["descriptions"] or []
+        })
+
+    total_budget = plan.get("total_budget") or total_budget_from_items
+    chart_labels = [bi["category"] for bi in budget_items]
+    chart_amounts = [bi["amount"] for bi in budget_items]
+    day_total_sum = sum(d["estimated_cost"] for d in days)
+
+    context = {
+        "username": username,
+        "user_icon": user_icon,
+        "plan": dict(plan),
+        "days": days,
+        "budget_items": budget_items,
+        "total_budget": int(total_budget or 0),
+        "budget_from_items_total": int(total_budget_from_items),
+        "day_total_sum": int(day_total_sum),
+        "chart": {
+            "labels": chart_labels,
+            "amounts": chart_amounts
+        }
+    }
+
+    cur.close()
+    conn.close()
+
+    # --- (3) 同じデータ構造で budget.html に渡す ---
+    return render_template("my_travel/budget.html", **context)
+
 
 @my_travel_bp.route("/travel_budget/<int:plan_id>")
 def travel_budget(plan_id):
