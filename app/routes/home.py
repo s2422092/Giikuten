@@ -67,7 +67,7 @@ def home():
     """, (mbti_code,))
     similar_travels = cur.fetchall()
 
-    # ✅ 3. 人気の旅行先を取得（city × prefecture）追加
+    # 3. 人気の旅行先を取得（city × prefecture）追加
     cur.execute("""
         SELECT prefecture, city, COUNT(*) AS count
         FROM travel_requests
@@ -89,7 +89,7 @@ def home():
         mbti=mbti_code,
         user_icon=user_icon,
         similar_travels=similar_travels,
-        popular_destinations=popular_destinations  # ← ここ追加
+        popular_destinations=popular_destinations
     )
 
 
