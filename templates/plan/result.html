@@ -225,30 +225,34 @@
 
   <!-- 💰 予算内訳（円グラフ） -->
   <section class="page-card p-6 mb-8 text-white">
-  <h2 class="text-xl font-semibold mb-5">💰 予算内訳</h2>
-  <div class="flex flex-col md:flex-row justify-center items-center gap-6">
+  <h2 class="text-xl font-semibold mb-5">費用構成グラフ</h2>
+  <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+    
+    <!-- ✅ 左側のグラフ -->
     <div class="flex-1 flex justify-center">
-      <canvas id="budgetChart"
-              width="220" height="220"
-              class="max-w-[220px] max-h-[220px]"></canvas>
+      <canvas id="budgetChart" width="220" height="220"></canvas>
     </div>
-    <div class="flex-1">
-      <ul class="space-y-2 text-white text-sm">
-        <li><span class="font-semibold text-teal-300">交通：</span>{{ plan.budget_breakdown.transport }} 円</li>
-        <li><span class="font-semibold text-teal-300">宿泊：</span>{{ plan.budget_breakdown.lodging }} 円</li>
-        <li><span class="font-semibold text-teal-300">食事：</span>{{ plan.budget_breakdown.food }} 円</li>
-        <li><span class="font-semibold text-teal-300">アクティビティ：</span>{{ plan.budget_breakdown.activities }} 円</li>
-        <li><span class="font-semibold text-teal-300">その他：</span>{{ plan.budget_breakdown.other }} 円</li>
+
+    <!-- ✅ 右側の内訳リスト -->
+    <div class="flex-1 w-full">
+      <h3 class="text-lg font-semibold mb-3">内訳</h3>
+      <ul class="divide-y divide-white/30 space-y-1">
+        <li class="flex justify-between py-1"><span>交通費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.transport) }}</span></li>
+        <li class="flex justify-between py-1"><span>宿泊費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.lodging) }}</span></li>
+        <li class="flex justify-between py-1"><span>食費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.food) }}</span></li>
+        <li class="flex justify-between py-1"><span>拝観料</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.activities) }}</span></li>
+        <li class="flex justify-between py-1"><span>お土産・雑費</span><span class="font-semibold">¥{{ "{:,}".format(plan.budget_breakdown.other) }}</span></li>
       </ul>
     </div>
   </div>
 
+  <!-- ✅ グラフ描画 -->
   <script>
     const ctx = document.getElementById('budgetChart').getContext('2d');
     new Chart(ctx, {
       type: 'pie',
       data: {
-        labels: ['交通', '宿泊', '食事', 'アクティビティ', 'その他'],
+        labels: ['交通費', '宿泊費', '食費', '拝観料', 'お土産・雑費'],
         datasets: [{
           data: [
             {{ plan.budget_breakdown.transport }},
@@ -258,26 +262,24 @@
             {{ plan.budget_breakdown.other }}
           ],
           backgroundColor: [
-            '#4F8C8C', // ティール
-            '#F2D3C2', // ピーチ
-            '#EFD8C0', // ベージュ
-            '#5FB3B3', // アクア
-            '#C7D8D3'  // グレイッシュブルー
+            '#5FB3B3',  // ティールグリーン
+            '#F2D3C2',  // ピーチベージュ
+            '#4F8C8C',  // 深めティール
+            '#E9A7C6',  // ピンク（拝観料）
+            '#B6D7A8'   // 淡いグリーン（雑費）
           ],
-          borderWidth: 1.5,
+          borderWidth: 2,
           borderColor: 'rgba(255,255,255,0.3)'
         }]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
+        responsive: false,
         plugins: {
           legend: {
-            position: 'bottom',
-            labels: {
-              color: 'white',
-              font: { size: 13 }
-            }
+            display: false // ✅ 凡例は右側リストで代替
+          },
+          title: {
+            display: false
           }
         },
         layout: {
